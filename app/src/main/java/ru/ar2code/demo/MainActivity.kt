@@ -3,11 +3,14 @@ package ru.ar2code.demo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
 import ru.ar2code.android.architecture.core.models.IntentMessage
+import ru.ar2code.demo.impl.ActionOneIntentMsg
 import ru.ar2code.demo.impl.DemoService
 import ru.ar2code.demo.impl.DemoUseCase
 
@@ -16,40 +19,46 @@ class MainActivity : AppCompatActivity() {
 
     val tag = "ROZHKOV"
 
-    private val service = DemoService()
+    private val service = DemoService(GlobalScope, Dispatchers.Default)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        GlobalScope.launch {
-            var i = 0
-            while (true) {
+        var i = 0
+        service.subscribe{
+            Log.d(tag, "main activity service result $i: ${it?.payload}")
+            i++
 
-                try {
-                    Log.d(tag, "main activity await service result")
-
-                    val result = service.subscribe()
-                        .receive()
-
-                    Log.d(tag, "main activity service result $i: ${result.payload}")
-                    i++
-
-                    delay(200)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+            GlobalScope.launch(Dispatchers.Main) {
+                text.text = i.toString()
             }
         }
 
-//        GlobalScope.launch {
-//            repeat(500) {
-//                service.sendIntent(IntentMessage("ANY"))
-//                //delay(1000)
-//            }
-//            delay(10000)
-//           // service.dispose()
-//        }
+        GlobalScope.launch {
+
+            repeat(100) {
+                service.sendIntent(IntentMessage(ActionOneIntentMsg, "ANY 1"))
+            }
+
+        }
+
+        GlobalScope.launch {
+
+            repeat(50) {
+                service.sendIntent(IntentMessage(ActionOneIntentMsg, "ANY 2"))
+            }
+            delay(4000)
+            //service.dispose()
+
+        }
+     GlobalScope.launch {
+
+            repeat(100) {
+                service.sendIntent(IntentMessage(ActionOneIntentMsg, "ANY 2"))
+            }
+
+        }
 
     }
 }
