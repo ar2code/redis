@@ -1,3 +1,4 @@
+include ':ext'
 include ':architecture-core'
 include ':app'
 rootProject.name = "Demo"

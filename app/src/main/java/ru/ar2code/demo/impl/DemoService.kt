@@ -25,17 +25,16 @@ class DemoService(scope: CoroutineScope,
             "start handling globalData = $globalData"
         )
 
-        when (msg.msgType) {
-            is ActionOneIntentMsg -> Log.d(
-                "ROZHKOV",
-                "intent is action one. I know that is should be string payload."
-            )
+        val type = msg.msgType
+        val payload = when (type) {
+            is ActionOneIntentMsg -> type.payload
+            else -> "Unknown"
         }
 
         if (serviceState is ActorServiceState.Disposed)
             return
 
-        demoUseCase.run("test")
+        demoUseCase.run(payload)
             .collect {
                 delay(100)
                 val result = StringResult("got from service ${it.payload}")
