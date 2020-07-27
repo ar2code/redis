@@ -6,12 +6,13 @@ import ru.ar2code.android.architecture.core.impl.DefaultLogger
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.utils.Logger
+import java.util.concurrent.ConcurrentHashMap
 
 @ExperimentalCoroutinesApi
 abstract class ActorService<TResult>(
     private val scope: CoroutineScope,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val logger: Logger = DefaultLogger()
+    private val dispatcher: CoroutineDispatcher,
+    private val logger: Logger
 ) where TResult : Any {
 
     protected var serviceState: ActorServiceState = ActorServiceState.Created()
@@ -22,7 +23,7 @@ abstract class ActorService<TResult>(
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
     private val subscribers =
-        mutableMapOf<ServiceSubscriber<TResult>, ReceiveChannel<ServiceResult<TResult>>>()
+        ConcurrentHashMap<ServiceSubscriber<TResult>, ReceiveChannel<ServiceResult<TResult>>>()
 
     /**
      * This method is used for handling Intents
@@ -40,8 +41,15 @@ abstract class ActorService<TResult>(
      * Send intent to service for doing some action
      */
     fun sendIntent(msg: IntentMessage) {
+        if (!isScopeActive("send intent ${msg.msgType}"))
+            return
+
         scope.launch(dispatcher) {
-            intentMessagesChannel.send(msg)
+            try {
+                intentMessagesChannel.send(msg)
+            } catch (e: ClosedSendChannelException) {
+                logger.info("Service [$this] intent channel is closed.")
+            }
         }
     }
 
@@ -64,46 +72,73 @@ abstract class ActorService<TResult>(
      * Subscribe to service's results.
      * Subscribing is alive while service is not disposed [isDisposed] and [scope] not cancelled
      */
-    @Synchronized
     fun subscribe(subscriber: ServiceSubscriber<TResult>) {
-        scope.launch(dispatcher) {
 
+        fun isSubscriberExists(): Boolean {
             val isSubscriberExists = subscribers.keys.any { it == subscriber }
             if (isSubscriberExists) {
                 logger.warning("Subscriber $subscriber already exists in service $this.")
-                return@launch
             }
+            return isSubscriberExists
+        }
 
+        fun openSubscription(): ReceiveChannel<ServiceResult<TResult>> {
             val subscription = resultsChannel.openSubscription()
-
             subscribers[subscriber] = subscription
+            return subscription
+        }
 
-            while (isActive && !subscription.isClosedForReceive) {
-                try {
-                    val result = subscription.receive()
-                    subscriber.onReceive(result)
+        fun listening(subscription: ReceiveChannel<ServiceResult<TResult>>) {
+            scope.launch(dispatcher) {
+                while (isActive && !subscription.isClosedForReceive) {
+                    try {
+                        val result = subscription.receive()
+                        subscriber.onReceive(result)
 
-                } catch (e: ClosedReceiveChannelException) {
-                    logger.info("Service's result channel is closed.")
+                    } catch (e: ClosedReceiveChannelException) {
+                        logger.info("Service [$this] result channel is closed.")
+                    }
                 }
+                disposeIfScopeNotActive()
             }
         }
+
+        if (!isScopeActive("subscribe $subscriber to service"))
+            return
+
+        if (isSubscriberExists())
+            return
+
+        val subscription = openSubscription()
+
+        listening(subscription)
+
     }
 
     /**
      * Stop listening service`s result by this [subscriber]
      */
-    @Synchronized
     fun unsubscribe(subscriber: ServiceSubscriber<TResult>) {
-        val subscription = subscribers[subscriber]
-        subscription?.let {
-            it.cancel()
-            subscribers.remove(subscriber)
 
-            logger.warning("Subscriber $subscriber unsubscribe from service $this.")
-        } ?: kotlin.run {
-            logger.warning("Subscriber $subscriber does not exist in service $this.")
+        fun getSubscription(): ReceiveChannel<ServiceResult<TResult>>? {
+            val subscription = subscribers[subscriber]
+            if (subscription == null) {
+                logger.warning("Subscriber $subscriber does not exist in service $this.")
+            }
+            return subscription
         }
+
+        fun deleteSubscription(subscription: ReceiveChannel<ServiceResult<TResult>>?) {
+            subscription?.let {
+                it.cancel()
+                subscribers.remove(subscriber)
+
+                logger.warning("Subscriber $subscriber unsubscribe from service $this.")
+            }
+        }
+
+        val subscription = getSubscription()
+        deleteSubscription(subscription)
     }
 
     /**
@@ -140,14 +175,21 @@ abstract class ActorService<TResult>(
         onIntentHandlingFinished()
 
         if (!resultsChannel.isClosedForSend && canChangeState(newServiceState, result)) {
+
             serviceState = newServiceState
-            resultsChannel.send(result)
+
+            try {
+                resultsChannel.send(result)
+            } catch (e: ClosedSendChannelException) {
+                logger.info("Service [$this] result channel is closed.")
+            }
         }
     }
 
     private fun initialize() {
 
         fun initService() {
+            isScopeActive("initialize service", throwError = true)
             subscribeToIntentMessages()
         }
 
@@ -179,10 +221,35 @@ abstract class ActorService<TResult>(
                     val msg = intentMessagesChannel.receive()
                     onIntentMsg(msg)
                 } catch (e: ClosedReceiveChannelException) {
-                    logger.info("Service's intent channel is closed.")
+                    logger.info("Service [$this] intent channel is closed.")
                 }
             }
+
+            disposeIfScopeNotActive()
         }
+    }
+
+    private fun disposeIfScopeNotActive() {
+        if (!scope.isActive) {
+            logger.info("Service [$this] scope is not active anymore. Dispose service.")
+            dispose()
+        }
+    }
+
+    private fun isScopeActive(msgIfNotActive: String, throwError: Boolean = false): Boolean {
+        if (!scope.isActive) {
+            val msg =
+                "Service [$this] scope is not active anymore. Service is disposed and cannot [$msgIfNotActive]."
+
+            logger.info(msg)
+
+            if (throwError) {
+                throw IllegalStateException(msg)
+            }
+
+            return false
+        }
+        return true
     }
 
 }

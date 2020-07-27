@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity() {
     val tag = "ROZHKOV"
 
     private val job = Job()
-    private val service = DemoService(GlobalScope + job, Dispatchers.Default)
+    private val service = DemoService(GlobalScope + job)
+
+    private val job2 = Job()
+    private lateinit var service2 : DemoService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,27 +46,25 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch {
 
             repeat(100) {
-                service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 1")))
-            }
-
-        }
-
-        GlobalScope.launch {
-
-            repeat(50) {
                 service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 2")))
             }
-            delay(4000)
+
+            delay(100)
+
             job.cancel()
-            //service.dispose()
 
-        }
-     GlobalScope.launch {
+            service.sendIntent(IntentMessage(ActionOneIntentMsg("AFTER DISPOSE")))
 
-            repeat(100) {
-                service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 2")))
-            }
+            service.subscribe(object : ServiceSubscriber<String> {
+                override fun onReceive(result: ServiceResult<String>?) {
+                    Log.d(tag, "main activity service result $i: ${result?.payload}")
+                    i++
 
+                    GlobalScope.launch(Dispatchers.Main) {
+                        text.text = i.toString()
+                    }
+                }
+            })
         }
 
     }
