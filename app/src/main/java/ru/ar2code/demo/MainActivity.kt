@@ -25,14 +25,14 @@ class MainActivity : AppCompatActivity() {
     private val service = DemoService(GlobalScope + job)
 
     private val job2 = Job()
-    private lateinit var service2 : DemoService
+    private lateinit var service2: DemoService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         var i = 0
-        service.subscribe(object : ServiceSubscriber<String> {
+        val subs = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
                 Log.d(tag, "main activity service result $i: ${result?.payload}")
                 i++
@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity() {
                     text.text = i.toString()
                 }
             }
-        })
+        }
+        service.subscribe(subs)
+        service.subscribe(subs)
 
         GlobalScope.launch {
 
@@ -49,22 +51,17 @@ class MainActivity : AppCompatActivity() {
                 service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 2")))
             }
 
-            delay(100)
+            delay(500)
 
-            job.cancel()
+            service.unsubscribe(subs)
 
-            service.sendIntent(IntentMessage(ActionOneIntentMsg("AFTER DISPOSE")))
+            repeat(100) {
+                service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 3")))
+            }
 
-            service.subscribe(object : ServiceSubscriber<String> {
-                override fun onReceive(result: ServiceResult<String>?) {
-                    Log.d(tag, "main activity service result $i: ${result?.payload}")
-                    i++
+            delay(500)
 
-                    GlobalScope.launch(Dispatchers.Main) {
-                        text.text = i.toString()
-                    }
-                }
-            })
+            service.subscribe(subs)
         }
 
     }

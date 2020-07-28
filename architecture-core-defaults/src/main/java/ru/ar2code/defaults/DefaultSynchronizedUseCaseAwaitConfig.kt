@@ -1,8 +1,8 @@
-package ru.ar2code.android.architecture.core.impl
+package ru.ar2code.defaults
 
 import ru.ar2code.android.architecture.core.interfaces.SynchronizedUseCaseAwaitConfig
 
-internal class DefaultSynchronizedUseCaseAwaitConfig :
+class DefaultSynchronizedUseCaseAwaitConfig :
     SynchronizedUseCaseAwaitConfig {
     override val awaitStepDelayMs: Long
         get() = 10

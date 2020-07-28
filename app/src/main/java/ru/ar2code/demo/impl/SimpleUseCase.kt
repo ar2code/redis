@@ -3,9 +3,9 @@ package ru.ar2code.demo.impl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.architecture.core.models.UseCaseResult
-import ru.ar2code.android.architecture.core.usecases.SynchronizedUseCase
+import ru.ar2code.defaults.DefaultSynchronizedUseCase
 
-class SimpleUseCase  : SynchronizedUseCase<String, String>() {
+class SimpleUseCase  : DefaultSynchronizedUseCase<String, String>() {
     override fun execute(params: String?): Flow<UseCaseResult<String>> {
         return flow {
             emit(UseCaseResult(params))

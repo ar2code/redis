@@ -4,12 +4,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.architecture.core.usecases.SynchronizedUseCase
 import ru.ar2code.android.architecture.core.interfaces.SynchronizedUseCaseAwaitConfig
 import ru.ar2code.android.architecture.core.models.UseCaseResult
+import ru.ar2code.defaults.DefaultSynchronizedUseCase
 
 @ExperimentalCoroutinesApi
-class DemoUseCase : SynchronizedUseCase<String, String>() {
+class DemoUseCase : DefaultSynchronizedUseCase<String, String>() {
 
     override val awaitConfig: SynchronizedUseCaseAwaitConfig
         get() = object :

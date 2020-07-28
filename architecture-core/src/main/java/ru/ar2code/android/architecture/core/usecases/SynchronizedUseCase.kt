@@ -8,7 +8,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withTimeout
-import ru.ar2code.android.architecture.core.impl.DefaultSynchronizedUseCaseAwaitConfig
 import ru.ar2code.android.architecture.core.interfaces.SynchronizedUseCaseAwaitConfig
 import ru.ar2code.android.architecture.core.models.UseCaseResult
 import java.util.concurrent.atomic.AtomicBoolean
@@ -23,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @ExperimentalCoroutinesApi
 abstract class SynchronizedUseCase<TParams, TResult>(
-    protected open val awaitConfig: SynchronizedUseCaseAwaitConfig = DefaultSynchronizedUseCaseAwaitConfig()
+    protected open val awaitConfig: SynchronizedUseCaseAwaitConfig
 ) :
     UseCase<TParams, TResult>() where TResult : Any {
 

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.architecture.core.models.UseCaseResult
 import ru.ar2code.android.architecture.core.usecases.SynchronizedUseCase
 
-class SimpleExceptionUseCase : SynchronizedUseCase<String, Int>() {
+class SimpleExceptionUseCase : SynchronizedUseCase<String, Int>(DefaultSynchronizedUseCaseAwaitConfig()) {
     override fun execute(params: String?): Flow<UseCaseResult<Int>> {
         return flow {
             throw Exception(params)

@@ -1,4 +1,4 @@
-package ru.ar2code.android.architecture.core.impl
+package ru.ar2code.defaults
 
 import ru.ar2code.utils.impl.ConsoleLogger
 

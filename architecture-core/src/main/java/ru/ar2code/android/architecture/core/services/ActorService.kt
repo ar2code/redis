@@ -2,7 +2,6 @@ package ru.ar2code.android.architecture.core.services
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import ru.ar2code.android.architecture.core.impl.DefaultLogger
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.utils.Logger
@@ -41,7 +40,7 @@ abstract class ActorService<TResult>(
      * Send intent to service for doing some action
      */
     fun sendIntent(msg: IntentMessage) {
-        if (!isScopeActive("send intent ${msg.msgType}"))
+        if (!assertScopeActive("send intent ${msg.msgType}"))
             return
 
         scope.launch(dispatcher) {
@@ -72,6 +71,7 @@ abstract class ActorService<TResult>(
      * Subscribe to service's results.
      * Subscribing is alive while service is not disposed [isDisposed] and [scope] not cancelled
      */
+    @Synchronized
     fun subscribe(subscriber: ServiceSubscriber<TResult>) {
 
         fun isSubscriberExists(): Boolean {
@@ -94,7 +94,6 @@ abstract class ActorService<TResult>(
                     try {
                         val result = subscription.receive()
                         subscriber.onReceive(result)
-
                     } catch (e: ClosedReceiveChannelException) {
                         logger.info("Service [$this] result channel is closed.")
                     }
@@ -103,7 +102,7 @@ abstract class ActorService<TResult>(
             }
         }
 
-        if (!isScopeActive("subscribe $subscriber to service"))
+        if (!assertScopeActive("subscribe $subscriber to service"))
             return
 
         if (isSubscriberExists())
@@ -123,7 +122,7 @@ abstract class ActorService<TResult>(
         fun getSubscription(): ReceiveChannel<ServiceResult<TResult>>? {
             val subscription = subscribers[subscriber]
             if (subscription == null) {
-                logger.warning("Subscriber $subscriber does not exist in service $this.")
+                logger.info("Subscriber $subscriber does not exist in service $this.")
             }
             return subscription
         }
@@ -133,7 +132,7 @@ abstract class ActorService<TResult>(
                 it.cancel()
                 subscribers.remove(subscriber)
 
-                logger.warning("Subscriber $subscriber unsubscribe from service $this.")
+                logger.info("Subscriber $subscriber unsubscribe from service $this.")
             }
         }
 
@@ -189,7 +188,7 @@ abstract class ActorService<TResult>(
     private fun initialize() {
 
         fun initService() {
-            isScopeActive("initialize service", throwError = true)
+            assertScopeActive("initialize service")
             subscribeToIntentMessages()
         }
 
@@ -205,7 +204,7 @@ abstract class ActorService<TResult>(
                 provideInitializedResult()
             }
             is ActorServiceState.Disposed -> {
-                throw IllegalStateException("ServiceActor is disposed. Cannot initialize again.")
+                throw IllegalStateException("Service $this is disposed. Cannot initialize again.")
             }
             else -> {
                 return
@@ -236,7 +235,7 @@ abstract class ActorService<TResult>(
         }
     }
 
-    private fun isScopeActive(msgIfNotActive: String, throwError: Boolean = false): Boolean {
+    private fun assertScopeActive(msgIfNotActive: String, throwError: Boolean = true): Boolean {
         if (!scope.isActive) {
             val msg =
                 "Service [$this] scope is not active anymore. Service is disposed and cannot [$msgIfNotActive]."

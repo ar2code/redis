@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="architecture-core" target="1.7" />
+      <module name="architecture-core-defaults" target="1.7" />
       <module name="ext" target="1.7" />
     </bytecodeTargetLevel>
   </component>

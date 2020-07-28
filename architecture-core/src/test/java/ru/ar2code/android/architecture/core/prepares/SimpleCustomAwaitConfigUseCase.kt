@@ -9,7 +9,7 @@ import ru.ar2code.android.architecture.core.models.UseCaseResult
 import ru.ar2code.android.architecture.core.usecases.SynchronizedUseCase
 
 @ExperimentalCoroutinesApi
-class SimpleCustomAwaitConfigUseCase(private val timeoutMs :Long = 60_000L) : SynchronizedUseCase<String, String>() {
+class SimpleCustomAwaitConfigUseCase(private val timeoutMs :Long = 60_000L) : SynchronizedUseCase<String, String>(DefaultSynchronizedUseCaseAwaitConfig()) {
 
     override val awaitConfig: SynchronizedUseCaseAwaitConfig
         get() = object : SynchronizedUseCaseAwaitConfig {

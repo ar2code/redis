@@ -5,13 +5,12 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
-import ru.ar2code.android.architecture.core.services.ActorService
 import ru.ar2code.android.architecture.core.services.ActorServiceState
-import ru.ar2code.android.architecture.core.services.DefaultActorService
+import ru.ar2code.defaults.DefaultActorService
 
 @ExperimentalCoroutinesApi
 class DemoService(scope: CoroutineScope
-) : DefaultActorService<String>(scope) {
+) : ru.ar2code.defaults.DefaultActorService<String>(scope) {
 
     private var globalData = 1
 
