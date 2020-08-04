@@ -60,12 +60,17 @@ abstract class ActorService<TResult>(
 
         intentMessagesChannel.close()
         resultsChannel.close()
+
+        subscribers.clear()
     }
 
     /**
      * @return if true service can not get intents and send results.
      */
-    fun isDisposed() = serviceState is ActorServiceState.Disposed
+    fun isDisposed(): Boolean {
+        disposeIfScopeNotActive()
+        return serviceState is ActorServiceState.Disposed
+    }
 
     /**
      * Subscribe to service's results.
@@ -176,7 +181,9 @@ abstract class ActorService<TResult>(
 
         if (!resultsChannel.isClosedForSend && canChangeState(newServiceState, result)) {
 
-            serviceState = newServiceState
+            if (newServiceState !is ActorServiceState.Same) {
+                serviceState = newServiceState
+            }
 
             try {
                 resultsChannel.send(result)
@@ -211,7 +218,6 @@ abstract class ActorService<TResult>(
                 return
             }
         }
-
     }
 
     private fun subscribeToIntentMessages() {

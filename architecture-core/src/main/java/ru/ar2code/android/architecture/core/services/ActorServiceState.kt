@@ -9,4 +9,6 @@ abstract class ActorServiceState {
     class Ready : ActorServiceState()
 
     class Disposed : ActorServiceState()
+
+    class Same : ActorServiceState()
 }
