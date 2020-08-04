@@ -171,7 +171,7 @@ abstract class ActorService<TResult>(
     protected open fun onIntentHandlingFinished() {}
 
     /**
-     * Change service [serviceState] and send result to subscribers if [canChangeState] returns true
+     * Change service state [serviceState] and send result to subscribers if [canChangeState] returns true
      */
     protected suspend fun provideResult(
         newServiceState: ActorServiceState,
