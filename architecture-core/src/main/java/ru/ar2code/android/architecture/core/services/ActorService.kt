@@ -117,6 +117,7 @@ abstract class ActorService<TResult>(
     /**
      * Stop listening service`s result by this [subscriber]
      */
+    @Synchronized
     fun unsubscribe(subscriber: ServiceSubscriber<TResult>) {
 
         fun getSubscription(): ReceiveChannel<ServiceResult<TResult>>? {
