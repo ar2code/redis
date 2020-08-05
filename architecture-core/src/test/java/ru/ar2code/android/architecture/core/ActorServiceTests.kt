@@ -12,6 +12,7 @@ import org.junit.runner.Description
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.prepares.SimpleService
+import ru.ar2code.android.architecture.core.services.ActorServiceState
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 
 class ActorServiceTests {
@@ -35,6 +36,8 @@ class ActorServiceTests {
             testDispatcher.cleanupTestCoroutines()
         }
     }
+
+    private val testDelayBeforeCheckingResult = 10L
 
     @Test
     fun `Concurrent subscribe and unsubscribe (2000 subs) gives no any concurrent exceptions`() =
@@ -167,9 +170,7 @@ class ActorServiceTests {
 
         service.sendIntent(IntentMessage(SimpleService.SimpleIntentType(payload)))
 
-        while (!service.isDisposed()) {
-            //await service
-        }
+        delay(testDelayBeforeCheckingResult)
 
         Assert.assertTrue(gotResult)
         Assert.assertTrue(emptyResult)
@@ -190,9 +191,8 @@ class ActorServiceTests {
             }
         }
         service.subscribe(subscriber)
-        while (!service.isDisposed()) {
-            //await service
-        }
+
+        delay(testDelayBeforeCheckingResult)
 
         Assert.assertTrue(emptyResult)
     }
@@ -220,9 +220,7 @@ class ActorServiceTests {
             }
         })
 
-        while (!emptyResult && !emptyResultTwo) {
-            //await service
-        }
+        delay(testDelayBeforeCheckingResult)
 
         service.dispose()
 
@@ -253,6 +251,8 @@ class ActorServiceTests {
 
         service.sendIntent(IntentMessage(SimpleService.SimpleIntentType(payload)))
 
+        delay(testDelayBeforeCheckingResult)
+
         service.subscribe(object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
                 if (result is ServiceResult.EmptyResult) {
@@ -263,9 +263,7 @@ class ActorServiceTests {
             }
         })
 
-        while (!payloadResultTwo && !payloadResultOne) {
-            //await service
-        }
+        delay(testDelayBeforeCheckingResult)
 
         service.dispose()
 
@@ -275,5 +273,136 @@ class ActorServiceTests {
         Assert.assertTrue(firstSubscriberReceiveEmptyAndPayloadResult)
         Assert.assertTrue(secondSubscriberReceiveOnlyPayloadResult)
 
+    }
+
+    @Test
+    fun `Do not subscribe again if subscriber already exists`() = runBlocking {
+
+        val service = SimpleService(this, Dispatchers.Default)
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+
+            }
+        }
+
+        service.subscribe(subscriber)
+        service.subscribe(subscriber)
+        service.subscribe(subscriber)
+
+        Assert.assertEquals(1, service.getSubscribersCount())
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Can override init service result with own class type`() = runBlocking {
+        var emptyResultOne = false
+
+        val service = SimpleService(this, Dispatchers.Default)
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+                if (result is SimpleService.SimpleEmptyResult) {
+                    emptyResultOne = true
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        delay(testDelayBeforeCheckingResult)
+
+        Assert.assertTrue(emptyResultOne)
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Service will not send result if can change state returns false`() = runBlocking {
+        var emptyResultOne = false
+
+        val service =
+            SimpleService(this, Dispatchers.Default, canChangeStateCallback = { _, _ -> false })
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+                if (result is SimpleService.SimpleEmptyResult) {
+                    emptyResultOne = true
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        delay(testDelayBeforeCheckingResult)
+
+        Assert.assertFalse(emptyResultOne)
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Invoke onIntentHandlingFinished after each intent message`() = runBlocking {
+        var emptyResultOne = false
+
+        var onIntentHandlingFinished = false
+
+        val service =
+            SimpleService(
+                this,
+                Dispatchers.Default,
+                onIntentHandlingFinishedCallback = {
+                    onIntentHandlingFinished = true
+                },
+                canChangeStateCallback = { _, _ -> true })
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+                if (result is SimpleService.SimpleEmptyResult) {
+                    emptyResultOne = true
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
+
+        delay(testDelayBeforeCheckingResult)
+
+        Assert.assertTrue(onIntentHandlingFinished)
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Change service state with providing result`() = runBlocking {
+
+        val state = SimpleService.SimpleState()
+
+        val service =
+            SimpleService(
+                this,
+                Dispatchers.Default,
+                newStateCallback = {
+                    state
+                })
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
+
+        delay(testDelayBeforeCheckingResult)
+
+        Assert.assertEquals(state, service.serviceState)
+
+        service.dispose()
     }
 }

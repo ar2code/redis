@@ -14,7 +14,7 @@ abstract class ActorService<TResult>(
     private val logger: Logger
 ) where TResult : Any {
 
-    protected var serviceState: ActorServiceState = ActorServiceState.Created()
+    var serviceState: ActorServiceState = ActorServiceState.Created()
         private set
 
     private var resultsChannel = BroadcastChannel<ServiceResult<TResult>>(Channel.CONFLATED)
@@ -145,6 +145,8 @@ abstract class ActorService<TResult>(
         val subscription = getSubscription()
         deleteSubscription(subscription)
     }
+
+    fun getSubscribersCount() = subscribers.size
 
     /**
      * Set initial service result that send to subscribers when service initialized

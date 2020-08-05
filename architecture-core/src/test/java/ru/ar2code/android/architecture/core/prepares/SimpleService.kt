@@ -10,7 +10,13 @@ import ru.ar2code.android.architecture.core.services.ActorServiceState
 import ru.ar2code.utils.Logger
 import ru.ar2code.utils.impl.ConsoleLogger
 
-class SimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher) :
+class SimpleService(
+    scope: CoroutineScope, dispatcher: CoroutineDispatcher,
+    private val onIntentHandlingFinishedCallback: () -> Unit = {},
+    private val canChangeStateCallback: (newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean = { _, _ -> true },
+    private val newStateCallback : () -> ActorServiceState = { ActorServiceState.Same()}
+) :
+
     ActorService<String>(scope, dispatcher, object : Logger("Test") {
         override fun info(msg: String) {
         }
@@ -23,8 +29,38 @@ class SimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher) :
     }) {
 
     override suspend fun onIntentMsg(msg: IntentMessage) {
-        provideResult(ActorServiceState.Ready(), ServiceResult.BasicResult<String>(msg.msgType.payload?.toString()))
+        provideResult(
+            newStateCallback.invoke(),
+            ServiceResult.BasicResult<String>(msg.msgType.payload?.toString())
+        )
     }
 
-    class SimpleIntentType(payload : String? = null) : IntentMessage.IntentMessageType<String>(payload)
+    override fun canChangeState(
+        newServiceState: ActorServiceState,
+        result: ServiceResult<String>
+    ): Boolean {
+        return canChangeStateCallback.invoke(newServiceState, result)
+    }
+
+    override fun onIntentHandlingFinished() {
+        super.onIntentHandlingFinished()
+
+        onIntentHandlingFinishedCallback()
+    }
+
+    override fun getResultFotInitializedState(): ServiceResult<String> {
+        return SimpleEmptyResult()
+    }
+
+    class SimpleIntentType(payload: String? = null) :
+        IntentMessage.IntentMessageType<String>(payload)
+
+    class SimpleEmptyResult() : ServiceResult.EmptyResult<String>(SIMPLE_EMPTY) {
+
+        companion object {
+            const val SIMPLE_EMPTY = "SIMPLE_EMPTY"
+        }
+    }
+
+    class SimpleState : ActorServiceState()
 }
