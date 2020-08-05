@@ -146,6 +146,9 @@ abstract class ActorService<TResult>(
         deleteSubscription(subscription)
     }
 
+    /**
+     * @return count of active subscribers
+     */
     fun getSubscribersCount() = subscribers.size
 
     /**

@@ -296,6 +296,24 @@ class ActorServiceTests {
     }
 
     @Test
+    fun `No active subscribers if service is disposed`() = runBlocking {
+
+        val service = SimpleService(this, Dispatchers.Default)
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.dispose()
+
+        Assert.assertEquals(0, service.getSubscribersCount())
+    }
+
+    @Test
     fun `Can override init service result with own class type`() = runBlocking {
         var emptyResultOne = false
 
