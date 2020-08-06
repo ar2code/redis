@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.receiveOrNull
@@ -40,9 +37,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val mu = viewModel.viewStateLive as MutableLiveData
+
         viewModel.viewStateLive.observe(this, Observer {
             Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
         })
+
 
         viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
 
