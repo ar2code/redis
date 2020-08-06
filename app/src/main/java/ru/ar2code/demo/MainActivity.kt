@@ -3,6 +3,12 @@ package ru.ar2code.demo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelStore
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.receiveOrNull
@@ -15,6 +21,7 @@ import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 import ru.ar2code.demo.impl.ActionOneIntentMsg
 import ru.ar2code.demo.impl.DemoService
 import ru.ar2code.demo.impl.DemoUseCase
+import ru.ar2code.demo.impl.DemoViewModel
 
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
@@ -27,42 +34,38 @@ class MainActivity : AppCompatActivity() {
     private val job2 = Job()
     private lateinit var service2: DemoService
 
+    private val viewModel : DemoViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var i = 0
-        val subs = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceResult<String>?) {
-                Log.d(tag, "main activity service result $i: ${result?.payload}")
-                i++
+        viewModel.viewStateLive.observe(this, Observer {
+            Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
+        })
 
-                GlobalScope.launch(Dispatchers.Main) {
-                    text.text = i.toString()
-                }
-            }
-        }
-        service.subscribe(subs)
-        service.subscribe(subs)
+        viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
 
-        GlobalScope.launch {
+//        var i = 0
+//        val subs = object : ServiceSubscriber<String> {
+//            override fun onReceive(result: ServiceResult<String>?) {
+//                Log.d(tag, "main activity service result $i: ${result?.payload}")
+//                i++
+//
+//                GlobalScope.launch(Dispatchers.Main) {
+//                    text.text = i.toString()
+//                }
+//            }
+//        }
+//        service.subscribe(subs)
+//
+//        GlobalScope.launch {
+//
+//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 1")))
+//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 2")))
+//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 3")))
+//        }
 
-            repeat(100) {
-                service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 2")))
-            }
-
-            delay(500)
-
-            service.unsubscribe(subs)
-
-            repeat(100) {
-                service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 3")))
-            }
-
-            delay(500)
-
-            service.subscribe(subs)
-        }
 
     }
 }

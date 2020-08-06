@@ -6,6 +6,7 @@ import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 abstract class ActorService<TResult>(

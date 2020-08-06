@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.collect
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ActorServiceState
-import ru.ar2code.defaults.DefaultActorService
 
 @ExperimentalCoroutinesApi
-class DemoService(scope: CoroutineScope
+class DemoService(
+    scope: CoroutineScope
 ) : ru.ar2code.defaults.DefaultActorService<String>(scope) {
 
     private var globalData = 1
@@ -18,6 +18,8 @@ class DemoService(scope: CoroutineScope
 
     override suspend fun onIntentMsg(msg: IntentMessage) {
         globalData++
+
+        dddd()
 
         Log.d(
             "ROZHKOV",
@@ -30,15 +32,41 @@ class DemoService(scope: CoroutineScope
             else -> "Unknown"
         }
 
-        if (serviceState is ActorServiceState.Disposed)
-            return
-
         demoUseCase.run(payload)
             .collect {
                 delay(100)
                 val result = StringResult("got from service ${it.payload}")
                 provideResult(ActorServiceState.Ready(), result)
             }
+
+    }
+
+    private suspend fun dddd() = coroutineScope {
+        val a1 = async {
+            Log.d(
+                "ROZHKOV",
+                "start dddd 1"
+            )
+            delay(100)
+            Log.d(
+                "ROZHKOV",
+                "finish dddd 1"
+            )
+        }
+
+        val a2 = async {
+            Log.d(
+                "ROZHKOV",
+                "start dddd 2"
+            )
+            delay(100)
+            Log.d(
+                "ROZHKOV",
+                "finish dddd 2"
+            )
+        }
+
+        awaitAll(a1, a2)
     }
 
     override fun onIntentHandlingFinished() {
