@@ -6,7 +6,7 @@ import ru.ar2code.android.architecture.core.android.impl.ActorViewModelServiceRe
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ActorServiceState
-import ru.ar2code.android.architecture.core.services.ServiceResultWithState
+import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
@@ -20,9 +20,7 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
     private val viewModelService = ActorViewModelService(
         viewModelScope,
         ::onIntentMsg,
-        ::provideIntentHandlingResult,
-        ::canChangeState,
-        ::onIntentHandlingFinished
+        ::canChangeState
     )
 
     private val viewStateLiveMutable = MutableLiveData<ViewState>()
@@ -33,16 +31,12 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
     val viewEventLive: LiveData<EventArgs<ViewEvent>> =
         Transformations.map(viewEventLiveMutable) { input -> input }
 
-    protected abstract suspend fun onIntentMsg(msg: IntentMessage)
-
-    protected abstract fun provideIntentHandlingResult(): ServiceResultWithState<ActorViewModelServiceResult<ViewState, ViewEvent>>
+    protected abstract suspend fun onIntentMsg(msg: IntentMessage) : ServiceStateWithResult<ActorViewModelServiceResult<ViewState, ViewEvent>>
 
     protected open fun canChangeState(
         newServiceState: ActorServiceState,
         result: ServiceResult<ActorViewModelServiceResult<ViewState, ViewEvent>>
     ): Boolean = true
-
-    protected open fun onIntentHandlingFinished() {}
 
     init {
         subscribeToServiceResults()

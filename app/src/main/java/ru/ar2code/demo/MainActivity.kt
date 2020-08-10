@@ -37,34 +37,32 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val mu = viewModel.viewStateLive as MutableLiveData
-
-        viewModel.viewStateLive.observe(this, Observer {
-            Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
-        })
-
-
-        viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
-
-//        var i = 0
-//        val subs = object : ServiceSubscriber<String> {
-//            override fun onReceive(result: ServiceResult<String>?) {
-//                Log.d(tag, "main activity service result $i: ${result?.payload}")
-//                i++
+//        val mu = viewModel.viewStateLive as MutableLiveData
 //
-//                GlobalScope.launch(Dispatchers.Main) {
-//                    text.text = i.toString()
-//                }
-//            }
-//        }
-//        service.subscribe(subs)
+//        viewModel.viewStateLive.observe(this, Observer {
+//            Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
+//        })
 //
-//        GlobalScope.launch {
 //
-//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 1")))
-//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 2")))
-//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 3")))
-//        }
+//        viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
+
+        var i = 0
+        val subs = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+                Log.d(tag, "main activity service result $i: ${result?.payload}")
+                i++
+
+                GlobalScope.launch(Dispatchers.Main) {
+                    text.text = i.toString()
+                }
+            }
+        }
+        service.subscribe(subs)
+
+        GlobalScope.launch {
+
+            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 1")))
+        }
 
 
     }

@@ -9,7 +9,7 @@ import ru.ar2code.android.architecture.core.android.impl.ActorViewModelServiceRe
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ActorServiceState
-import ru.ar2code.android.architecture.core.services.ServiceResultWithState
+import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultLogger
 
 class DemoViewModel :
@@ -21,17 +21,14 @@ class DemoViewModel :
 
     class DemoViewEventType : ViewEventType<String>()
 
-    override suspend fun onIntentMsg(msg: IntentMessage) {
+    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<ActorViewModelServiceResult<DemoViewState, DemoViewEvent>> {
         logger.info("rozhkov DemoViewModel onIntentMsg = $msg")
-    }
-
-    override fun provideIntentHandlingResult(): ServiceResultWithState<ActorViewModelServiceResult<DemoViewState, DemoViewEvent>> {
         val r = ActorViewModelServiceResult(
             DemoViewState("test"),
             DemoViewEvent(DemoViewEventType())
         )
         val sr = ActorViewModelServiceResultValue(r)
-        return ServiceResultWithState(ActorServiceState.Same(), sr)
+        return ServiceStateWithResult(ActorServiceState.Same(), sr)
     }
 
     override fun canChangeState(
@@ -41,7 +38,4 @@ class DemoViewModel :
         return super.canChangeState(newServiceState, result)
     }
 
-    override fun onIntentHandlingFinished() {
-        super.onIntentHandlingFinished()
-    }
 }

@@ -6,7 +6,6 @@ import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 abstract class ActorService<TResult>(
@@ -30,8 +29,10 @@ abstract class ActorService<TResult>(
      * Be aware of concurrency.
      * All suspending functions inside onIntentMsg will execute sequentially and next onIntentMsg will start after this execution finished.
      * If you need to start another coroutines inside onIntentMsg, don`t forget await all of them.
+     *
+     * @return can be null in this case you should broadcast new result with [broadcastNewStateWithResult] method
      */
-    protected abstract suspend fun onIntentMsg(msg: IntentMessage)
+    protected abstract suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<TResult>?
 
     init {
         initialize()
@@ -171,28 +172,23 @@ abstract class ActorService<TResult>(
     }
 
     /**
-     * This method is used for cleaning all data after current intent handling finished.
-     * After that you can start another intent handling and don`t afraid of concurrent data modification.
-     */
-    protected open fun onIntentHandlingFinished() {}
-
-    /**
      * Change service state [serviceState] and send result to subscribers if [canChangeState] returns true
      */
-    protected suspend fun provideResult(
-        newServiceState: ActorServiceState,
-        result: ServiceResult<TResult>
+    protected suspend fun broadcastNewStateWithResult(
+        stateWithResult: ServiceStateWithResult<TResult>
     ) {
-        onIntentHandlingFinished()
+        if (!resultsChannel.isClosedForSend && canChangeState(
+                stateWithResult.newServiceState,
+                stateWithResult.result
+            )
+        ) {
 
-        if (!resultsChannel.isClosedForSend && canChangeState(newServiceState, result)) {
-
-            if (newServiceState !is ActorServiceState.Same) {
-                serviceState = newServiceState
+            if (stateWithResult.newServiceState !is ActorServiceState.Same) {
+                serviceState = stateWithResult.newServiceState
             }
 
             try {
-                resultsChannel.send(result)
+                resultsChannel.send(stateWithResult.result)
             } catch (e: ClosedSendChannelException) {
                 logger.info("Service [$this] result channel is closed.")
             }
@@ -208,7 +204,12 @@ abstract class ActorService<TResult>(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                provideResult(ActorServiceState.Initiated(), getResultFotInitializedState())
+                broadcastNewStateWithResult(
+                    ServiceStateWithResult(
+                        ActorServiceState.Initiated(),
+                        getResultFotInitializedState()
+                    )
+                )
             }
         }
 
@@ -231,7 +232,11 @@ abstract class ActorService<TResult>(
             while (isActive && !intentMessagesChannel.isClosedForReceive) {
                 try {
                     val msg = intentMessagesChannel.receive()
-                    onIntentMsg(msg)
+                    val result = onIntentMsg(msg)
+
+                    result?.let {
+                        broadcastNewStateWithResult(it)
+                    }
                 } catch (e: ClosedReceiveChannelException) {
                     logger.info("Service [$this] intent channel is closed.")
                 }

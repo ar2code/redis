@@ -1,20 +1,18 @@
 package ru.ar2code.android.architecture.core.prepares
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ActorService
 import ru.ar2code.android.architecture.core.services.ActorServiceState
+import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.utils.Logger
-import ru.ar2code.utils.impl.ConsoleLogger
 
+@ExperimentalCoroutinesApi
 class SimpleService(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher,
-    private val onIntentHandlingFinishedCallback: () -> Unit = {},
-    private val canChangeStateCallback: (newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean = { _, _ -> true },
-    private val newStateCallback : () -> ActorServiceState = { ActorServiceState.Same()}
+    private val canChangeStateCallback: ((newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean)? = null,
+    private val newStateCallback: (() -> ActorServiceState)? = null
 ) :
 
     ActorService<String>(scope, dispatcher, object : Logger("Test") {
@@ -28,10 +26,10 @@ class SimpleService(
         }
     }) {
 
-    override suspend fun onIntentMsg(msg: IntentMessage) {
-        provideResult(
-            newStateCallback.invoke(),
-            ServiceResult.BasicResult<String>(msg.msgType.payload?.toString())
+    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
+        return ServiceStateWithResult(
+            newStateCallback?.invoke() ?: ActorServiceState.Same(),
+            ServiceResult.BasicResult(msg.msgType.payload?.toString())
         )
     }
 
@@ -39,13 +37,7 @@ class SimpleService(
         newServiceState: ActorServiceState,
         result: ServiceResult<String>
     ): Boolean {
-        return canChangeStateCallback.invoke(newServiceState, result)
-    }
-
-    override fun onIntentHandlingFinished() {
-        super.onIntentHandlingFinished()
-
-        onIntentHandlingFinishedCallback()
+        return canChangeStateCallback?.invoke(newServiceState, result) ?: true
     }
 
     override fun getResultFotInitializedState(): ServiceResult<String> {
@@ -55,7 +47,7 @@ class SimpleService(
     class SimpleIntentType(payload: String? = null) :
         IntentMessage.IntentMessageType<String>(payload)
 
-    class SimpleEmptyResult() : ServiceResult.EmptyResult<String>(SIMPLE_EMPTY) {
+    class SimpleEmptyResult : ServiceResult.EmptyResult<String>(SIMPLE_EMPTY) {
 
         companion object {
             const val SIMPLE_EMPTY = "SIMPLE_EMPTY"

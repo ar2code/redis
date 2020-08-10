@@ -12,9 +12,9 @@ import org.junit.runner.Description
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.prepares.SimpleService
-import ru.ar2code.android.architecture.core.services.ActorServiceState
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 
+@ExperimentalCoroutinesApi
 class ActorServiceTests {
 
     @get:Rule
@@ -22,7 +22,7 @@ class ActorServiceTests {
 
     @ExperimentalCoroutinesApi
     class MainCoroutineRule(
-        val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+        private val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
     ) : TestWatcher() {
 
         override fun starting(description: Description?) {
@@ -356,40 +356,6 @@ class ActorServiceTests {
         delay(testDelayBeforeCheckingResult)
 
         Assert.assertFalse(emptyResultOne)
-
-        service.dispose()
-    }
-
-    @Test
-    fun `Invoke onIntentHandlingFinished after each intent message`() = runBlocking {
-        var emptyResultOne = false
-
-        var onIntentHandlingFinished = false
-
-        val service =
-            SimpleService(
-                this,
-                Dispatchers.Default,
-                onIntentHandlingFinishedCallback = {
-                    onIntentHandlingFinished = true
-                },
-                canChangeStateCallback = { _, _ -> true })
-
-        val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceResult<String>?) {
-                if (result is SimpleService.SimpleEmptyResult) {
-                    emptyResultOne = true
-                }
-            }
-        }
-
-        service.subscribe(subscriber)
-
-        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
-
-        delay(testDelayBeforeCheckingResult)
-
-        Assert.assertTrue(onIntentHandlingFinished)
 
         service.dispose()
     }

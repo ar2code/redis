@@ -1,4 +1,4 @@
-package ru.ar2code.demo
+package ru.ar2code.android.architecture.core
 
 import junit.framework.Assert.*
 import kotlinx.coroutines.*

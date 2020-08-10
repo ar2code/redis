@@ -10,6 +10,7 @@ class SimpleUseCase  : DefaultSynchronizedUseCase<String, String>() {
         return flow {
             emit(UseCaseResult(params))
             kotlinx.coroutines.delay(100)
+            emit(UseCaseResult(params))
         }
     }
 }
