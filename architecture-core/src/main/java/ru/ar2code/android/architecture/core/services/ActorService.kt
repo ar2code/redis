@@ -14,6 +14,10 @@ abstract class ActorService<TResult>(
     private val logger: Logger
 ) where TResult : Any {
 
+    companion object {
+        private const val AWAIT_INIT_DELAY_MS = 1L
+    }
+
     var serviceState: ActorServiceState = ActorServiceState.Created()
         private set
 
@@ -47,6 +51,7 @@ abstract class ActorService<TResult>(
 
         scope.launch(dispatcher) {
             try {
+                awaitPassCreatedState()
                 intentMessagesChannel.send(msg)
             } catch (e: ClosedSendChannelException) {
                 logger.info("Service [$this] intent channel is closed.")
@@ -268,5 +273,12 @@ abstract class ActorService<TResult>(
         }
         return true
     }
+
+    private suspend fun awaitPassCreatedState() {
+        while (serviceState is ActorServiceState.Created) {
+            delay(AWAIT_INIT_DELAY_MS)
+        }
+    }
+
 
 }

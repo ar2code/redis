@@ -11,10 +11,9 @@ import ru.ar2code.utils.Logger
 @ExperimentalCoroutinesApi
 class SimpleService(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher,
-    private val canChangeStateCallback: ((newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean)? = null,
-    private val newStateCallback: (() -> ActorServiceState)? = null
+    private val canChangeStateCallback: ((newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean)? = { _,_ -> true },
+    private val newStateCallback: (() -> ActorServiceState)? = { ActorServiceState.Same() }
 ) :
-
     ActorService<String>(scope, dispatcher, object : Logger("Test") {
         override fun info(msg: String) {
         }
