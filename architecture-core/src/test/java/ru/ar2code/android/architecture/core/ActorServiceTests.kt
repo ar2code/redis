@@ -156,7 +156,7 @@ class ActorServiceTests {
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is ServiceResult.EmptyResult) {
+                if (result is ServiceResult.InitResult) {
                     emptyResult = true
                     return
                 }
@@ -177,14 +177,14 @@ class ActorServiceTests {
     }
 
     @Test
-    fun `Receive empty result from subscription after service initiated`() = runBlocking {
+    fun `Receive init result from subscription after service initiated`() = runBlocking {
         val service = SimpleService(this, Dispatchers.Default)
 
         var emptyResult = false
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is ServiceResult.EmptyResult) {
+                if (result is ServiceResult.InitResult) {
                     emptyResult = true
                     service.dispose()
                 }
@@ -198,7 +198,7 @@ class ActorServiceTests {
     }
 
     @Test
-    fun `Receive empty result from all subscriptions after service initiated`() = runBlocking {
+    fun `Receive init result from all subscriptions after service initiated`() = runBlocking {
         val service = SimpleService(this, Dispatchers.Default)
 
         var emptyResult = false
@@ -206,7 +206,7 @@ class ActorServiceTests {
 
         service.subscribe(object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is ServiceResult.EmptyResult) {
+                if (result is ServiceResult.InitResult) {
                     emptyResult = true
                 }
             }
@@ -214,7 +214,7 @@ class ActorServiceTests {
 
         service.subscribe(object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is ServiceResult.EmptyResult) {
+                if (result is ServiceResult.InitResult) {
                     emptyResultTwo = true
                 }
             }
@@ -241,7 +241,7 @@ class ActorServiceTests {
 
         service.subscribe(object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is ServiceResult.EmptyResult) {
+                if (result is ServiceResult.InitResult) {
                     emptyResultOne = true
                 } else {
                     payloadResultOne = result?.payload == payload
@@ -255,7 +255,7 @@ class ActorServiceTests {
 
         service.subscribe(object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is ServiceResult.EmptyResult) {
+                if (result is ServiceResult.InitResult) {
                     emptyResultTwo = true
                 } else {
                     payloadResultTwo = result?.payload == payload
@@ -317,7 +317,7 @@ class ActorServiceTests {
     fun `Can override init service result with own class type`() = runBlocking {
         var emptyResultOne = false
 
-        val service = SimpleService(this, Dispatchers.Default)
+        val service = SimpleService(this, Dispatchers.Default, initResult = SimpleService.SimpleEmptyResult())
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
@@ -338,24 +338,26 @@ class ActorServiceTests {
 
     @Test
     fun `Service will not send result if can change state returns false`() = runBlocking {
-        var emptyResultOne = false
+        var gotNotInitiatedResult = false
 
         val service =
             SimpleService(this, Dispatchers.Default, canChangeStateCallback = { _, _ -> false })
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is SimpleService.SimpleEmptyResult) {
-                    emptyResultOne = true
+                if (result !is ServiceResult.InitResult) {
+                    gotNotInitiatedResult = true
                 }
             }
         }
 
         service.subscribe(subscriber)
 
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
+
         delay(testDelayBeforeCheckingResult)
 
-        Assert.assertFalse(emptyResultOne)
+        Assert.assertFalse(gotNotInitiatedResult)
 
         service.dispose()
     }

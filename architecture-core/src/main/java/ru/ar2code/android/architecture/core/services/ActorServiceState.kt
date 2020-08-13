@@ -6,8 +6,6 @@ abstract class ActorServiceState {
 
     class Initiated : ActorServiceState()
 
-    class Ready : ActorServiceState()
-
     class Disposed : ActorServiceState()
 
     class Same : ActorServiceState()

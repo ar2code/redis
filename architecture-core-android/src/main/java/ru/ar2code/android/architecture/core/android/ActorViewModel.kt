@@ -24,12 +24,14 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
     )
 
     private val viewStateLiveMutable = MutableLiveData<ViewState>()
-    val viewStateLive: LiveData<ViewState> =
-        Transformations.map(viewStateLiveMutable) { input -> input }
+    val viewStateLive: LiveData<ViewState> = viewStateLiveMutable
 
     private val viewEventLiveMutable = MutableLiveEvent<EventArgs<ViewEvent>>()
-    val viewEventLive: LiveData<EventArgs<ViewEvent>> =
-        Transformations.map(viewEventLiveMutable) { input -> input }
+    val viewEventLive: LiveData<EventArgs<ViewEvent>> = viewEventLiveMutable
+
+    init {
+        subscribeToServiceResults()
+    }
 
     protected abstract suspend fun onIntentMsg(msg: IntentMessage) : ServiceStateWithResult<ActorViewModelServiceResult<ViewState, ViewEvent>>
 
@@ -38,21 +40,20 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
         result: ServiceResult<ActorViewModelServiceResult<ViewState, ViewEvent>>
     ): Boolean = true
 
-    init {
-        subscribeToServiceResults()
-    }
-
     fun sendIntent(msg: IntentMessage) {
+        logger.info("[ActorViewModel] send intent $msg")
         viewModelService.sendIntent(msg)
     }
 
     private fun subscribeToServiceResults() {
 
+        logger.info("[ActorViewModel] subscribe to internal service")
+
         viewModelService.subscribe(object :
             ServiceSubscriber<ActorViewModelServiceResult<ViewState, ViewEvent>> {
 
             override fun onReceive(result: ServiceResult<ActorViewModelServiceResult<ViewState, ViewEvent>>?) {
-                logger.info("ROZHKOV view model got result from own service $result")
+                logger.info("[ActorViewModel] view model got result from own service $result")
 
                 viewStateLiveMutable.postValue(result?.payload?.viewState)
                 viewEventLiveMutable.postValue(EventArgs(result?.payload?.viewEvent))

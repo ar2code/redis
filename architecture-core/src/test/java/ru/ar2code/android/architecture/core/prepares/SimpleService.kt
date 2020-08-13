@@ -11,8 +11,9 @@ import ru.ar2code.utils.Logger
 @ExperimentalCoroutinesApi
 class SimpleService(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher,
-    private val canChangeStateCallback: ((newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean)? = { _,_ -> true },
-    private val newStateCallback: (() -> ActorServiceState)? = { ActorServiceState.Same() }
+    private val canChangeStateCallback: ((newServiceState: ActorServiceState, result: ServiceResult<String>) -> Boolean)? = { _, _ -> true },
+    private val newStateCallback: (() -> ActorServiceState)? = { ActorServiceState.Same() },
+    private val initResult: (ServiceResult<String>)? = ServiceResult.InitResult()
 ) :
     ActorService<String>(scope, dispatcher, object : Logger("Test") {
         override fun info(msg: String) {
@@ -40,7 +41,7 @@ class SimpleService(
     }
 
     override fun getResultFotInitializedState(): ServiceResult<String> {
-        return SimpleEmptyResult()
+        return initResult ?: ServiceResult.InitResult()
     }
 
     class SimpleIntentType(payload: String? = null) :

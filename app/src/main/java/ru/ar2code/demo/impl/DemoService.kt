@@ -39,7 +39,7 @@ class DemoService(
                 val result = StringResult("got from service ${it.payload}")
                 broadcastNewStateWithResult(
                     ServiceStateWithResult(
-                        ActorServiceState.Ready(),
+                        ActorServiceState.Same(),
                         result
                     )
                 )

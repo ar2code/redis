@@ -23,7 +23,7 @@ import ru.ar2code.demo.impl.DemoViewModel
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
-    val tag = "ROZHKOV"
+    val tag = "Ar2CodeAndroidArchCore"
 
     private val job = Job()
     private val service = DemoService(GlobalScope + job)
@@ -37,33 +37,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        val mu = viewModel.viewStateLive as MutableLiveData
+        viewModel.viewStateLive.observe(this, Observer {
+            Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
+            Log.d(tag, "main activity viewStateLive observer $it")
+        })
+
+        viewModel.viewEventLive.observe(this, Observer {
+            Toast.makeText(this, "event", Toast.LENGTH_LONG).show()
+            Log.d(tag, "main activity viewEventLive observer $it")
+        })
+
+        viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
+
+//        var i = 0
+//        val subs = object : ServiceSubscriber<String> {
+//            override fun onReceive(result: ServiceResult<String>?) {
+//                Log.d(tag, "main activity service result $i: ${result?.payload}")
+//                i++
 //
-//        viewModel.viewStateLive.observe(this, Observer {
-//            Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
-//        })
+//                GlobalScope.launch(Dispatchers.Main) {
+//                    text.text = i.toString()
+//                }
+//            }
+//        }
+//        service.subscribe(subs)
 //
+//        GlobalScope.launch {
 //
-//        viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
-
-        var i = 0
-        val subs = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceResult<String>?) {
-                Log.d(tag, "main activity service result $i: ${result?.payload}")
-                i++
-
-                GlobalScope.launch(Dispatchers.Main) {
-                    text.text = i.toString()
-                }
-            }
-        }
-        service.subscribe(subs)
-
-        GlobalScope.launch {
-
-            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 1")))
-        }
-
+//            service.sendIntent(IntentMessage(ActionOneIntentMsg("ANY 1")))
+//        }
+//
 
     }
 }

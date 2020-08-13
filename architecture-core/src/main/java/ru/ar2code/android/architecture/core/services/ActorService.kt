@@ -52,9 +52,12 @@ abstract class ActorService<TResult>(
         scope.launch(dispatcher) {
             try {
                 awaitPassCreatedState()
+
+                logger.info("Service [{$this@ActorService}] send msg to intent channel.")
+
                 intentMessagesChannel.send(msg)
             } catch (e: ClosedSendChannelException) {
-                logger.info("Service [$this] intent channel is closed.")
+                logger.info("Service [{$this@ActorService}] intent channel is closed.")
             }
         }
     }
@@ -102,12 +105,14 @@ abstract class ActorService<TResult>(
 
         fun listening(subscription: ReceiveChannel<ServiceResult<TResult>>) {
             scope.launch(dispatcher) {
+                logger.info("Service [${this@ActorService}] start listening new subscription")
+
                 while (isActive && !subscription.isClosedForReceive) {
                     try {
                         val result = subscription.receive()
                         subscriber.onReceive(result)
                     } catch (e: ClosedReceiveChannelException) {
-                        logger.info("Service [$this] result channel is closed.")
+                        logger.info("Service [${this@ActorService}] result channel is closed.")
                     }
                 }
                 disposeIfScopeNotActive()
@@ -162,7 +167,7 @@ abstract class ActorService<TResult>(
      * Set initial service result that send to subscribers when service initialized
      */
     protected open fun getResultFotInitializedState(): ServiceResult<TResult> {
-        return ServiceResult.EmptyResult()
+        return ServiceResult.InitResult()
     }
 
     /**
@@ -182,10 +187,13 @@ abstract class ActorService<TResult>(
     protected suspend fun broadcastNewStateWithResult(
         stateWithResult: ServiceStateWithResult<TResult>
     ) {
-        if (!resultsChannel.isClosedForSend && canChangeState(
+        val canChangeState =
+            isSystemDefinedState(stateWithResult.newServiceState) || canChangeState(
                 stateWithResult.newServiceState,
                 stateWithResult.result
             )
+
+        if (!resultsChannel.isClosedForSend && canChangeState
         ) {
 
             if (stateWithResult.newServiceState !is ActorServiceState.Same) {
@@ -200,6 +208,15 @@ abstract class ActorService<TResult>(
         }
     }
 
+    private fun isSystemDefinedState(state: ActorServiceState): Boolean {
+        return when (state) {
+            is ActorServiceState.Created -> true
+            is ActorServiceState.Initiated -> true
+            is ActorServiceState.Disposed -> true
+            else -> false
+        }
+    }
+
     private fun initialize() {
 
         fun initService() {
@@ -209,6 +226,7 @@ abstract class ActorService<TResult>(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
+                logger.info("Service [${this@ActorService}] initialized. Send empty result.")
                 broadcastNewStateWithResult(
                     ServiceStateWithResult(
                         ActorServiceState.Initiated(),
@@ -237,6 +255,9 @@ abstract class ActorService<TResult>(
             while (isActive && !intentMessagesChannel.isClosedForReceive) {
                 try {
                     val msg = intentMessagesChannel.receive()
+
+                    logger.info("Service [$this] received new intent message $msg")
+
                     val result = onIntentMsg(msg)
 
                     result?.let {
@@ -277,6 +298,7 @@ abstract class ActorService<TResult>(
     private suspend fun awaitPassCreatedState() {
         while (serviceState is ActorServiceState.Created) {
             delay(AWAIT_INIT_DELAY_MS)
+            logger.info("Service [$this] await passing created state. Current state = $serviceState")
         }
     }
 
