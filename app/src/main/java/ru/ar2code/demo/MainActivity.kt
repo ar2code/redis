@@ -25,11 +25,11 @@ class MainActivity : AppCompatActivity() {
 
     val tag = "Ar2CodeAndroidArchCore"
 
-    private val job = Job()
-    private val service = DemoService(GlobalScope + job)
-
-    private val job2 = Job()
-    private lateinit var service2: DemoService
+//    private val job = Job()
+//    private val service = DemoService(GlobalScope + job)
+//
+//    private val job2 = Job()
+//    private lateinit var service2: DemoService
 
     private val viewModel : DemoViewModel by viewModels()
 
@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.viewStateLive.observe(this, Observer {
             Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
+            textView.setText(it.name)
             Log.d(tag, "main activity viewStateLive observer $it")
         })
 
@@ -47,7 +48,6 @@ class MainActivity : AppCompatActivity() {
             Log.d(tag, "main activity viewEventLive observer $it")
         })
 
-        viewModel.sendIntent(IntentMessage(ActionOneIntentMsg("my test")))
 
 //        var i = 0
 //        val subs = object : ServiceSubscriber<String> {
