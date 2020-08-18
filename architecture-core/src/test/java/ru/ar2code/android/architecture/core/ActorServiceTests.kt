@@ -11,6 +11,8 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
+import ru.ar2code.android.architecture.core.prepares.ServiceNotAllowAnyResult
+import ru.ar2code.android.architecture.core.prepares.ServiceWithCustomInitResult
 import ru.ar2code.android.architecture.core.prepares.SimpleService
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 
@@ -317,11 +319,11 @@ class ActorServiceTests {
     fun `Can override init service result with own class type`() = runBlocking {
         var emptyResultOne = false
 
-        val service = SimpleService(this, Dispatchers.Default, initResult = SimpleService.SimpleEmptyResult())
+        val service = ServiceWithCustomInitResult(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
-                if (result is SimpleService.SimpleEmptyResult) {
+                if (result is ServiceWithCustomInitResult.CustomInitResult) {
                     emptyResultOne = true
                 }
             }
@@ -341,7 +343,7 @@ class ActorServiceTests {
         var gotNotInitiatedResult = false
 
         val service =
-            SimpleService(this, Dispatchers.Default, canChangeStateCallback = { _, _ -> false })
+            ServiceNotAllowAnyResult(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
@@ -370,10 +372,7 @@ class ActorServiceTests {
         val service =
             SimpleService(
                 this,
-                Dispatchers.Default,
-                newStateCallback = {
-                    state
-                })
+                Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
@@ -387,7 +386,7 @@ class ActorServiceTests {
 
         delay(testDelayBeforeCheckingResult)
 
-        Assert.assertEquals(state, service.serviceState)
+        Assert.assertTrue(service.serviceState is SimpleService.SimpleState)
 
         service.dispose()
     }

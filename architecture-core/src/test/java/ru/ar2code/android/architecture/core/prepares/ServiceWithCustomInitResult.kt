@@ -9,7 +9,7 @@ import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
-class SimpleService(
+class ServiceWithCustomInitResult(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
     ActorService<String>(scope, dispatcher, object : Logger("Test") {
@@ -25,20 +25,19 @@ class SimpleService(
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
         return ServiceStateWithResult(
-            SimpleState(),
+            ActorServiceState.Same(),
             ServiceResult.BasicResult(msg.msgType.payload?.toString())
         )
     }
 
-    class SimpleIntentType(payload: String? = null) :
-        IntentMessage.IntentMessageType<String>(payload)
-
-    class SimpleEmptyResult : ServiceResult.EmptyResult<String>(SIMPLE_EMPTY) {
-
-        companion object {
-            const val SIMPLE_EMPTY = "SIMPLE_EMPTY"
-        }
+    override fun getResultFotInitializedState(): ServiceResult<String> {
+        return CustomInitResult()
     }
 
-    class SimpleState : ActorServiceState()
+    class CustomInitResult : ServiceResult.EmptyResult<String>(CUSTOM_INIT) {
+
+        companion object {
+            const val CUSTOM_INIT = "CUSTOM_INIT"
+        }
+    }
 }
