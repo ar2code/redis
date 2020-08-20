@@ -1,27 +1,19 @@
 package ru.ar2code.android.architecture.core.prepares
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ActorService
 import ru.ar2code.android.architecture.core.services.ActorServiceState
 import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
-import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
 class ServiceNotAllowAnyResult(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, object : Logger("Test") {
-        override fun info(msg: String) {
-        }
-
-        override fun error(msg: String, t: Throwable) {
-        }
-
-        override fun warning(msg: String) {
-        }
-    }) {
+    ActorService<String>(scope, dispatcher, SimpleTestLogger()) {
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
         return ServiceStateWithResult(

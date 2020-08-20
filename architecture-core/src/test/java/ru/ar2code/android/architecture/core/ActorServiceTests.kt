@@ -1,43 +1,15 @@
 package ru.ar2code.android.architecture.core
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 import org.junit.Assert
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
-import ru.ar2code.android.architecture.core.prepares.ServiceNotAllowAnyResult
-import ru.ar2code.android.architecture.core.prepares.ServiceWithCustomInitResult
-import ru.ar2code.android.architecture.core.prepares.SimpleService
+import ru.ar2code.android.architecture.core.prepares.*
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 
 @ExperimentalCoroutinesApi
 class ActorServiceTests {
-
-    @get:Rule
-    var mainCoroutineRule = MainCoroutineRule()
-
-    @ExperimentalCoroutinesApi
-    class MainCoroutineRule(
-        private val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
-    ) : TestWatcher() {
-
-        override fun starting(description: Description?) {
-            super.starting(description)
-            Dispatchers.setMain(testDispatcher)
-        }
-
-        override fun finished(description: Description?) {
-            super.finished(description)
-            Dispatchers.resetMain()
-            testDispatcher.cleanupTestCoroutines()
-        }
-    }
 
     private val testDelayBeforeCheckingResult = 10L
 
@@ -146,6 +118,26 @@ class ActorServiceTests {
         service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
 
         Assert.assertTrue(service.isDisposed())
+    }
+
+    @Test(expected = ServiceWithExceptionInsideIntentHandling.TestException::class)
+    fun `Propagated exception inside intent handling block`() = runBlocking {
+        val service = ServiceWithExceptionInsideIntentHandling(this, Dispatchers.Default)
+
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
+    }
+
+    @Test(expected = ServiceWithExceptionInsideIntentHandling.TestException::class)
+    fun `Propagated exception inside intent can change state block`() = runBlocking {
+        val service = ServiceWithExceptionInsideCanChangeState(this, Dispatchers.Default)
+
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType()))
+    }
+
+    @Test(expected = ServiceWithExceptionInsideIntentHandling.TestException::class)
+    fun `Propagated exception inside intent can init state block`() = runBlocking {
+        ServiceWithExceptionInsideInitResult(this, Dispatchers.Default)
+        Unit
     }
 
     @Test

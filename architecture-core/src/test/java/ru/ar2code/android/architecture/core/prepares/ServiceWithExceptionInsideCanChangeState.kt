@@ -9,26 +9,20 @@ import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
-class ServiceWithCustomInitResult(
+class ServiceWithExceptionInsideCanChangeState(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
     ActorService<String>(scope, dispatcher, SimpleTestLogger()) {
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-        return ServiceStateWithResult(
-            ActorServiceState.Same(),
-            ServiceResult.BasicResult(msg.msgType.payload?.toString())
-        )
+        broadcastNewStateWithResult(ServiceStateWithResult(ActorServiceState.Same(), SimpleService.SimpleEmptyResult()))
+        return null
     }
 
-    override fun getResultFotInitializedState(): ServiceResult<String> {
-        return CustomInitResult()
-    }
-
-    class CustomInitResult : ServiceResult.EmptyResult<String>(CUSTOM_INIT) {
-
-        companion object {
-            const val CUSTOM_INIT = "CUSTOM_INIT"
-        }
+    override fun canChangeState(
+        newServiceState: ActorServiceState,
+        result: ServiceResult<String>
+    ): Boolean {
+        throw ServiceWithExceptionInsideIntentHandling.TestException()
     }
 }

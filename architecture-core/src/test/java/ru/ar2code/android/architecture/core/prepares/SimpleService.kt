@@ -12,16 +12,7 @@ import ru.ar2code.utils.Logger
 class SimpleService(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, object : Logger("Test") {
-        override fun info(msg: String) {
-        }
-
-        override fun error(msg: String, t: Throwable) {
-        }
-
-        override fun warning(msg: String) {
-        }
-    }) {
+    ActorService<String>(scope, dispatcher, SimpleTestLogger()) {
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
         return ServiceStateWithResult(
