@@ -33,20 +33,25 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel : DemoViewModel by viewModels()
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         viewModel.viewStateLive.observe(this, Observer {
-            Toast.makeText(this, it.name, Toast.LENGTH_LONG).show()
-            textView.setText(it.name)
-            Log.d(tag, "main activity viewStateLive observer $it")
+            if(it.isChangedSincePrevious || textView.text.isNullOrEmpty()) {
+                Toast.makeText(this, it.state, Toast.LENGTH_LONG).show()
+                textView.setText(it.state)
+            }
+            Log.d(tag, "main activity viewStateLive observer ${it.state}")
         })
 
         viewModel.viewEventLive.observe(this, Observer {
             Toast.makeText(this, "event", Toast.LENGTH_LONG).show()
-            Log.d(tag, "main activity viewEventLive observer $it")
+            Log.d(tag, "main activity viewEventLive observer ${it.data?.viewEventType?.payload}")
         })
+
 
 
 //        var i = 0
