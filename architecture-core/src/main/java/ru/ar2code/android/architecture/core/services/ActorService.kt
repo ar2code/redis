@@ -53,11 +53,11 @@ abstract class ActorService<TResult>(
             try {
                 awaitPassCreatedState()
 
-                logger.info("Service [{$this@ActorService}] send msg to intent channel.")
+                logger.info("Service [${this@ActorService}] send msg to intent channel.")
 
                 intentMessagesChannel.send(msg)
             } catch (e: ClosedSendChannelException) {
-                logger.info("Service [{$this@ActorService}] intent channel is closed.")
+                logger.info("Service [${this@ActorService}] intent channel is closed.")
             }
         }
     }
@@ -256,7 +256,7 @@ abstract class ActorService<TResult>(
                 try {
                     val msg = intentMessagesChannel.receive()
 
-                    logger.info("Service [$this] received new intent message $msg")
+                    logger.info("Service [${this@ActorService}] received new intent message $msg")
 
                     val result = onIntentMsg(msg)
 
@@ -264,7 +264,7 @@ abstract class ActorService<TResult>(
                         broadcastNewStateWithResult(it)
                     }
                 } catch (e: ClosedReceiveChannelException) {
-                    logger.info("Service [$this] intent channel is closed.")
+                    logger.info("Service [${this@ActorService}] intent channel is closed.")
                 }
             }
 
