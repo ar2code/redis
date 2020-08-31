@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-
 import org.junit.Assert.*
 import org.junit.Rule
 import ru.ar2code.android.architecture.core.android.prepares.*

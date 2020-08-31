@@ -297,10 +297,10 @@ abstract class ActorService<TResult>(
         }
     }
 
-    private fun assertScopeActive(msgIfNotActive: String, throwError: Boolean = true): Boolean {
+    private fun assertScopeActive(errorPostfixMsgIfNotActive: String, throwError: Boolean = true): Boolean {
         if (!scope.isActive) {
             val msg =
-                "Service [$this] scope is not active anymore. Service is disposed and cannot [$msgIfNotActive]."
+                "Service [$this] scope is not active anymore. Service is disposed and cannot [$errorPostfixMsgIfNotActive]."
 
             logger.info(msg)
 
