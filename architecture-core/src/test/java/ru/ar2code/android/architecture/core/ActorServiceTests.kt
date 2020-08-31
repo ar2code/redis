@@ -6,12 +6,13 @@ import org.junit.Test
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.prepares.*
+import ru.ar2code.android.architecture.core.prepares.ServiceWithSavedStateHandler.Companion.SAVE_KEY
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 
 @ExperimentalCoroutinesApi
 class ActorServiceTests {
 
-    private val testDelayBeforeCheckingResult = 10L
+    private val testDelayBeforeCheckingResult = 20L
 
     @Test
     fun `Concurrent subscribe and unsubscribe (2000 subs) gives no any concurrent exceptions`() =
@@ -364,7 +365,8 @@ class ActorServiceTests {
         val service =
             SimpleService(
                 this,
-                Dispatchers.Default)
+                Dispatchers.Default
+            )
 
         val subscriber = object : ServiceSubscriber<String> {
             override fun onReceive(result: ServiceResult<String>?) {
@@ -381,5 +383,81 @@ class ActorServiceTests {
         Assert.assertTrue(service.serviceState is SimpleService.SimpleState)
 
         service.dispose()
+    }
+
+    @Test
+    fun `Service stores arbitrary data in state handler`() = runBlocking {
+
+        val savedId = "123"
+
+        val stateHandler = TestMemorySavedStateHandler()
+
+        val service = ServiceWithSavedStateHandler(
+            this,
+            Dispatchers.Default
+        )
+
+        service.setServiceSavedStateHandler(stateHandler)
+
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType(savedId)))
+
+        delay(testDelayBeforeCheckingResult)
+
+        val storedData = stateHandler.get<String>(SAVE_KEY)
+
+        Assert.assertEquals(savedId, storedData)
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Service restore state if state handler contains data`() = runBlocking {
+
+        val savedId = "123"
+
+        val stateHandler = TestMemorySavedStateHandler()
+
+        val service = ServiceWithSavedStateHandler(
+            this,
+            Dispatchers.Default
+        )
+
+        service.setServiceSavedStateHandler(stateHandler)
+
+        service.sendIntent(IntentMessage(SimpleService.SimpleIntentType(savedId)))
+
+        delay(testDelayBeforeCheckingResult)
+
+        service.dispose()
+
+        val serviceWithRestoring = ServiceWithSavedStateHandler(
+            this,
+            Dispatchers.Default
+        )
+
+        var isGotInitResult = false
+        var isGotPreviousServiceResult = false
+
+        val subscriber = object : ServiceSubscriber<String> {
+            override fun onReceive(result: ServiceResult<String>?) {
+                if (result is ServiceResult.InitResult) {
+                    isGotInitResult = true
+                }
+                if (result is ServiceResult.BasicResult) {
+                    isGotPreviousServiceResult = result.payload == savedId
+                }
+            }
+        }
+
+        serviceWithRestoring.subscribe(subscriber)
+
+        serviceWithRestoring.setServiceSavedStateHandler(stateHandler)
+
+        delay(testDelayBeforeCheckingResult)
+
+        Assert.assertTrue(isGotInitResult)
+        Assert.assertTrue(isGotPreviousServiceResult)
+
+        serviceWithRestoring.dispose()
     }
 }

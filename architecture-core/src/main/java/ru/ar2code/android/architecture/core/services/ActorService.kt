@@ -21,6 +21,8 @@ abstract class ActorService<TResult>(
     var serviceState: ActorServiceState = ActorServiceState.Created()
         private set
 
+    protected var savedStateHandler: ServiceSavedStateHandler? = null
+
     private var resultsChannel = BroadcastChannel<ServiceResult<TResult>>(Channel.CONFLATED)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
@@ -60,6 +62,14 @@ abstract class ActorService<TResult>(
                 logger.info("Service [${this@ActorService}] intent channel is closed.")
             }
         }
+    }
+
+    /**
+     * Set ServiceSavedStateHandler implementation for saving service state due to process kill or even app closing.
+     */
+    fun setServiceSavedStateHandler(serviceSavedStateHandler: ServiceSavedStateHandler?) {
+        savedStateHandler = serviceSavedStateHandler
+        restoreState()
     }
 
     /**
@@ -168,6 +178,14 @@ abstract class ActorService<TResult>(
      */
     protected open fun getResultFotInitializedState(): ServiceResult<TResult> {
         return ServiceResult.InitResult()
+    }
+
+    /**
+     * You can check [savedStateHandler] and restore previous saved state.
+     * Best practice is to save some Id (or any small identical piece of data) that you got inside [onIntentMsg] than restore that Id here and send same intent.
+     */
+    protected open fun restoreState() {
+
     }
 
     /**
