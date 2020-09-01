@@ -1,3 +1,4 @@
+include ':app:service-save-state-demo'
 include ':architecture-core-android'
 include ':architecture-core-defaults'
 include ':ext'

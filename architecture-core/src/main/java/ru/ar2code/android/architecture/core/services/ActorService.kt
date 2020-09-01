@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 abstract class ActorService<TResult>(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
-    private val logger: Logger
+    protected val logger: Logger
 ) where TResult : Any {
 
     companion object {
@@ -274,7 +274,7 @@ abstract class ActorService<TResult>(
                 try {
                     val msg = intentMessagesChannel.receive()
 
-                    logger.info("Service [${this@ActorService}] received new intent message $msg")
+                    logger.info("Service [${this@ActorService}] received new intent message with type ${msg.msgType}")
 
                     val result = onIntentMsg(msg)
 
