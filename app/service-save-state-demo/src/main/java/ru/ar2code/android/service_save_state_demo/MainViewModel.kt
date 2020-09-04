@@ -22,9 +22,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
         }
     }
 
-    private val service = MainService(viewModelScope).apply {
-        setServiceSavedStateHandler(serviceStateHandler)
-    }
+    private val service = MainService(viewModelScope, serviceStateHandler)
 
     private val viewState = MutableLiveData<String>()
     val viewStateLive = viewState as LiveData<String>

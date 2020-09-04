@@ -254,12 +254,14 @@ abstract class ActorService<TResult>(
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
                 logger.info("Service [${this@ActorService}] on initialized. Send empty result.")
+
                 broadcastNewStateWithResult(
                     ServiceStateWithResult(
                         ActorServiceState.Initiated(),
                         getResultFotInitializedState()
                     )
                 )
+                restoreState()
             }
         }
 

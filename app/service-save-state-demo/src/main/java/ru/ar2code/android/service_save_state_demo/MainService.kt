@@ -4,10 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import ru.ar2code.android.architecture.core.models.IntentMessage
 import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ActorServiceState
+import ru.ar2code.android.architecture.core.services.ServiceSavedStateHandler
 import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultActorService
 
-class MainService(scope: CoroutineScope) : DefaultActorService<String>(scope) {
+class MainService(scope: CoroutineScope, savedStateHandler: ServiceSavedStateHandler) : DefaultActorService<String>(scope, savedStateHandler) {
 
     companion object {
         private const val SAVE_KEY = "state"
