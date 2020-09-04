@@ -11,7 +11,7 @@ import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 @ExperimentalCoroutinesApi
 class DemoService(
     scope: CoroutineScope
-) : ru.ar2code.defaults.DefaultActorService<String>(scope) {
+) : AbstractDemoService(scope) {
 
     private var globalData = 0
 

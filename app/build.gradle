@@ -55,4 +55,9 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.1.0"
 
     implementation 'ru.ar2code.mutableliveevent:MutableLiveEvent:1.0.1'
+
+    implementation "org.koin:koin-android:2.1.6"
+    implementation "org.koin:koin-android-scope:2.1.6"
+    implementation "org.koin:koin-android-viewmodel:2.1.6"
+    implementation "org.koin:koin-core:2.1.6"
 }
