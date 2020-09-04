@@ -11,7 +11,7 @@ import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 class ServiceWithExceptionInsideIntentHandling(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, SimpleTestLogger()) {
+    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
         throw TestException()

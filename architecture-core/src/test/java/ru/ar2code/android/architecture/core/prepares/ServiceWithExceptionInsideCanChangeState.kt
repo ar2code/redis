@@ -13,7 +13,7 @@ import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 class ServiceWithExceptionInsideCanChangeState(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, SimpleTestLogger()) {
+    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
         broadcastNewStateWithResult(ServiceStateWithResult(ActorServiceState.Same(), SimpleService.SimpleEmptyResult()))

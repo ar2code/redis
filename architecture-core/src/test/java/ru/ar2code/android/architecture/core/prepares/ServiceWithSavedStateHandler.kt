@@ -12,7 +12,7 @@ import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 class ServiceWithSavedStateHandler(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, SimpleTestLogger()) {
+    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
 
     companion object {
         const val SAVE_KEY = "key"

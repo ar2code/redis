@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 abstract class ActorService<TResult>(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
+    protected var savedStateHandler: ServiceSavedStateHandler?,
     protected val logger: Logger
 ) where TResult : Any {
 
@@ -21,7 +22,8 @@ abstract class ActorService<TResult>(
     var serviceState: ActorServiceState = ActorServiceState.Created()
         private set
 
-    protected var savedStateHandler: ServiceSavedStateHandler? = null
+    var currentServiceResult: ServiceResult<TResult>? = null
+        private set
 
     private var resultsChannel = BroadcastChannel<ServiceResult<TResult>>(Channel.CONFLATED)
 
@@ -205,24 +207,31 @@ abstract class ActorService<TResult>(
     protected suspend fun broadcastNewStateWithResult(
         stateWithResult: ServiceStateWithResult<TResult>
     ) {
-        val canChangeState =
-            isSystemDefinedState(stateWithResult.newServiceState) || canChangeState(
-                stateWithResult.newServiceState,
-                stateWithResult.result
-            )
 
-        if (!resultsChannel.isClosedForSend && canChangeState
-        ) {
-
+        fun changeStateIfNotSame() {
             if (stateWithResult.newServiceState !is ActorServiceState.Same) {
                 serviceState = stateWithResult.newServiceState
             }
+        }
 
+        suspend fun sendResult() {
             try {
                 resultsChannel.send(stateWithResult.result)
+                currentServiceResult = stateWithResult.result
             } catch (e: ClosedSendChannelException) {
                 logger.info("Service [$this] result channel is closed.")
             }
+        }
+
+        val canChangeState = !resultsChannel.isClosedForSend &&
+                isSystemDefinedState(stateWithResult.newServiceState) || canChangeState(
+            stateWithResult.newServiceState,
+            stateWithResult.result
+        )
+
+        if (canChangeState) {
+            changeStateIfNotSame()
+            sendResult()
         }
     }
 
@@ -297,7 +306,10 @@ abstract class ActorService<TResult>(
         }
     }
 
-    private fun assertScopeActive(errorPostfixMsgIfNotActive: String, throwError: Boolean = true): Boolean {
+    private fun assertScopeActive(
+        errorPostfixMsgIfNotActive: String,
+        throwError: Boolean = true
+    ): Boolean {
         if (!scope.isActive) {
             val msg =
                 "Service [$this] scope is not active anymore. Service is disposed and cannot [$errorPostfixMsgIfNotActive]."
