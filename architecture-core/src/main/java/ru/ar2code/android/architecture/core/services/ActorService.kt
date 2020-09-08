@@ -25,12 +25,12 @@ abstract class ActorService<TResult>(
     var currentServiceResult: ServiceResult<TResult>? = null
         private set
 
-    private var resultsChannel = BroadcastChannel<ServiceResult<TResult>>(Channel.CONFLATED)
+    private var resultsChannel = BroadcastChannel<ServiceStateWithResult<TResult>>(Channel.CONFLATED)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
     private val subscribers =
-        ConcurrentHashMap<ServiceSubscriber<TResult>, ReceiveChannel<ServiceResult<TResult>>>()
+        ConcurrentHashMap<ServiceSubscriber<TResult>, ReceiveChannel<ServiceStateWithResult<TResult>>>()
 
     /**
      * This method is used for handling Intents
@@ -109,13 +109,13 @@ abstract class ActorService<TResult>(
             return isSubscriberExists
         }
 
-        fun openSubscription(): ReceiveChannel<ServiceResult<TResult>> {
+        fun openSubscription(): ReceiveChannel<ServiceStateWithResult<TResult>> {
             val subscription = resultsChannel.openSubscription()
             subscribers[subscriber] = subscription
             return subscription
         }
 
-        fun listening(subscription: ReceiveChannel<ServiceResult<TResult>>) {
+        fun listening(subscription: ReceiveChannel<ServiceStateWithResult<TResult>>) {
             scope.launch(dispatcher) {
                 logger.info("Service [${this@ActorService}] start listening new subscription")
 
@@ -149,7 +149,7 @@ abstract class ActorService<TResult>(
     @Synchronized
     fun unsubscribe(subscriber: ServiceSubscriber<TResult>) {
 
-        fun getSubscription(): ReceiveChannel<ServiceResult<TResult>>? {
+        fun getSubscription(): ReceiveChannel<ServiceStateWithResult<TResult>>? {
             val subscription = subscribers[subscriber]
             if (subscription == null) {
                 logger.info("Subscriber $subscriber does not exist in service $this.")
@@ -157,7 +157,7 @@ abstract class ActorService<TResult>(
             return subscription
         }
 
-        fun deleteSubscription(subscription: ReceiveChannel<ServiceResult<TResult>>?) {
+        fun deleteSubscription(subscription: ReceiveChannel<ServiceStateWithResult<TResult>>?) {
             subscription?.let {
                 it.cancel()
                 subscribers.remove(subscriber)
@@ -216,7 +216,7 @@ abstract class ActorService<TResult>(
 
         suspend fun sendResult() {
             try {
-                resultsChannel.send(stateWithResult.result)
+                resultsChannel.send(stateWithResult)
                 currentServiceResult = stateWithResult.result
             } catch (e: ClosedSendChannelException) {
                 logger.info("Service [$this] result channel is closed.")

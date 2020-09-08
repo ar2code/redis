@@ -2,8 +2,8 @@ package ru.ar2code.android.service_save_state_demo
 
 import androidx.lifecycle.*
 import ru.ar2code.android.architecture.core.models.IntentMessage
-import ru.ar2code.android.architecture.core.models.ServiceResult
 import ru.ar2code.android.architecture.core.services.ServiceSavedStateHandler
+import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
 import ru.ar2code.android.architecture.core.services.ServiceSubscriber
 
 class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
@@ -29,8 +29,8 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 
     init {
         service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceResult<String>?) {
-                viewState.postValue(result?.payload)
+            override fun onReceive(result: ServiceStateWithResult<String>?) {
+                viewState.postValue(result?.result?.payload)
             }
         })
     }

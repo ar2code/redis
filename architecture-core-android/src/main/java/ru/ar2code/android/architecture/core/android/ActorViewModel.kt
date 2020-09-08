@@ -84,16 +84,16 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
      * If [result.payload.viewState] is not null set to [viewStateLive]
      * If [result.payload.viewEvent] is not null set to [viewEventLive]
      */
-    protected open fun postResult(result: ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>?) {
+    protected open fun postResult(result: ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>?) {
         logger.info("[ActorViewModel] view model got result from own service $result")
 
-            result?.payload?.viewState?.let {
+            result?.result?.payload?.viewState?.let {
             viewStateLiveMutable.postValue(it)
         } ?: kotlin.run {
             logger.info("[ActorViewModel] viewState is null. No post value to live data {viewEventLive}.")
         }
 
-        result?.payload?.viewEvent?.let {
+        result?.result?.payload?.viewEvent?.let {
             viewEventLiveMutable.postValue(EventArgs(it))
         } ?: kotlin.run {
             logger.info("[ActorViewModel] viewEvent is null. No post value to live event {viewEventLive}.")
@@ -107,7 +107,7 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
         viewModelService.subscribe(object :
             ServiceSubscriber<ViewModelStateWithEvent<ViewState, ViewEvent>> {
 
-            override fun onReceive(result: ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>?) {
+            override fun onReceive(result: ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>?) {
                 postResult(result)
             }
         })
