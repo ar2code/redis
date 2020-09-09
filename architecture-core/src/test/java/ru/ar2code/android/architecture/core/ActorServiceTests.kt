@@ -28,7 +28,7 @@ class ActorServiceTests {
                 println("start subscribe task 1")
                 repeat(1000) {
                     val subscriber = object : ServiceSubscriber<String> {
-                        override fun onReceive(result: ServiceStateWithResult<String>?) {
+                        override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
                         }
                     }
@@ -45,7 +45,7 @@ class ActorServiceTests {
                 println("start subscribe task 2")
                 repeat(1000) {
                     val subscriber = object : ServiceSubscriber<String> {
-                        override fun onReceive(result: ServiceStateWithResult<String>?) {
+                        override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
                         }
                     }
@@ -67,7 +67,7 @@ class ActorServiceTests {
                 println("start subscribe task 4")
                 repeat(1000) {
                     val subscriber = object : ServiceSubscriber<String> {
-                        override fun onReceive(result: ServiceStateWithResult<String>?) {
+                        override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
                         }
                     }
@@ -101,7 +101,7 @@ class ActorServiceTests {
         this.cancel()
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
             }
         }
@@ -151,13 +151,13 @@ class ActorServiceTests {
         var gotResult = false
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     emptyResult = true
                     return
                 }
 
-                gotResult = result?.result?.payload == payload
+                gotResult = stateWithResult?.result?.payload == payload
 
                 service.dispose()
             }
@@ -179,8 +179,8 @@ class ActorServiceTests {
         var emptyResult = false
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     emptyResult = true
                     service.dispose()
                 }
@@ -201,16 +201,16 @@ class ActorServiceTests {
         var emptyResultTwo = false
 
         service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     emptyResult = true
                 }
             }
         })
 
         service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     emptyResultTwo = true
                 }
             }
@@ -236,11 +236,11 @@ class ActorServiceTests {
         var payloadResultTwo = false
 
         service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     emptyResultOne = true
                 } else {
-                    payloadResultOne = result?.result?.payload == payload
+                    payloadResultOne = stateWithResult?.result?.payload == payload
                 }
             }
         })
@@ -250,11 +250,11 @@ class ActorServiceTests {
         delay(testDelayBeforeCheckingResult)
 
         service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     emptyResultTwo = true
                 } else {
-                    payloadResultTwo = result?.result?.payload == payload
+                    payloadResultTwo = stateWithResult?.result?.payload == payload
                 }
             }
         })
@@ -277,7 +277,7 @@ class ActorServiceTests {
         val service = SimpleService(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
             }
         }
@@ -297,7 +297,7 @@ class ActorServiceTests {
         val service = SimpleService(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
             }
         }
@@ -316,8 +316,8 @@ class ActorServiceTests {
         val service = ServiceWithCustomInitResult(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceWithCustomInitResult.CustomInitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceWithCustomInitResult.CustomInitResult) {
                     emptyResultOne = true
                 }
             }
@@ -340,8 +340,8 @@ class ActorServiceTests {
             ServiceNotAllowAnyResult(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result !is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result !is ServiceResult.InitResult) {
                     gotNotInitiatedResult = true
                 }
             }
@@ -370,7 +370,7 @@ class ActorServiceTests {
             )
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
 
             }
         }
@@ -440,12 +440,12 @@ class ActorServiceTests {
         var isGotPreviousServiceResult = false
 
         val subscriber = object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                if (result?.result is ServiceResult.InitResult) {
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
                     isGotInitResult = true
                 }
-                if (result?.result is ServiceResult.BasicResult) {
-                    isGotPreviousServiceResult = result.result.payload == savedId
+                if (stateWithResult?.result is ServiceResult.BasicResult) {
+                    isGotPreviousServiceResult = stateWithResult.result.payload == savedId
                 }
             }
         }

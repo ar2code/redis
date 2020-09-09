@@ -29,8 +29,8 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 
     init {
         service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(result: ServiceStateWithResult<String>?) {
-                viewState.postValue(result?.result?.payload)
+            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
+                viewState.postValue(stateWithResult?.result?.payload)
             }
         })
     }
