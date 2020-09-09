@@ -84,6 +84,8 @@ abstract class ActorService<TResult>(
         resultsChannel.close()
 
         subscribers.clear()
+
+        onDisposed()
     }
 
     /**
@@ -181,6 +183,8 @@ abstract class ActorService<TResult>(
     protected open fun getResultFotInitializedState(): ServiceResult<TResult> {
         return ServiceResult.InitResult()
     }
+
+    protected open fun onDisposed() {}
 
     /**
      * You can check [savedStateHandler] and restore previous saved state.
