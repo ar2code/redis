@@ -6,14 +6,21 @@ import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.architecture.core.models.UseCaseResult
 import ru.ar2code.android.architecture.core.usecases.SynchronizedUseCase
 
-class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(DefaultSynchronizedUseCaseAwaitConfig()) {
+class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
+    DefaultSynchronizedUseCaseAwaitConfig(),
+    SimpleTestLogger()
+) {
 
-    private var flowParam : String? = null
+    private var flowParam: String? = null
 
     override fun execute(params: String?): Flow<UseCaseResult<String>> {
         flowParam = params
 
         return flow {
+            emit(UseCaseResult(params))
+            delay(1000)
+            emit(UseCaseResult(params))
+            delay(1000)
             emit(UseCaseResult(params))
             delay(1000)
             emit(UseCaseResult(params))

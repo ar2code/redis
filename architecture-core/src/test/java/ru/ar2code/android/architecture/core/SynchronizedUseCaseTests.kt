@@ -12,6 +12,7 @@ import ru.ar2code.android.architecture.core.prepares.SimpleDelayedSyncUseCase
 import ru.ar2code.android.architecture.core.prepares.SimpleExceptionUseCase
 import ru.ar2code.android.architecture.core.models.UseCaseResult
 import ru.ar2code.android.architecture.core.prepares.SimpleCustomAwaitConfigUseCase
+import ru.ar2code.android.architecture.core.usecases.UseCaseCancelledException
 
 @ExperimentalCoroutinesApi
 class SynchronizedUseCaseTests {
@@ -109,12 +110,35 @@ class SynchronizedUseCaseTests {
         val useCase =
             SimpleExceptionUseCase()
         val flow = useCase.run(exceptionMsg)
+        var isExceptionOccurred = false
 
         flow
             .catch { th ->
+                isExceptionOccurred = true
                 assertEquals(exceptionMsg, th.message)
             }
             .collect { }
+
+        assertTrue(isExceptionOccurred)
+    }
+
+    @Test
+    fun `Flow throws cancellation exception after use case cancelled`() = runBlockingTest {
+        val useCase = SimpleDelayedSyncUseCase()
+        val flow = useCase.run("")
+
+        var isExceptionOccurred = false
+
+        flow
+            .catch { th ->
+                isExceptionOccurred = true
+                assertTrue(th is UseCaseCancelledException)
+            }
+            .collect {
+                useCase.cancel()
+            }
+
+        assertTrue(isExceptionOccurred)
     }
 
     @Test
