@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withTimeout
 import ru.ar2code.android.architecture.core.interfaces.SynchronizedUseCaseAwaitConfig
 import ru.ar2code.android.architecture.core.models.UseCaseResult
+import ru.ar2code.utils.Logger
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -22,7 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @ExperimentalCoroutinesApi
 abstract class SynchronizedUseCase<TParams, TResult>(
-    protected open val awaitConfig: SynchronizedUseCaseAwaitConfig
+    protected open val awaitConfig: SynchronizedUseCaseAwaitConfig,
+    protected open val logger : Logger
 ) :
     UseCase<TParams, TResult>() where TResult : Any {
 

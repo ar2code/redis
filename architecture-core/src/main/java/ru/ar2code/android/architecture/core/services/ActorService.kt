@@ -22,9 +22,6 @@ abstract class ActorService<TResult>(
     var serviceState: ActorServiceState = ActorServiceState.Created()
         private set
 
-    var currentServiceResult: ServiceResult<TResult>? = null
-        private set
-
     private var resultsChannel = BroadcastChannel<ServiceStateWithResult<TResult>>(Channel.CONFLATED)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
@@ -221,7 +218,6 @@ abstract class ActorService<TResult>(
         suspend fun sendResult() {
             try {
                 resultsChannel.send(stateWithResult)
-                currentServiceResult = stateWithResult.result
             } catch (e: ClosedSendChannelException) {
                 logger.info("Service [$this] result channel is closed.")
             }
