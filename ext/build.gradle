@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020. Created by Alexey Rozhkov.
+ */
+
 apply plugin: 'java-library'
 apply plugin: 'kotlin'
 

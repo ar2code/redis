@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020. Created by Alexey Rozhkov.
+ */
+
 include ':app:service-save-state-demo'
 include ':architecture-core-android'
 include ':architecture-core-defaults'

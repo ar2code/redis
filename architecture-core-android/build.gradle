@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020. Created by Alexey Rozhkov.
+ */
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'

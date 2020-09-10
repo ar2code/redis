@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2020. Created by Alexey Rozhkov.
+  -->
+
 <resources>
     <string name="app_name">Service save state demo</string>
 </resources>

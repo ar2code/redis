@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Alexey Rozhkov. Use of this source code is governed by the Apache 2.0 license. todo link github. maybe template?
+ * Copyright (c) 2020. Created by Alexey Rozhkov.
  */
 
 package ru.ar2code.android.architecture.core.usecases
