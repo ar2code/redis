@@ -70,9 +70,6 @@ abstract class ActorService<TResult>(
         scope.launch(dispatcher) {
             try {
                 awaitPassCreatedState()
-
-                logger.info("Service [${this@ActorService}] send msg to intent channel.")
-
                 intentMessagesChannel.send(msg)
             } catch (e: ClosedSendChannelException) {
                 logger.info("Service [${this@ActorService}] intent channel is closed.")
