@@ -37,10 +37,6 @@ class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
             emit(UseCaseResult(params))
             delay(1000)
             emit(UseCaseResult(params))
-            delay(1000)
-            emit(UseCaseResult(params))
-            delay(1000)
-            emit(UseCaseResult(params))
         }
     }
 

@@ -43,7 +43,7 @@ class ServiceWithCustomInitResult(
         return CustomInitResult()
     }
 
-    class CustomInitResult : ServiceResult.EmptyResult<String>(CUSTOM_INIT) {
+    class CustomInitResult : ServiceResult.BasicResult<String>(CUSTOM_INIT) {
 
         companion object {
             const val CUSTOM_INIT = "CUSTOM_INIT"

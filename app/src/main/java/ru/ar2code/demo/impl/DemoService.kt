@@ -101,6 +101,6 @@ class DemoService(
     }
 
     override fun getResultFotInitializedState(): ServiceResult<String> {
-        return ServiceResult.EmptyResult("Empty.")
+        return ServiceResult.BasicResult("Empty.")
     }
 }

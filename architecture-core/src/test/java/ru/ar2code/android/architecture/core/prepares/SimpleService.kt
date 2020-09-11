@@ -42,7 +42,7 @@ class SimpleService(
     class SimpleIntentType(payload: String? = null) :
         IntentMessage.IntentMessageType<String>(payload)
 
-    class SimpleEmptyResult : ServiceResult.EmptyResult<String>(SIMPLE_EMPTY) {
+    class SimpleEmptyResult : ServiceResult.BasicResult<String>(SIMPLE_EMPTY) {
 
         companion object {
             const val SIMPLE_EMPTY = "SIMPLE_EMPTY"
