@@ -18,10 +18,10 @@
 package ru.ar2code.android.service_save_state_demo
 
 import androidx.lifecycle.*
-import ru.ar2code.android.architecture.core.models.IntentMessage
-import ru.ar2code.android.architecture.core.services.ServiceSavedStateHandler
-import ru.ar2code.android.architecture.core.services.ServiceStateWithResult
-import ru.ar2code.android.architecture.core.services.ServiceSubscriber
+import ru.ar2code.android.redis.core.models.IntentMessage
+import ru.ar2code.android.redis.core.services.ServiceSavedStateHandler
+import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import ru.ar2code.android.redis.core.services.ServiceSubscriber
 
 class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 

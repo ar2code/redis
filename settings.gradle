@@ -16,9 +16,9 @@
  */
 
 include ':app:service-save-state-demo'
-include ':architecture-core-android'
-include ':architecture-core-defaults'
-include ':ext'
-include ':architecture-core'
+include ':redis-core-android'
+include ':redis-core-defaults'
+include ':redis-utils'
+include ':redis-core'
 include ':app'
 rootProject.name = "Demo"

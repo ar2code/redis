@@ -25,16 +25,6 @@ import androidx.activity.viewModels
 import androidx.lifecycle.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onCompletion
-import ru.ar2code.android.architecture.core.models.IntentMessage
-import ru.ar2code.android.architecture.core.models.ServiceResult
-import ru.ar2code.android.architecture.core.services.ServiceSubscriber
-import ru.ar2code.demo.impl.ActionOneIntentMsg
-import ru.ar2code.demo.impl.DemoService
-import ru.ar2code.demo.impl.DemoUseCase
 import ru.ar2code.demo.impl.DemoViewModel
 
 @ExperimentalCoroutinesApi

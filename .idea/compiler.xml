@@ -2,9 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="architecture-core" target="1.7" />
-      <module name="architecture-core-defaults" target="1.7" />
-      <module name="ext" target="1.7" />
+      <module name="redis-core" target="1.7" />
+      <module name="redis-core-defaults" target="1.7" />
+      <module name="redis-utils" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

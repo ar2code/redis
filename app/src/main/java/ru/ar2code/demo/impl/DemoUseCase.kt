@@ -21,8 +21,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.architecture.core.interfaces.SynchronizedUseCaseAwaitConfig
-import ru.ar2code.android.architecture.core.models.UseCaseResult
+import ru.ar2code.android.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
+import ru.ar2code.android.redis.core.models.UseCaseResult
 import ru.ar2code.defaults.DefaultSynchronizedUseCase
 
 @ExperimentalCoroutinesApi

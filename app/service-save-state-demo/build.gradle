@@ -62,8 +62,8 @@ dependencies {
 
     implementation 'ru.ar2code.mutableliveevent:MutableLiveEvent:1.0.1'
 
-    implementation project(path: ':architecture-core')
-    implementation project(path: ':ext')
-    implementation project(path: ':architecture-core-defaults')
-    implementation project(path: ':architecture-core-android')
+    implementation project(path: ':redis-core')
+    implementation project(path: ':redis-utils')
+    implementation project(path: ':redis-core-defaults')
+    implementation project(path: ':redis-core-android')
 }
