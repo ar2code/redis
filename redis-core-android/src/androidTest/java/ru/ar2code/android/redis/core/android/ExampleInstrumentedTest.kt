@@ -36,6 +36,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("ru.ar2code.android.architecture.core.android.test", appContext.packageName)
+        assertEquals("ru.ar2code.android.redis.core.android.test", appContext.packageName)
     }
 }
