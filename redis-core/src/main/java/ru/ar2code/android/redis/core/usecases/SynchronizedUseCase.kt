@@ -45,7 +45,7 @@ abstract class SynchronizedUseCase<TParams, TResult>(
     override fun run(params: TParams?): Flow<TResult> {
         return super.run(params)
             .onStart {
-                awaitPreviousFlow(this)
+                awaitPreviousFlow()
             }
             .onCompletion { ex ->
                 onExecutionFinished()
@@ -53,7 +53,7 @@ abstract class SynchronizedUseCase<TParams, TResult>(
             }
     }
 
-    private suspend fun awaitPreviousFlow(flowCollector: FlowCollector<TResult>) {
+    private suspend fun awaitPreviousFlow() {
         suspend fun awaitIsExecutingBecomesFree() {
             withTimeout(awaitConfig.awaitTimeoutMs) {
                 while (!isExecuting.compareAndSet(false, true)) {
