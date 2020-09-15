@@ -19,15 +19,14 @@ package ru.ar2code.demo.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.models.UseCaseResult
 import ru.ar2code.defaults.DefaultSynchronizedUseCase
 
 class SimpleUseCase  : DefaultSynchronizedUseCase<String, String>() {
-    override fun execute(params: String?): Flow<UseCaseResult<String>> {
+    override fun execute(params: String?): Flow<String> {
         return flow {
-            emit(UseCaseResult(params))
+            emit(params!!)
             kotlinx.coroutines.delay(100)
-            emit(UseCaseResult(params))
+            emit(params!!)
         }
     }
 }

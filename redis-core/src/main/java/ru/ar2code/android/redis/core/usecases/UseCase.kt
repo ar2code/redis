@@ -19,7 +19,6 @@ package ru.ar2code.android.redis.core.usecases
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
-import ru.ar2code.android.redis.core.models.UseCaseResult
 
 /**
  * Basic use case with in params, single public method run and out result.
@@ -32,7 +31,7 @@ abstract class UseCase<TParams, TResult> where TResult : Any {
     protected var isCancelled: Boolean = false
         private set
 
-    open fun run(params: TParams?): Flow<UseCaseResult<TResult>> {
+    open fun run(params: TParams?): Flow<TResult> {
         isCancelled = false
 
         return execute(params)
@@ -51,7 +50,7 @@ abstract class UseCase<TParams, TResult> where TResult : Any {
         onExecutionCancelled()
     }
 
-    protected abstract fun execute(params: TParams? = null): Flow<UseCaseResult<TResult>>
+    protected abstract fun execute(params: TParams? = null): Flow<TResult>
 
     /**
      * Method invokes after use case was cancelled.

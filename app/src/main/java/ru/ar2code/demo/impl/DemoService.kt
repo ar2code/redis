@@ -53,7 +53,7 @@ class DemoService(
         demoUseCase.run(payload)
             .collect {
                 delay(100)
-                val result = StringResult("got from service ${it.payload}")
+                val result = StringResult("got from service ${it}")
                 broadcastNewStateWithResult(
                     ServiceStateWithResult(
                         ActorServiceState.Same(),

@@ -25,6 +25,4 @@ class DefaultSynchronizedUseCaseAwaitConfig :
         get() = 10
     override val awaitTimeoutMs: Long
         get() = 60_000
-    override val shouldEmitAwaitState: Boolean
-        get() = true
 }

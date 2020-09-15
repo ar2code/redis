@@ -20,7 +20,6 @@ package ru.ar2code.android.redis.core.prepares
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.models.UseCaseResult
 import ru.ar2code.android.redis.core.usecases.SynchronizedUseCase
 
 class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
@@ -30,17 +29,14 @@ class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
 
     private var flowParam: String? = null
 
-    override fun execute(params: String?): Flow<UseCaseResult<String>> {
+    override fun execute(params: String?): Flow<String> {
         flowParam = params
 
         return flow {
-            emit(UseCaseResult(params))
+            emit(params!!)
             delay(1000)
-            emit(UseCaseResult(params))
+            emit(params!!)
         }
     }
 
-    override fun getPayloadForAwaitResult(): String? {
-        return flowParam
-    }
 }

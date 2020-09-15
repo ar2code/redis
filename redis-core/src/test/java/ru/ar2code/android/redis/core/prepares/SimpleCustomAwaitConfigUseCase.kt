@@ -22,7 +22,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
-import ru.ar2code.android.redis.core.models.UseCaseResult
 import ru.ar2code.android.redis.core.usecases.SynchronizedUseCase
 
 @ExperimentalCoroutinesApi
@@ -37,16 +36,14 @@ class SimpleCustomAwaitConfigUseCase(private val timeoutMs :Long = 60_000L) : Sy
                 get() = 10
             override val awaitTimeoutMs: Long
                 get() = timeoutMs
-            override val shouldEmitAwaitState: Boolean
-                get() = false
 
         }
 
-    override fun execute(params: String?): Flow<UseCaseResult<String>> {
+    override fun execute(params: String?): Flow<String> {
         return flow {
-            emit(UseCaseResult(params))
+            emit(params!!)
             delay(1000)
-            emit(UseCaseResult(params))
+            emit(params!!)
         }
     }
 }

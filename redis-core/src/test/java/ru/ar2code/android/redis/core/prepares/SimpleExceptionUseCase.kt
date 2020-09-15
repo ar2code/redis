@@ -19,12 +19,11 @@ package ru.ar2code.android.redis.core.prepares
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.models.UseCaseResult
 import ru.ar2code.android.redis.core.usecases.SynchronizedUseCase
 
 class SimpleExceptionUseCase :
     SynchronizedUseCase<String, Int>(DefaultSynchronizedUseCaseAwaitConfig(), SimpleTestLogger()) {
-    override fun execute(params: String?): Flow<UseCaseResult<Int>> {
+    override fun execute(params: String?): Flow<Int> {
         return flow {
             throw Exception(params)
         }
