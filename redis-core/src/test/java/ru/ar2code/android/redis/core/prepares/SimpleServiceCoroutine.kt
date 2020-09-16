@@ -23,10 +23,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.models.ServiceResult
 import ru.ar2code.android.redis.core.services.CoroutineActorService
 import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 import ru.ar2code.android.redis.core.services.StateReducer
 
 @ExperimentalCoroutinesApi
