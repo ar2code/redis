@@ -24,20 +24,20 @@ import ru.ar2code.android.redis.core.android.BaseViewEvent
 import ru.ar2code.android.redis.core.android.BaseViewState
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorService
+import ru.ar2code.android.redis.core.services.CoroutineActorService
 import ru.ar2code.android.redis.core.services.ActorServiceState
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
-internal class ActorViewModelService<ViewState, ViewEvent>(
+internal class CoroutineActorViewModelService<ViewState, ViewEvent>(
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,
     logger: Logger,
     private val onIntentMsgCallback: (suspend (IntentMessage) -> ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>)?,
     private val canChangeStateCallback: ((ActorServiceState, ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>) -> Boolean)?
 ) :
-    ActorService<ViewModelStateWithEvent<ViewState, ViewEvent>>(
+    CoroutineActorService<ViewModelStateWithEvent<ViewState, ViewEvent>>(
         scope, dispatcher, null, logger
     ) where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 

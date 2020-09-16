@@ -17,7 +17,21 @@
 
 package ru.ar2code.demo.impl
 
-import kotlinx.coroutines.CoroutineScope
-import ru.ar2code.defaults.DefaultActorService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import ru.ar2code.android.redis.core.models.IntentMessage
+import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.android.redis.core.services.StateReducer
 
-abstract class AbstractDemoService(scope: CoroutineScope) : DefaultActorService<String>(scope)
+class DemoReducer : StateReducer(ActorServiceState.Initiated::class, DemoIntentType::class){
+
+    override fun reduce(
+        currentState: ActorServiceState,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<ActorServiceState> {
+        return flow {
+            emit(ActorServiceState.Initiated())
+        }
+    }
+
+}

@@ -20,29 +20,32 @@ package ru.ar2code.android.redis.core.prepares
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorService
 import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.android.redis.core.services.CoroutineActorService
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import ru.ar2code.android.redis.core.services.StateReducer
 
 @ExperimentalCoroutinesApi
-class ServiceNotAllowAnyResult(
+class ServiceWithExceptionInsideIntentHandlingCoroutine(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
+    CoroutineActorService(scope, dispatcher, ActorServiceState.Initiated(), listOf(SimpleExceptionStateReducer()), null, SimpleTestLogger()) {
 
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-        return ServiceStateWithResult(
-            ActorServiceState.Same(),
-            ServiceResult.BasicResult(msg.msgType.payload?.toString())
-        )
-    }
+    class TestException : Exception()
 
-    override fun canChangeState(
-        newServiceState: ActorServiceState,
-        result: ServiceResult<String>
-    ): Boolean {
-        return false
+    class SimpleExceptionStateReducer : StateReducer(ActorServiceState.Initiated::class, SimpleServiceCoroutine.SimpleIntentType::class) {
+
+        override fun reduce(
+            currentState: ActorServiceState,
+            intent: IntentMessage.IntentMessageType<Any>
+        ): Flow<ActorServiceState> {
+            return flow {
+                throw TestException()
+            }
+        }
+
     }
 }

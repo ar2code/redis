@@ -15,27 +15,22 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.demo.impl
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import android.util.Log
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorService
+import ru.ar2code.android.redis.core.services.ActorServiceState
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 
 @ExperimentalCoroutinesApi
-class ServiceWithExceptionInsideInitResult(
-    scope: CoroutineScope, dispatcher: CoroutineDispatcher
-) :
-    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
+class DemoServiceCoroutine(
+    scope: CoroutineScope
+) : AbstractDemoServiceCoroutine(scope) {
 
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-        return null
-    }
+    private var globalData = 0
 
-    override fun getResultFotInitializedState(): ServiceResult<String> {
-        throw ServiceWithExceptionInsideIntentHandling.TestException()
-    }
+    private var demoUseCase = SimpleUseCase()
+
 }

@@ -17,6 +17,6 @@
 
 package ru.ar2code.android.redis.core.services
 
-interface ServiceSubscriber<TResult> where TResult : Any {
-    fun onReceive(stateWithResult: ServiceStateWithResult<TResult>?)
+interface ServiceSubscriber {
+    fun onReceive(newState: ActorServiceState)
 }

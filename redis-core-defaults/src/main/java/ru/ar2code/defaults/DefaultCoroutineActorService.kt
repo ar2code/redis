@@ -15,26 +15,17 @@
  * limitations under the License.
  */
 
-package ru.ar2code.demo.impl
+package ru.ar2code.defaults
 
-import android.app.Application
 import kotlinx.coroutines.CoroutineScope
-import org.koin.core.context.startKoin
-import org.koin.dsl.module
+import kotlinx.coroutines.Dispatchers
+import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.android.redis.core.services.CoroutineActorService
+import ru.ar2code.android.redis.core.services.ServiceSavedStateHandler
+import ru.ar2code.android.redis.core.services.StateReducer
 
-val module = module {
-    single { (scope: CoroutineScope) -> DemoServiceCoroutine(scope) as AbstractDemoServiceCoroutine }
-}
-
-class AndroidApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            modules(module)
-        }
-
-    }
-
-}
+/**
+ * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]
+ */
+abstract class DefaultCoroutineActorService<TResult>(scope: CoroutineScope, savedStateHandler: ServiceSavedStateHandler? = null) :
+    CoroutineActorService(scope, Dispatchers.Default, ActorServiceState.Initiated(), emptyList(), savedStateHandler, DefaultLogger())

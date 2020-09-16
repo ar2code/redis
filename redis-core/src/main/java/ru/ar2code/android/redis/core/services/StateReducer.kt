@@ -15,24 +15,25 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.android.redis.core.services
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ActorService
-import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import kotlin.reflect.KClass
 
-@ExperimentalCoroutinesApi
-class ServiceWithExceptionInsideIntentHandling(
-    scope: CoroutineScope, dispatcher: CoroutineDispatcher
-) :
-    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
+abstract class StateReducer(
+    private val expectState: KClass<*>,
+    private val expectIntentType: KClass<*>
+) {
+    abstract fun reduce(
+        currentState: ActorServiceState,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<ActorServiceState>
 
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-        throw TestException()
+    fun isReducerApplicable(
+        currentState: ActorServiceState,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Boolean {
+        return expectState.isInstance(currentState) && expectIntentType.isInstance(intent)
     }
-
-    class TestException : Exception()
 }

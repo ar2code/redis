@@ -22,25 +22,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorService
+import ru.ar2code.android.redis.core.services.CoroutineActorService
 import ru.ar2code.android.redis.core.services.ActorServiceState
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 
 @ExperimentalCoroutinesApi
-class ServiceWithExceptionInsideCanChangeState(
+class ServiceWithCustomInitStateCoroutine(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
+    CoroutineActorService(scope, dispatcher, CustomInitState(), emptyList() ,null, SimpleTestLogger()) {
 
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-        broadcastNewStateWithResult(ServiceStateWithResult(ActorServiceState.Same(), SimpleService.SimpleEmptyResult()))
-        return null
-    }
-
-    override fun canChangeState(
-        newServiceState: ActorServiceState,
-        result: ServiceResult<String>
-    ): Boolean {
-        throw ServiceWithExceptionInsideIntentHandling.TestException()
+    class CustomInitState : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return CustomInitState()
+        }
     }
 }

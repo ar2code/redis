@@ -21,7 +21,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import ru.ar2code.android.redis.core.android.impl.ActorViewModelService
+import ru.ar2code.android.redis.core.android.impl.CoroutineActorViewModelService
 import ru.ar2code.android.redis.core.android.impl.ViewModelStateWithEvent
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.models.ServiceResult
@@ -37,7 +37,7 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
 ) :
     ViewModel() where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
-    private val viewModelService = ActorViewModelService(
+    private val viewModelService = CoroutineActorViewModelService(
         viewModelScope,
         Dispatchers.Default,
         logger,

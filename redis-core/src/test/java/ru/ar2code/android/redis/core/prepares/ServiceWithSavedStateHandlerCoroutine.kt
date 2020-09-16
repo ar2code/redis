@@ -22,32 +22,37 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorService
 import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.android.redis.core.services.CoroutineActorService
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 
 @ExperimentalCoroutinesApi
-class SimpleService(
+class ServiceWithSavedStateHandlerCoroutine(
     scope: CoroutineScope, dispatcher: CoroutineDispatcher
 ) :
-    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
+    CoroutineActorService(scope, dispatcher, ActorServiceState.Initiated(), emptyList(),null, SimpleTestLogger()) {
 
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-        return ServiceStateWithResult(
-            SimpleState(),
-            ServiceResult.BasicResult(msg.msgType.payload?.toString())
-        )
+    companion object {
+        const val SAVE_KEY = "key"
     }
+//
+//    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
+//        val payload = msg.msgType.payload?.toString()
+//        savedStateHandler?.set(SAVE_KEY, payload)
+//
+//        return ServiceStateWithResult(
+//            SimpleServiceCoroutine.SimpleState(),
+//            ServiceResult.BasicResult(payload)
+//        )
+//    }
 
-    class SimpleIntentType(payload: String? = null) :
-        IntentMessage.IntentMessageType<String>(payload)
+    override fun restoreState() {
+        super.restoreState()
 
-    class SimpleEmptyResult : ServiceResult.BasicResult<String>(SIMPLE_EMPTY) {
-
-        companion object {
-            const val SIMPLE_EMPTY = "SIMPLE_EMPTY"
+        val data = savedStateHandler?.get<String>(SAVE_KEY)
+        data?.let {
+            dispatch(IntentMessage(SimpleServiceCoroutine.SimpleIntentType(it)))
         }
     }
 
-    class SimpleState : ActorServiceState()
 }

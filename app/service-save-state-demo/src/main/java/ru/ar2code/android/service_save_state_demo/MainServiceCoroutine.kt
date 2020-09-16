@@ -15,38 +15,46 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.android.service_save_state_demo
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorService
 import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.android.redis.core.services.ServiceSavedStateHandler
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import ru.ar2code.defaults.DefaultCoroutineActorService
 
-@ExperimentalCoroutinesApi
-class ServiceWithCustomInitResult(
-    scope: CoroutineScope, dispatcher: CoroutineDispatcher
-) :
-    ActorService<String>(scope, dispatcher, null, SimpleTestLogger()) {
+class MainServiceCoroutine(scope: CoroutineScope, savedStateHandler: ServiceSavedStateHandler) : DefaultCoroutineActorService<String>(scope, savedStateHandler) {
+
+    companion object {
+        private const val SAVE_KEY = "state"
+    }
+
+    class MainServiceIntentType : IntentMessage.IntentMessageType<String>()
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
+
+        savedStateHandler?.set(SAVE_KEY, "intent")
+
         return ServiceStateWithResult(
             ActorServiceState.Same(),
-            ServiceResult.BasicResult(msg.msgType.payload?.toString())
+            ServiceResult.BasicResult("Some result for user button click.")
         )
     }
 
     override fun getResultFotInitializedState(): ServiceResult<String> {
-        return CustomInitResult()
+        return ServiceResult.InitResult("Initial result. No state was saved.")
     }
 
-    class CustomInitResult : ServiceResult.BasicResult<String>(CUSTOM_INIT) {
+    override fun restoreState() {
+        super.restoreState()
 
-        companion object {
-            const val CUSTOM_INIT = "CUSTOM_INIT"
+        val state = savedStateHandler?.get<String>(SAVE_KEY)
+        state?.let {
+            logger.info("Restore MainService state. Send intent.")
+            sendIntent(IntentMessage(MainServiceIntentType()))
         }
     }
+
 }

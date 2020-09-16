@@ -21,7 +21,7 @@ import ru.ar2code.utils.Logger
 
 class SimpleTestLogger : Logger("TestLogger") {
     override fun info(msg: String) {
-
+        println(msg)
     }
 
     override fun error(msg: String, t: Throwable) {
