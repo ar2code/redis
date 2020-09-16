@@ -19,7 +19,6 @@ package ru.ar2code.android.redis.core
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
-import org.junit.Assert
 import org.junit.Test
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.prepares.*
@@ -107,7 +106,9 @@ class CoroutineActorServiceTests {
 
         scope.cancel()
 
-        Assert.assertTrue(service.isDisposed())
+        assertThat(service.isDisposed())
+
+        Unit
     }
 
     @Test(expected = IllegalStateException::class)
@@ -124,7 +125,9 @@ class CoroutineActorServiceTests {
         }
         service.subscribe(subscriber)
 
-        Assert.assertTrue(service.isDisposed())
+        assertThat(service.isDisposed())
+
+        Unit
     }
 
     @Test(expected = IllegalStateException::class)
@@ -136,7 +139,9 @@ class CoroutineActorServiceTests {
 
         service.dispatch(IntentMessage(SimpleServiceCoroutine.SimpleIntentType()))
 
-        Assert.assertTrue(service.isDisposed())
+        assertThat(service.isDisposed())
+
+        Unit
     }
 
     @Test(expected = ServiceWithExceptionInsideIntentHandlingCoroutine.TestException::class)
@@ -154,7 +159,7 @@ class CoroutineActorServiceTests {
     fun `SimpleIntentType and Initialized state select SimpleStateReducer`() = runBlocking {
         val service = SimpleServiceCoroutine(this, Dispatchers.Default)
 
-        var lastStateFromIntent : ActorServiceState? = null
+        var lastStateFromIntent: ActorServiceState? = null
 
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: ActorServiceState) {
@@ -178,7 +183,7 @@ class CoroutineActorServiceTests {
     fun `FloatIntentType and SimpleState state select FloatStateReducer`() = runBlocking {
         val service = SimpleServiceCoroutine(this, Dispatchers.Default)
 
-        var lastStateFromIntent : ActorServiceState? = null
+        var lastStateFromIntent: ActorServiceState? = null
 
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: ActorServiceState) {
@@ -203,32 +208,33 @@ class CoroutineActorServiceTests {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `FloatIntentType and AnotherState state throws reducer not found exception cause FloatStateReducer expect SimpleState`() = runBlocking {
-        val service = SimpleServiceCoroutine(this, Dispatchers.Default)
+    fun `FloatIntentType and AnotherState state throws reducer not found exception cause FloatStateReducer expect SimpleState`() =
+        runBlocking {
+            val service = SimpleServiceCoroutine(this, Dispatchers.Default)
 
-        var lastStateFromIntent : ActorServiceState? = null
+            var lastStateFromIntent: ActorServiceState? = null
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
-                lastStateFromIntent = newState
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: ActorServiceState) {
+                    lastStateFromIntent = newState
+                }
             }
+            service.subscribe(subscriber)
+
+            service.dispatch(IntentMessage(SimpleServiceCoroutine.AnotherIntentType()))
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispatch(IntentMessage(SimpleServiceCoroutine.FloatIntentType()))
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(lastStateFromIntent).isInstanceOf(SimpleServiceCoroutine.FloatState::class.java)
+
+            Unit
         }
-        service.subscribe(subscriber)
-
-        service.dispatch(IntentMessage(SimpleServiceCoroutine.AnotherIntentType()))
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispatch(IntentMessage(SimpleServiceCoroutine.FloatIntentType()))
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
-
-        assertThat(lastStateFromIntent).isInstanceOf(SimpleServiceCoroutine.FloatState::class.java)
-
-        Unit
-    }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Reducer not found throws exception`() = runBlocking {
@@ -242,7 +248,7 @@ class CoroutineActorServiceTests {
     fun `AnotherIntentType and Initialized state select AnotherStateReducer`() = runBlocking {
         val service = SimpleServiceCoroutine(this, Dispatchers.Default)
 
-        var lastStateFromIntent : ActorServiceState? = null
+        var lastStateFromIntent: ActorServiceState? = null
 
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: ActorServiceState) {
@@ -406,7 +412,7 @@ class CoroutineActorServiceTests {
         service.subscribe(subscriber)
         service.subscribe(subscriber)
 
-        Assert.assertEquals(1, service.getSubscribersCount())
+        assertThat(service.getSubscribersCount()).isEqualTo(1)
 
         service.dispose()
     }
@@ -426,7 +432,7 @@ class CoroutineActorServiceTests {
 
         service.dispose()
 
-        Assert.assertEquals(0, service.getSubscribersCount())
+        assertThat(service.getSubscribersCount()).isEqualTo(0)
     }
 
     @Test
@@ -447,7 +453,7 @@ class CoroutineActorServiceTests {
 
         delay(testDelayBeforeCheckingResult)
 
-        Assert.assertTrue(emptyResultOne)
+        assertThat(emptyResultOne)
 
         service.dispose()
     }
@@ -472,7 +478,7 @@ class CoroutineActorServiceTests {
 
         val storedData = stateHandler.get<String>(SAVE_KEY)
 
-        Assert.assertEquals(savedId, storedData)
+        assertThat(storedData).isEqualTo(savedId)
 
         service.dispose()
     }
