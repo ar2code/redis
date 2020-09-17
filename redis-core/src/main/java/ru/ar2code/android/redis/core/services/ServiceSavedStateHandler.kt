@@ -19,9 +19,8 @@ package ru.ar2code.android.redis.core.services
 
 interface ServiceSavedStateHandler {
 
-    fun <T> get(key: String): T?
+    suspend fun storeState(state: ActorServiceState, store: SavedStateStore?)
 
-    fun <T> set(key: String, value: T?)
+    suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
 
-    fun keys(): List<String>
 }

@@ -18,22 +18,15 @@
 package ru.ar2code.android.redis.core.services
 
 abstract class SavedStateActorService(
-    protected var savedStateHandler: ServiceSavedStateHandler?
+    private val savedStateStore: SavedStateStore?,
+    private val savedStateHandler: ServiceSavedStateHandler?
 ) : ActorService {
 
-    /**
-     * Set ServiceSavedStateHandler implementation for saving service state due to process kill or even app closing.
-     */
-    fun setServiceSavedStateHandler(serviceSavedStateHandler: ServiceSavedStateHandler?) {
-        savedStateHandler = serviceSavedStateHandler
-        restoreState()
+    internal suspend fun storeState(state: ActorServiceState) {
+        savedStateHandler?.storeState(state, savedStateStore)
     }
 
-    /**
-     * You can check [savedStateHandler] and restore previous saved state.
-     * Best practice is to save some Id (or any small identical piece of data) that you got inside [onIntentMsg] than restore that Id here and send same intent.
-     */
-    protected open fun restoreState() {
-
+    internal suspend fun restoreState() : RestoredStateIntent? {
+        return savedStateHandler?.restoreState(savedStateStore)
     }
 }

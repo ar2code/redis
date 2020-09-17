@@ -15,27 +15,16 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.android.redis.core.services
 
-import ru.ar2code.android.redis.core.services.ServiceSavedStateHandler
+import ru.ar2code.android.redis.core.models.IntentMessage
 
-class TestMemorySavedStateHandler : ServiceSavedStateHandler {
-
-    private val dictionary = HashMap<String, Any>()
-
-    override fun <T> get(key: String): T? {
-        return dictionary.get(key) as? T
-    }
-
-    override fun <T> set(key: String, value: T?) {
-        if (value != null) {
-            dictionary.put(key, value)
-        } else {
-            dictionary.remove(key)
-        }
-    }
-
-    override fun keys(): List<String> {
-        return dictionary.keys.toList()
-    }
-}
+/**
+ * You can restore previous service's state.
+ * @param state if is not null service get this state after initialization
+ * @param intentMessage if is not null service will send this intent to itself after initialization
+ */
+class RestoredStateIntent(
+    val state: ActorServiceState?,
+    val intentMessage: IntentMessage?
+)

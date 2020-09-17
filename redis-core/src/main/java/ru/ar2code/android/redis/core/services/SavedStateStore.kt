@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-package ru.ar2code.demo.impl
+package ru.ar2code.android.redis.core.services
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.StateReducer
+interface SavedStateStore {
 
-class DemoReducer : StateReducer(ActorServiceState.Initiated::class, DemoIntentType::class) {
+    fun <T> get(key: String): T?
 
-    override fun reduce(
-        currentState: ActorServiceState,
-        intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
-        return flow {
-            emit(ActorServiceState.Initiated())
-        }
-    }
+    fun <T> set(key: String, value: T?)
+
+    fun keys(): List<String>
 }

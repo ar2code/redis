@@ -17,21 +17,25 @@
 
 package ru.ar2code.android.redis.core.prepares
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.CoroutineActorService
+import ru.ar2code.android.redis.core.services.SavedStateStore
 
-@ExperimentalCoroutinesApi
-class ServiceWithCustomInitStateCoroutine(
-    scope: CoroutineScope, dispatcher: CoroutineDispatcher
-) :
-    CoroutineActorService(scope, dispatcher, CustomInitState(), emptyList() ,null, SimpleTestLogger()) {
+class TestMemorySavedStateStore : SavedStateStore {
 
-    class CustomInitState : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return CustomInitState()
+    private val dictionary = HashMap<String, Any>()
+
+    override fun <T> get(key: String): T? {
+        return dictionary.get(key) as? T
+    }
+
+    override fun <T> set(key: String, value: T?) {
+        if (value != null) {
+            dictionary.put(key, value)
+        } else {
+            dictionary.remove(key)
         }
+    }
+
+    override fun keys(): List<String> {
+        return dictionary.keys.toList()
     }
 }

@@ -21,11 +21,11 @@ import kotlinx.coroutines.CoroutineScope
 import ru.ar2code.android.redis.core.models.IntentMessage
 import ru.ar2code.android.redis.core.models.ServiceResult
 import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.ServiceSavedStateHandler
+import ru.ar2code.android.redis.core.services.SavedStateStore
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultCoroutineActorService
 
-class MainServiceCoroutine(scope: CoroutineScope, savedStateHandler: ServiceSavedStateHandler) : DefaultCoroutineActorService<String>(scope, savedStateHandler) {
+class MainServiceCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) : DefaultCoroutineActorService<String>(scope, savedStateStore) {
 
     companion object {
         private const val SAVE_KEY = "state"
@@ -35,7 +35,7 @@ class MainServiceCoroutine(scope: CoroutineScope, savedStateHandler: ServiceSave
 
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
 
-        savedStateHandler?.set(SAVE_KEY, "intent")
+        savedStateStore?.set(SAVE_KEY, "intent")
 
         return ServiceStateWithResult(
             ActorServiceState.Same(),
@@ -50,7 +50,7 @@ class MainServiceCoroutine(scope: CoroutineScope, savedStateHandler: ServiceSave
     override fun restoreState() {
         super.restoreState()
 
-        val state = savedStateHandler?.get<String>(SAVE_KEY)
+        val state = savedStateStore?.get<String>(SAVE_KEY)
         state?.let {
             logger.info("Restore MainService state. Send intent.")
             sendIntent(IntentMessage(MainServiceIntentType()))

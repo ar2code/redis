@@ -15,22 +15,16 @@
  * limitations under the License.
  */
 
-package ru.ar2code.demo.impl
+package ru.ar2code.android.redis.core.services
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.StateReducer
 
-class DemoReducer : StateReducer(ActorServiceState.Initiated::class, DemoIntentType::class) {
-
-    override fun reduce(
-        currentState: ActorServiceState,
-        intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
-        return flow {
-            emit(ActorServiceState.Initiated())
-        }
-    }
-}
+/**
+ * Each [ActorService] can listen another services and dispatch intent to itself if state of listened service was changed
+ * @param service listened service
+ * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
+ */
+class ListenedActorService(
+    val service: ActorService,
+    val intentBuilder : (newState : ActorServiceState) -> IntentMessage
+)

@@ -19,13 +19,13 @@ package ru.ar2code.android.service_save_state_demo
 
 import androidx.lifecycle.*
 import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ServiceSavedStateHandler
+import ru.ar2code.android.redis.core.services.SavedStateStore
 import ru.ar2code.android.redis.core.services.ServiceStateWithResult
 import ru.ar2code.android.redis.core.services.ServiceSubscriber
 
 class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 
-    private val serviceStateHandler = object : ServiceSavedStateHandler {
+    private val serviceStateHandler = object : SavedStateStore {
         override fun <T> get(key: String): T? {
             return state.get(key)
         }
