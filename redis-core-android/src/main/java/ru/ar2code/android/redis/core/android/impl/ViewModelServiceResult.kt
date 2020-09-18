@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android.impl
+package ru.ar2code.redis.core.android.impl
 
-import ru.ar2code.android.redis.core.android.BaseViewEvent
-import ru.ar2code.android.redis.core.android.BaseViewState
-import ru.ar2code.android.redis.core.models.ServiceResult
+import ru.ar2code.redis.core.android.BaseViewEvent
+import ru.ar2code.redis.core.android.BaseViewState
+import ru.ar2code.redis.core.models.ServiceResult
 
 class ViewModelServiceResult<ViewState, ViewEvent>(payload: ViewModelStateWithEvent<ViewState, ViewEvent>) :
     ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>(payload) where ViewState : BaseViewState, ViewEvent : BaseViewEvent

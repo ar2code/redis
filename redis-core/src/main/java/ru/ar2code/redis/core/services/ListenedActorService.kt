@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.services
+package ru.ar2code.redis.core.services
 
-interface SavedStateStore {
+import ru.ar2code.redis.core.models.IntentMessage
 
-    fun <T> get(key: String): T?
-
-    fun <T> set(key: String, value: T?)
-
-    fun keys(): List<String>
-}
+/**
+ * Each [ActorService] can listen another services and dispatch intent to itself if state of listened service was changed
+ * @param service listened service
+ * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
+ */
+class ListenedActorService(
+    val service: ActorService,
+    val intentBuilder : (newState : ActorServiceState) -> IntentMessage
+)

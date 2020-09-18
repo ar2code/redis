@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android.impl
+package ru.ar2code.redis.core.android.impl
 
-import ru.ar2code.android.redis.core.android.BaseViewEvent
-import ru.ar2code.android.redis.core.android.BaseViewState
+import ru.ar2code.redis.core.android.BaseViewEvent
+import ru.ar2code.redis.core.android.BaseViewState
 
 class ViewModelStateWithEvent<ViewState, ViewEvent>(
     val viewState: ViewState?,

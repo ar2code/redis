@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.ar2code.android.redis.core.android">
+    package="ru.ar2code.redis.core.android">
 
     /
 </manifest>

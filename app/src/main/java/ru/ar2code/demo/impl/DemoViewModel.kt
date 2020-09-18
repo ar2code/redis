@@ -22,15 +22,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
-import ru.ar2code.android.redis.core.android.ActorViewModel
-import ru.ar2code.android.redis.core.android.BaseViewEvent
-import ru.ar2code.android.redis.core.android.ChangeableState
-import ru.ar2code.android.redis.core.android.ViewEventType
-import ru.ar2code.android.redis.core.android.impl.ViewModelServiceResult
-import ru.ar2code.android.redis.core.android.impl.ViewModelStateWithEvent
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import ru.ar2code.redis.core.android.ActorViewModel
+import ru.ar2code.redis.core.android.BaseViewEvent
+import ru.ar2code.redis.core.android.ChangeableState
+import ru.ar2code.redis.core.android.ViewEventType
+import ru.ar2code.redis.core.android.impl.ViewModelServiceResult
+import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
+import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultLogger
 
 class DemoViewModel :

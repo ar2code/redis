@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android.impl
+package ru.ar2code.redis.core.android.impl
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.android.redis.core.android.BaseViewEvent
-import ru.ar2code.android.redis.core.android.BaseViewState
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.CoroutineActorService
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import ru.ar2code.redis.core.android.BaseViewEvent
+import ru.ar2code.redis.core.android.BaseViewState
+import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.models.ServiceResult
+import ru.ar2code.redis.core.services.CoroutineActorService
+import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi

@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android
+package ru.ar2code.redis.core.android
 
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import ru.ar2code.android.redis.core.android.impl.CoroutineActorViewModelService
-import ru.ar2code.android.redis.core.android.impl.ViewModelStateWithEvent
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.models.ServiceResult
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.ServiceStateWithResult
-import ru.ar2code.android.redis.core.services.ServiceSubscriber
+import ru.ar2code.redis.core.android.impl.CoroutineActorViewModelService
+import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
+import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.models.ServiceResult
+import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.ServiceStateWithResult
+import ru.ar2code.redis.core.services.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
 import ru.ar2code.utils.Logger

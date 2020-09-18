@@ -19,9 +19,9 @@ package ru.ar2code.defaults
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.CoroutineActorService
-import ru.ar2code.android.redis.core.services.SavedStateStore
+import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.CoroutineActorService
+import ru.ar2code.redis.core.services.SavedStateStore
 
 /**
  * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]

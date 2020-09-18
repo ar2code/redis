@@ -15,33 +15,25 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.services
+package ru.ar2code.redis.core.services
 
-abstract class ActorServiceState {
+import kotlinx.coroutines.flow.Flow
+import ru.ar2code.redis.core.models.IntentMessage
+import kotlin.reflect.KClass
 
-    class Created : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Created()
-        }
+abstract class StateReducer(
+    private val expectState: KClass<*>,
+    private val expectIntentType: KClass<*>
+) {
+    abstract fun reduce(
+        currentState: ActorServiceState,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<ActorServiceState>
+
+    fun isReducerApplicable(
+        currentState: ActorServiceState,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Boolean {
+        return expectState.isInstance(currentState) && expectIntentType.isInstance(intent)
     }
-
-    class Initiated : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Initiated()
-        }
-    }
-
-    class Disposed : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Disposed()
-        }
-    }
-
-    class Same : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Same()
-        }
-    }
-
-    abstract fun clone(): ActorServiceState
 }

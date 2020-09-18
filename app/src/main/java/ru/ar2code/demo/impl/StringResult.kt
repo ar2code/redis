@@ -17,7 +17,7 @@
 
 package ru.ar2code.demo.impl
 
-import ru.ar2code.android.redis.core.models.ServiceResult
+import ru.ar2code.redis.core.models.ServiceResult
 
 class StringResult(payload : String?) : ServiceResult<String>(payload) {
 }

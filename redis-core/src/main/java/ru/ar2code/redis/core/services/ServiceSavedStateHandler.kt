@@ -15,27 +15,12 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.redis.core.services
 
-import ru.ar2code.android.redis.core.services.SavedStateStore
+interface ServiceSavedStateHandler {
 
-class TestMemorySavedStateStore : SavedStateStore {
+    suspend fun storeState(state: ActorServiceState, store: SavedStateStore?)
 
-    private val dictionary = HashMap<String, Any>()
+    suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
 
-    override fun <T> get(key: String): T? {
-        return dictionary.get(key) as? T
-    }
-
-    override fun <T> set(key: String, value: T?) {
-        if (value != null) {
-            dictionary.put(key, value)
-        } else {
-            dictionary.remove(key)
-        }
-    }
-
-    override fun keys(): List<String> {
-        return dictionary.keys.toList()
-    }
 }

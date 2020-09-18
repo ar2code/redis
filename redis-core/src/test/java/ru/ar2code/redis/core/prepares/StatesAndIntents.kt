@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.redis.core.prepares
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.StateReducer
+import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.StateReducer
 
 class CustomInitState : ActorServiceState() {
     override fun clone(): ActorServiceState {

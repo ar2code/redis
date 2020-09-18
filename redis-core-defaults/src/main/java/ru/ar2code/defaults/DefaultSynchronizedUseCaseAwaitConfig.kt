@@ -17,7 +17,7 @@
 
 package ru.ar2code.defaults
 
-import ru.ar2code.android.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
+import ru.ar2code.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
 
 class DefaultSynchronizedUseCaseAwaitConfig :
     SynchronizedUseCaseAwaitConfig {

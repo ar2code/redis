@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android.prepares
+package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.android.redis.core.android.ActorViewModel
-import ru.ar2code.android.redis.core.android.impl.ViewModelStateWithEvent
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ServiceStateWithResult
+import ru.ar2code.redis.core.android.ActorViewModel
+import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
+import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.services.ServiceStateWithResult
 
 class TestViewModelWithStateOnly : ActorViewModel<TestViewModelState, TestViewModelEvent>(SimpleTestLogger()) {
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>> {

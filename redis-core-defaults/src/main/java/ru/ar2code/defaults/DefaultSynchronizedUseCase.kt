@@ -18,7 +18,7 @@
 package ru.ar2code.defaults
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.android.redis.core.usecases.SynchronizedUseCase
+import ru.ar2code.redis.core.usecases.SynchronizedUseCase
 
 @ExperimentalCoroutinesApi
 abstract class DefaultSynchronizedUseCase<TParams, TResult> :

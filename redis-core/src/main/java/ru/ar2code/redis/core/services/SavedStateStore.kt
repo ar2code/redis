@@ -15,8 +15,13 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.models
+package ru.ar2code.redis.core.services
 
-class IntentMessage(val msgType: IntentMessageType<Any>) {
-    abstract class IntentMessageType<out T>(val payload: T? = null) where T : Any
+interface SavedStateStore {
+
+    fun <T> get(key: String): T?
+
+    fun <T> set(key: String, value: T?)
+
+    fun keys(): List<String>
 }

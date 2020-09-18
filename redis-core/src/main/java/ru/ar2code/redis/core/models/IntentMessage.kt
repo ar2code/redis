@@ -15,28 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.redis.core.models
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.usecases.SynchronizedUseCase
-
-class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
-    DefaultSynchronizedUseCaseAwaitConfig(),
-    SimpleTestLogger()
-) {
-
-    private var flowParam: String? = null
-
-    override fun execute(params: String?): Flow<String> {
-        flowParam = params
-
-        return flow {
-            emit(params!!)
-            delay(1000)
-            emit(params!!)
-        }
-    }
-
+class IntentMessage(val msgType: IntentMessageType<Any>) {
+    abstract class IntentMessageType<out T>(val payload: T? = null) where T : Any
 }

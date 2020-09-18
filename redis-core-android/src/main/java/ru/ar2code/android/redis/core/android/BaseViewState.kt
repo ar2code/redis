@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android
+package ru.ar2code.redis.core.android
 
 abstract class BaseViewState

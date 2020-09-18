@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android.prepares
+package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.android.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.models.IntentMessage
 
 class TestIntentMessageType : IntentMessage.IntentMessageType<String>()

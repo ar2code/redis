@@ -20,7 +20,7 @@ package ru.ar2code.demo.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.android.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
+import ru.ar2code.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
 import ru.ar2code.defaults.DefaultSynchronizedUseCase
 
 @ExperimentalCoroutinesApi

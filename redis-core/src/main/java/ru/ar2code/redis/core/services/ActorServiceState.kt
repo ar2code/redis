@@ -15,8 +15,33 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.services
+package ru.ar2code.redis.core.services
 
-interface ServiceSubscriber {
-    fun onReceive(newState: ActorServiceState)
+abstract class ActorServiceState {
+
+    class Created : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Created()
+        }
+    }
+
+    class Initiated : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Initiated()
+        }
+    }
+
+    class Disposed : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Disposed()
+        }
+    }
+
+    class Same : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Same()
+        }
+    }
+
+    abstract fun clone(): ActorServiceState
 }

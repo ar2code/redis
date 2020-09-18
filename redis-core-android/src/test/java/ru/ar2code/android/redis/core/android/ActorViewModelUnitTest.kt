@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android
+package ru.ar2code.redis.core.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import kotlinx.coroutines.delay
@@ -23,9 +23,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.Assert.*
 import org.junit.Rule
-import ru.ar2code.android.redis.core.android.prepares.*
-import ru.ar2code.android.redis.core.models.IntentMessage
-import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.android.prepares.*
+import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.services.ActorServiceState
 
 class ActorViewModelUnitTest {
 

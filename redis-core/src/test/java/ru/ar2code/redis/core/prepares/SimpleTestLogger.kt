@@ -15,14 +15,20 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.redis.core.prepares
 
-import ru.ar2code.android.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
+import ru.ar2code.utils.Logger
 
-class DefaultSynchronizedUseCaseAwaitConfig :
-    SynchronizedUseCaseAwaitConfig {
-    override val awaitStepDelayMs: Long
-        get() = 10
-    override val awaitTimeoutMs: Long
-        get() = 60_000
+class SimpleTestLogger : Logger("TestLogger") {
+    override fun info(msg: String) {
+        println(msg)
+    }
+
+    override fun error(msg: String, t: Throwable) {
+        println(msg)
+    }
+
+    override fun warning(msg: String) {
+        println(msg)
+    }
 }

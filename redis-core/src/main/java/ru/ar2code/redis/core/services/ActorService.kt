@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.services
+package ru.ar2code.redis.core.services
 
-import ru.ar2code.android.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.models.IntentMessage
 import ru.ar2code.utils.Logger
 
 interface ActorService {

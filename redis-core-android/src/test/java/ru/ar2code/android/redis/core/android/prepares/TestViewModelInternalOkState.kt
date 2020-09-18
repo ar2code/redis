@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android.prepares
+package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.android.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.ActorServiceState
 
 class TestViewModelInternalOkState : ActorServiceState() {
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.android
+package ru.ar2code.redis.core.android
 
 /**
  * todo comment here about this class

@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.prepares
+package ru.ar2code.redis.core.prepares
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.android.redis.core.services.ActorService
-import ru.ar2code.android.redis.core.services.ActorServiceState
-import ru.ar2code.android.redis.core.services.CoroutineActorService
+import ru.ar2code.redis.core.services.ActorService
+import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.services.CoroutineActorService
 
 @ExperimentalCoroutinesApi
 object ServiceFactory{

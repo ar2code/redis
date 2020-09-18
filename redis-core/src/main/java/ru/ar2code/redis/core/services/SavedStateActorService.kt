@@ -15,25 +15,18 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.services
+package ru.ar2code.redis.core.services
 
-import kotlinx.coroutines.flow.Flow
-import ru.ar2code.android.redis.core.models.IntentMessage
-import kotlin.reflect.KClass
+abstract class SavedStateActorService(
+    private val savedStateStore: SavedStateStore?,
+    private val savedStateHandler: ServiceSavedStateHandler?
+) : ActorService {
 
-abstract class StateReducer(
-    private val expectState: KClass<*>,
-    private val expectIntentType: KClass<*>
-) {
-    abstract fun reduce(
-        currentState: ActorServiceState,
-        intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState>
+    internal suspend fun storeState(state: ActorServiceState) {
+        savedStateHandler?.storeState(state, savedStateStore)
+    }
 
-    fun isReducerApplicable(
-        currentState: ActorServiceState,
-        intent: IntentMessage.IntentMessageType<Any>
-    ): Boolean {
-        return expectState.isInstance(currentState) && expectIntentType.isInstance(intent)
+    internal suspend fun restoreState() : RestoredStateIntent? {
+        return savedStateHandler?.restoreState(savedStateStore)
     }
 }
