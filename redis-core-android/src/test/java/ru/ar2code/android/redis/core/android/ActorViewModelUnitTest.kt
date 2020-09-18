@@ -24,8 +24,8 @@ import org.junit.Test
 import org.junit.Assert.*
 import org.junit.Rule
 import ru.ar2code.redis.core.android.prepares.*
-import ru.ar2code.redis.core.models.IntentMessage
-import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.ActorServiceState
 
 class ActorViewModelUnitTest {
 

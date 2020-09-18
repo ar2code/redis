@@ -17,7 +17,7 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.ActorServiceState
 
 class TestViewModelInternalOkState : ActorServiceState() {
 }

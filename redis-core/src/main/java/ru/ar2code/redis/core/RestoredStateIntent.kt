@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.services
-
-import ru.ar2code.redis.core.models.IntentMessage
+package ru.ar2code.redis.core
 
 /**
- * Each [ActorService] can listen another services and dispatch intent to itself if state of listened service was changed
- * @param service listened service
- * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
+ * You can restore previous service's state.
+ * @param state if is not null service get this state after initialization
+ * @param intentMessage if is not null service will send this intent to itself after initialization
  */
-class ListenedActorService(
-    val service: ActorService,
-    val intentBuilder : (newState : ActorServiceState) -> IntentMessage
+class RestoredStateIntent(
+    val state: ActorServiceState?,
+    val intentMessage: IntentMessage?
 )

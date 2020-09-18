@@ -15,13 +15,20 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.services
+package ru.ar2code.redis.core.coroutines.prepares
 
-interface SavedStateStore {
+import ru.ar2code.utils.Logger
 
-    fun <T> get(key: String): T?
+class SimpleTestLogger : Logger("TestLogger") {
+    override fun info(msg: String) {
+        println(msg)
+    }
 
-    fun <T> set(key: String, value: T?)
+    override fun error(msg: String, t: Throwable) {
+        println(msg)
+    }
 
-    fun keys(): List<String>
+    override fun warning(msg: String) {
+        println(msg)
+    }
 }

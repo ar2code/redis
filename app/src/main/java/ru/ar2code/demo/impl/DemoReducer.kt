@@ -19,8 +19,8 @@ package ru.ar2code.demo.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.redis.core.models.IntentMessage
-import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.ActorServiceState
 import ru.ar2code.redis.core.services.StateReducer
 
 class DemoReducer : StateReducer(ActorServiceState.Initiated::class, DemoIntentType::class) {

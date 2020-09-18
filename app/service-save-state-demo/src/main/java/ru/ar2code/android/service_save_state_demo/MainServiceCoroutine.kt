@@ -18,10 +18,10 @@
 package ru.ar2code.android.service_save_state_demo
 
 import kotlinx.coroutines.CoroutineScope
-import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.models.ServiceResult
-import ru.ar2code.redis.core.services.ActorServiceState
-import ru.ar2code.redis.core.services.SavedStateStore
+import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultCoroutineActorService
 

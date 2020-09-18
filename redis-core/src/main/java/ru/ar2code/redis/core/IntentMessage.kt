@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.services
+package ru.ar2code.redis.core
 
-interface ServiceSubscriber {
-    fun onReceive(newState: ActorServiceState)
+class IntentMessage(val msgType: IntentMessageType<Any>) {
+    abstract class IntentMessageType<out T>(val payload: T? = null) where T : Any
 }

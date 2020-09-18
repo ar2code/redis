@@ -19,7 +19,7 @@ package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.android.ActorViewModel
 import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
-import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 
 class TestViewModelWithStateAndEvent : ActorViewModel<TestViewModelState, TestViewModelEvent>(SimpleTestLogger()) {

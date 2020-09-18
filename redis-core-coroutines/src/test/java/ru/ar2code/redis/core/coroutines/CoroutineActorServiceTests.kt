@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
-import ru.ar2code.redis.core.models.IntentMessage
-import ru.ar2code.redis.core.prepares.*
-import ru.ar2code.redis.core.services.ActorServiceState
-import ru.ar2code.redis.core.services.ServiceSubscriber
+import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.ServiceSubscriber
+import ru.ar2code.redis.core.coroutines.prepares.*
 
 @ExperimentalCoroutinesApi
 class CoroutineActorServiceTests {

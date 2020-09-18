@@ -15,18 +15,15 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.services
+package ru.ar2code.redis.core.coroutines
 
-abstract class SavedStateActorService(
-    private val savedStateStore: SavedStateStore?,
-    private val savedStateHandler: ServiceSavedStateHandler?
-) : ActorService {
+import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.RestoredStateIntent
 
-    internal suspend fun storeState(state: ActorServiceState) {
-        savedStateHandler?.storeState(state, savedStateStore)
-    }
+interface ServiceSavedStateHandler {
 
-    internal suspend fun restoreState() : RestoredStateIntent? {
-        return savedStateHandler?.restoreState(savedStateStore)
-    }
+    suspend fun storeState(state: ActorServiceState, store: SavedStateStore?)
+
+    suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
+
 }

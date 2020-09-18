@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.prepares
+package ru.ar2code.redis.core
 
-import ru.ar2code.redis.core.services.SavedStateStore
+abstract class ActorServiceState {
 
-class TestMemorySavedStateStore : SavedStateStore {
-
-    private val dictionary = HashMap<String, Any>()
-
-    override fun <T> get(key: String): T? {
-        return dictionary.get(key) as? T
-    }
-
-    override fun <T> set(key: String, value: T?) {
-        if (value != null) {
-            dictionary.put(key, value)
-        } else {
-            dictionary.remove(key)
+    class Created : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Created()
         }
     }
 
-    override fun keys(): List<String> {
-        return dictionary.keys.toList()
+    class Initiated : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Initiated()
+        }
     }
+
+    class Disposed : ActorServiceState() {
+        override fun clone(): ActorServiceState {
+            return Disposed()
+        }
+    }
+
+    abstract fun clone(): ActorServiceState
 }

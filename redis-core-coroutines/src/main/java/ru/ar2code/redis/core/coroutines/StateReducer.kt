@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.services
+package ru.ar2code.redis.core.coroutines
 
 import kotlinx.coroutines.flow.Flow
-import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.ActorServiceState
 import kotlin.reflect.KClass
 
 abstract class StateReducer(

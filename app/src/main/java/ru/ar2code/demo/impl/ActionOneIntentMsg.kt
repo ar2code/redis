@@ -17,6 +17,6 @@
 
 package ru.ar2code.demo.impl
 
-import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.IntentMessage
 
 class ActionOneIntentMsg(payload : String?) : IntentMessage.IntentMessageType<String>(payload)

@@ -17,11 +17,7 @@
 
 package ru.ar2code.demo.impl
 
-import android.util.Log
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import ru.ar2code.redis.core.models.IntentMessage
-import ru.ar2code.redis.core.services.ActorServiceState
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 
 @ExperimentalCoroutinesApi

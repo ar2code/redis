@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.services
+package ru.ar2code.redis.core.coroutines
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.collect
-import ru.ar2code.redis.core.models.IntentMessage
+import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
 

@@ -17,5 +17,18 @@
 
 package ru.ar2code.redis.core.coroutines
 
-class MyClass {
+import ru.ar2code.redis.core.*
+
+abstract class SavedStateActorService(
+    private val savedStateStore: SavedStateStore?,
+    private val savedStateHandler: ServiceSavedStateHandler?
+) : ActorService {
+
+    internal suspend fun storeState(state: ActorServiceState) {
+        savedStateHandler?.storeState(state, savedStateStore)
+    }
+
+    internal suspend fun restoreState() : RestoredStateIntent? {
+        return savedStateHandler?.restoreState(savedStateStore)
+    }
 }

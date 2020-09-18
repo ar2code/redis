@@ -28,8 +28,8 @@ import ru.ar2code.redis.core.android.ChangeableState
 import ru.ar2code.redis.core.android.ViewEventType
 import ru.ar2code.redis.core.android.impl.ViewModelServiceResult
 import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
-import ru.ar2code.redis.core.models.IntentMessage
-import ru.ar2code.redis.core.services.ActorServiceState
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.ActorServiceState
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultLogger
 
