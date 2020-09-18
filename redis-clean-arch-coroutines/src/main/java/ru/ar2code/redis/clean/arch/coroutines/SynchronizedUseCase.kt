@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.usecases
+package ru.ar2code.redis.clean.arch.coroutines
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withTimeout
-import ru.ar2code.android.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
 import ru.ar2code.utils.Logger
 import java.util.concurrent.atomic.AtomicBoolean
 

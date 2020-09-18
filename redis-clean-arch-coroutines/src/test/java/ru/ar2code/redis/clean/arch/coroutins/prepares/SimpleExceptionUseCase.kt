@@ -14,12 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-include ':redis-clean-arch-coroutines'
-include ':app:service-save-state-demo'
-include ':redis-core-android'
-include ':redis-core-defaults'
-include ':redis-utils'
-include ':redis-core'
-include ':redis-core-coroutines'
-include ':app'
-rootProject.name = "Demo"
+
+package ru.ar2code.redis.clean.arch.coroutins.prepares
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
+
+class SimpleExceptionUseCase :
+    SynchronizedUseCase<String, Int>(DefaultSynchronizedUseCaseAwaitConfig(), SimpleTestLogger()) {
+    override fun execute(params: String?): Flow<Int> {
+        return flow {
+            throw Exception(params)
+        }
+    }
+}

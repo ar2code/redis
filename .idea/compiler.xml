@@ -2,7 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="redis-clean-arch-coroutines" target="1.7" />
       <module name="redis-core" target="1.7" />
+      <module name="redis-core-coroutines" target="1.7" />
       <module name="redis-core-defaults" target="1.7" />
       <module name="redis-utils" target="1.7" />
     </bytecodeTargetLevel>

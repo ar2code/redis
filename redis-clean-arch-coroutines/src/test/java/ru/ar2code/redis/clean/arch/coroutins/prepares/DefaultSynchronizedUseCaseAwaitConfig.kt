@@ -15,17 +15,14 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.interfaces
+package ru.ar2code.redis.clean.arch.coroutins.prepares
 
-/**
- * Sync parameters for SynchronizedUseCase
- *
- * @property awaitStepDelayMs - delay in milliseconds on every awaiting step
- * @property awaitTimeoutMs - throw exception after that time in milliseconds
- */
-interface SynchronizedUseCaseAwaitConfig {
+import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCaseAwaitConfig
 
-    val awaitStepDelayMs : Long
-
-    val awaitTimeoutMs : Long
+class DefaultSynchronizedUseCaseAwaitConfig :
+    SynchronizedUseCaseAwaitConfig {
+    override val awaitStepDelayMs: Long
+        get() = 10
+    override val awaitTimeoutMs: Long
+        get() = 60_000
 }

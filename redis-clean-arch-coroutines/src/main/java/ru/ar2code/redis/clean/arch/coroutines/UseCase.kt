@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package ru.ar2code.android.redis.core.usecases
+package ru.ar2code.redis.clean.arch.coroutines
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach

@@ -14,12 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-include ':redis-clean-arch-coroutines'
-include ':app:service-save-state-demo'
-include ':redis-core-android'
-include ':redis-core-defaults'
-include ':redis-utils'
-include ':redis-core'
-include ':redis-core-coroutines'
-include ':app'
-rootProject.name = "Demo"
+
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
+    implementation project(path: ':redis-utils')
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.7'
+    testImplementation "com.google.truth:truth:1.0.1"
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
