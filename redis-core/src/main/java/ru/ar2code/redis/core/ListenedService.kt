@@ -15,20 +15,14 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.coroutines
+package ru.ar2code.redis.core
 
-import ru.ar2code.redis.core.*
-
-abstract class SavedStateActorService(
-    private val savedStateStore: SavedStateStore?,
-    private val savedStateHandler: ServiceSavedStateHandler?
-) : ActorService {
-
-    internal suspend fun storeState(state: ActorServiceState) {
-        savedStateHandler?.storeState(state, savedStateStore)
-    }
-
-    internal suspend fun restoreState() : RestoredStateIntent? {
-        return savedStateHandler?.restoreState(savedStateStore)
-    }
-}
+/**
+ * Each [StateService] can listen another services and dispatch intent to itself if state of listened service was changed
+ * @param service listened service
+ * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
+ */
+class ListenedService(
+    val service: StateService,
+    val intentBuilder : (newState : State) -> IntentMessage
+)

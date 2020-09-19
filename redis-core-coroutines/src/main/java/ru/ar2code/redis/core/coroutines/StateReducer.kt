@@ -19,7 +19,7 @@ package ru.ar2code.redis.core.coroutines
 
 import kotlinx.coroutines.flow.Flow
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import kotlin.reflect.KClass
 
 abstract class StateReducer(
@@ -27,12 +27,12 @@ abstract class StateReducer(
     private val expectIntentType: KClass<*>
 ) {
     abstract fun reduce(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState>
+    ): Flow<State>
 
     fun isReducerApplicable(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Boolean {
         return expectState.isInstance(currentState) && expectIntentType.isInstance(intent)

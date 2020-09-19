@@ -29,7 +29,7 @@ import ru.ar2code.redis.core.android.ViewEventType
 import ru.ar2code.redis.core.android.impl.ViewModelServiceResult
 import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultLogger
 
@@ -72,6 +72,6 @@ class DemoViewModel :
                 null
             )
         )
-        return ServiceStateWithResult(ActorServiceState.Same(), sr)
+        return ServiceStateWithResult(State.Same(), sr)
     }
 }

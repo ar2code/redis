@@ -20,7 +20,7 @@ package ru.ar2code.android.service_save_state_demo
 import kotlinx.coroutines.CoroutineScope
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.models.ServiceResult
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.defaults.DefaultCoroutineActorService
@@ -38,7 +38,7 @@ class MainServiceCoroutine(scope: CoroutineScope, savedStateStore: SavedStateSto
         savedStateStore?.set(SAVE_KEY, "intent")
 
         return ServiceStateWithResult(
-            ActorServiceState.Same(),
+            State.Same(),
             ServiceResult.BasicResult("Some result for user button click.")
         )
     }

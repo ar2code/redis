@@ -20,17 +20,17 @@ package ru.ar2code.demo.impl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.services.StateReducer
 
-class DemoReducer : StateReducer(ActorServiceState.Initiated::class, DemoIntentType::class) {
+class DemoReducer : StateReducer(State.Initiated::class, DemoIntentType::class) {
 
     override fun reduce(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
+    ): Flow<State> {
         return flow {
-            emit(ActorServiceState.Initiated())
+            emit(State.Initiated())
         }
     }
 }

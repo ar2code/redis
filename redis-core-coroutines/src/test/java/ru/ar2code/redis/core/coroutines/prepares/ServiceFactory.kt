@@ -20,19 +20,22 @@ package ru.ar2code.redis.core.coroutines.prepares
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.ActorService
-import ru.ar2code.redis.core.ActorServiceState
-import ru.ar2code.redis.core.coroutines.CoroutineActorService
+import ru.ar2code.redis.core.StateService
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.coroutines.CoroutineStateService
 
 @ExperimentalCoroutinesApi
-object ServiceFactory{
+object ServiceFactory {
 
-    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher) : ActorService {
-        return CoroutineActorService(
+    private val defaultReducers =
+        listOf(SimpleStateReducer(), AnotherStateReducer(), FloatStateReducer(), FlowStateReducer())
+
+    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): StateService {
+        return CoroutineStateService(
             scope,
             dispatcher,
-            ActorServiceState.Initiated(),
-            listOf(SimpleStateReducer(), AnotherStateReducer(), FloatStateReducer()),
+            State.Initiated(),
+            defaultReducers,
             null,
             SimpleTestLogger(),
             null,
@@ -40,8 +43,11 @@ object ServiceFactory{
         )
     }
 
-    fun buildServiceWithCustomInit(scope: CoroutineScope, dispatcher: CoroutineDispatcher) : ActorService {
-        return CoroutineActorService(
+    fun buildServiceWithCustomInit(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher
+    ): StateService {
+        return CoroutineStateService(
             scope,
             dispatcher,
             CustomInitState(),
@@ -53,11 +59,14 @@ object ServiceFactory{
         )
     }
 
-    fun buildServiceWithReducerException(scope: CoroutineScope, dispatcher: CoroutineDispatcher): ActorService {
-        return CoroutineActorService(
+    fun buildServiceWithReducerException(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher
+    ): StateService {
+        return CoroutineStateService(
             scope,
             dispatcher,
-            ActorServiceState.Initiated(),
+            State.Initiated(),
             listOf(SimpleExceptionStateReducer()),
             null,
             SimpleTestLogger(),

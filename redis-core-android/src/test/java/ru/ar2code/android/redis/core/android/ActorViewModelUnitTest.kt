@@ -25,7 +25,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import ru.ar2code.redis.core.android.prepares.*
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 
 class ActorViewModelUnitTest {
 
@@ -38,7 +38,7 @@ class ActorViewModelUnitTest {
     fun `ViewModel's state is created or initiated immediately after creation`() = runBlocking {
         val viewModel = TestViewModel()
 
-        assertTrue(viewModel.state is ActorServiceState.Created || viewModel.state is ActorServiceState.Initiated)
+        assertTrue(viewModel.state is State.Created || viewModel.state is State.Initiated)
     }
 
     @Test
@@ -47,14 +47,14 @@ class ActorViewModelUnitTest {
 
         delay(delayBeforeAssertMs)
 
-        assertTrue(viewModel.state is ActorServiceState.Initiated)
+        assertTrue(viewModel.state is State.Initiated)
     }
 
     @Test
     fun `Can change state set correct state after receiving results`() = runBlocking {
         val viewModel = TestViewModel()
 
-        assertTrue(viewModel.state is ActorServiceState.Created || viewModel.state is ActorServiceState.Initiated)
+        assertTrue(viewModel.state is State.Created || viewModel.state is State.Initiated)
 
         viewModel.sendIntent(IntentMessage(TestIntentMessageType()))
 

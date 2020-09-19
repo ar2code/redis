@@ -20,64 +20,28 @@ package ru.ar2code.redis.core.coroutines.prepares
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
 
-class CustomInitState : ActorServiceState() {
-    override fun clone(): ActorServiceState {
-        return CustomInitState()
-    }
-}
-
-class TestException : Exception()
-
-class SimpleExceptionStateReducer : StateReducer(ActorServiceState.Initiated::class, SimpleIntentType::class) {
+class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, SimpleIntentType::class) {
 
     override fun reduce(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
+    ): Flow<State> {
         return flow {
             throw TestException()
         }
     }
 }
 
-
-class SimpleIntentType(payload: String? = null) :
-    IntentMessage.IntentMessageType<String>(payload)
-
-class AnotherIntentType(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
-
-class FloatIntentType(payload: Float? = null) :
-    IntentMessage.IntentMessageType<Float>(payload)
-
-class SimpleState : ActorServiceState() {
-    override fun clone(): ActorServiceState {
-        return SimpleState()
-    }
-}
-
-class AnotherState : ActorServiceState() {
-    override fun clone(): ActorServiceState {
-        return AnotherState()
-    }
-}
-
-class FloatState : ActorServiceState() {
-    override fun clone(): ActorServiceState {
-        return FloatState()
-    }
-}
-
 class SimpleStateReducer :
-    StateReducer(ActorServiceState.Initiated::class, SimpleIntentType::class) {
+    StateReducer(State.Initiated::class, SimpleIntentType::class) {
 
     override fun reduce(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
+    ): Flow<State> {
         return flow {
             emit(SimpleState())
         }
@@ -85,12 +49,12 @@ class SimpleStateReducer :
 }
 
 class AnotherStateReducer :
-    StateReducer(ActorServiceState.Initiated::class, AnotherIntentType::class) {
+    StateReducer(State.Initiated::class, AnotherIntentType::class) {
 
     override fun reduce(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
+    ): Flow<State> {
         return flow {
             emit(AnotherState())
         }
@@ -101,12 +65,25 @@ class FloatStateReducer :
     StateReducer(SimpleState::class, FloatIntentType::class) {
 
     override fun reduce(
-        currentState: ActorServiceState,
+        currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
-    ): Flow<ActorServiceState> {
+    ): Flow<State> {
         return flow {
             emit(FloatState())
         }
     }
+}
 
+class FlowStateReducer :
+    StateReducer(State.Initiated::class, FlowIntentType::class) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowFirstState(FlowFirstState.NAME))
+            emit(FlowSecondState(FlowSecondState.NAME))
+        }
+    }
 }

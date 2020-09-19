@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
 
-abstract class ActorServiceState {
+import ru.ar2code.redis.core.*
 
-    class Created : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Created()
-        }
+abstract class SavedStateService(
+    private val savedStateStore: SavedStateStore?,
+    private val savedStateHandler: SavedStateHandler?
+) : StateService {
+
+    internal suspend fun storeState(state: State) {
+        savedStateHandler?.storeState(state, savedStateStore)
     }
 
-    class Initiated : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Initiated()
-        }
+    internal suspend fun restoreState() : RestoredStateIntent? {
+        return savedStateHandler?.restoreState(savedStateStore)
     }
-
-    class Disposed : ActorServiceState() {
-        override fun clone(): ActorServiceState {
-            return Disposed()
-        }
-    }
-
-    abstract fun clone(): ActorServiceState
 }

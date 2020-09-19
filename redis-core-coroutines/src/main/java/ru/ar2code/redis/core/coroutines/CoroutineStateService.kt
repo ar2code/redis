@@ -25,35 +25,35 @@ import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
 
 @ExperimentalCoroutinesApi
-class CoroutineActorService(
+class CoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
-    private val initialState: ActorServiceState,
+    private val initialState: State,
     private val reducers: List<StateReducer>,
-    private val listenedServices: List<ListenedActorService>?,
+    private val listenedServices: List<ListenedService>?,
     private val logger: Logger,
     savedStateStore: SavedStateStore? = null,
-    savedStateHandler: ServiceSavedStateHandler?= null
-) : SavedStateActorService(savedStateStore, savedStateHandler) {
+    savedStateHandler: SavedStateHandler?= null
+) : SavedStateService(savedStateStore, savedStateHandler) {
 
     companion object {
         private const val AWAIT_INIT_DELAY_MS = 1L
     }
 
-    override var serviceState: ActorServiceState = ActorServiceState.Created()
+    override var serviceState: State = State.Created()
         get() {
             return field.clone()
         }
 
-    private var resultsChannel = BroadcastChannel<ActorServiceState>(Channel.CONFLATED)
+    private var resultsChannel = BroadcastChannel<State>(Channel.CONFLATED)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
     private val subscribers =
-        ConcurrentHashMap<ServiceSubscriber, ReceiveChannel<ActorServiceState>>()
+        ConcurrentHashMap<ServiceSubscriber, ReceiveChannel<State>>()
 
     private val listenedServicesSubscribers =
-        mutableMapOf<ServiceSubscriber, ListenedActorService>()
+        mutableMapOf<ServiceSubscriber, ListenedService>()
 
     init {
         initialize()
@@ -71,7 +71,7 @@ class CoroutineActorService(
                 awaitPassCreatedState()
                 intentMessagesChannel.send(msg)
             } catch (e: ClosedSendChannelException) {
-                logger.info("Service [${this@CoroutineActorService}] intent channel is closed.")
+                logger.info("Service [${this@CoroutineStateService}] intent channel is closed.")
             }
         }
     }
@@ -96,7 +96,7 @@ class CoroutineActorService(
             listenedServicesSubscribers.clear()
         }
 
-        serviceState = ActorServiceState.Disposed()
+        serviceState = State.Disposed()
 
         intentMessagesChannel.close()
         resultsChannel.close()
@@ -110,7 +110,7 @@ class CoroutineActorService(
      */
     override fun isDisposed(): Boolean {
         disposeIfScopeNotActive()
-        return serviceState is ActorServiceState.Disposed
+        return serviceState is State.Disposed
     }
 
     /**
@@ -128,22 +128,22 @@ class CoroutineActorService(
             return isSubscriberExists
         }
 
-        fun openSubscription(): ReceiveChannel<ActorServiceState> {
+        fun openSubscription(): ReceiveChannel<State> {
             val subscription = resultsChannel.openSubscription()
             subscribers[subscriber] = subscription
             return subscription
         }
 
-        fun listening(subscription: ReceiveChannel<ActorServiceState>) {
+        fun listening(subscription: ReceiveChannel<State>) {
             scope.launch(dispatcher) {
-                logger.info("Service [${this@CoroutineActorService}] start listening new subscription")
+                logger.info("Service [${this@CoroutineStateService}] start listening new subscription")
 
                 while (isActive && !subscription.isClosedForReceive) {
                     try {
                         val result = subscription.receive()
                         subscriber.onReceive(result)
                     } catch (e: ClosedReceiveChannelException) {
-                        logger.info("Service [${this@CoroutineActorService}] result channel is closed.")
+                        logger.info("Service [${this@CoroutineStateService}] result channel is closed.")
                     }
                 }
                 disposeIfScopeNotActive()
@@ -168,7 +168,7 @@ class CoroutineActorService(
     @Synchronized
     override fun unsubscribe(subscriber: ServiceSubscriber) {
 
-        fun getSubscription(): ReceiveChannel<ActorServiceState>? {
+        fun getSubscription(): ReceiveChannel<State>? {
             val subscription = subscribers[subscriber]
             if (subscription == null) {
                 logger.info("Subscriber $subscriber does not exist in service $this.")
@@ -176,7 +176,7 @@ class CoroutineActorService(
             return subscription
         }
 
-        fun deleteSubscription(subscription: ReceiveChannel<ActorServiceState>?) {
+        fun deleteSubscription(subscription: ReceiveChannel<State>?) {
             subscription?.let {
                 it.cancel()
                 subscribers.remove(subscriber)
@@ -194,7 +194,7 @@ class CoroutineActorService(
      */
     override fun getSubscribersCount() = subscribers.size
 
-    private suspend fun broadcastNewState(newServiceState: ActorServiceState) {
+    private suspend fun broadcastNewState(newServiceState: State) {
         try {
             logger.info("Service [$this] change state from $serviceState to $newServiceState")
 
@@ -228,7 +228,7 @@ class CoroutineActorService(
         fun subscribeToExternalServices() {
             listenedServices?.forEach {
                 val subscriber = object : ServiceSubscriber {
-                    override fun onReceive(newState: ActorServiceState) {
+                    override fun onReceive(newState: State) {
                         dispatch(it.intentBuilder(newState))
                     }
                 }
@@ -239,7 +239,7 @@ class CoroutineActorService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("Service [${this@CoroutineActorService}] on initialized. Send empty result.")
+                logger.info("Service [${this@CoroutineStateService}] on initialized. Send empty result.")
                 broadcastNewState(initialState)
                 restoreStateWithIntent()
                 subscribeToExternalServices()
@@ -247,11 +247,11 @@ class CoroutineActorService(
         }
 
         when (serviceState) {
-            is ActorServiceState.Created -> {
+            is State.Created -> {
                 initService()
                 provideInitializedResult()
             }
-            is ActorServiceState.Disposed -> {
+            is State.Disposed -> {
                 throw IllegalStateException("Service $this is disposed. Cannot initialize again.")
             }
             else -> {
@@ -268,7 +268,7 @@ class CoroutineActorService(
 
                     val reducer = findReducer(msg.msgType)
 
-                    logger.info("Service [${this@CoroutineActorService}] Founded reducer: $reducer for intent $msg")
+                    logger.info("Service [${this@CoroutineStateService}] Founded reducer: $reducer for intent $msg")
 
                     val newStateFlow = reducer.reduce(serviceState, msg.msgType)
 
@@ -278,7 +278,7 @@ class CoroutineActorService(
                         }
                     }
                 } catch (e: ClosedReceiveChannelException) {
-                    logger.info("Service [${this@CoroutineActorService}] intent channel is closed.")
+                    logger.info("Service [${this@CoroutineStateService}] intent channel is closed.")
                 }
             }
 
@@ -324,7 +324,7 @@ class CoroutineActorService(
     }
 
     private suspend fun awaitPassCreatedState() {
-        while (serviceState is ActorServiceState.Created) {
+        while (serviceState is State.Created) {
             delay(AWAIT_INIT_DELAY_MS)
             logger.info("Service [$this] await passing initial state. Current state = $serviceState")
         }

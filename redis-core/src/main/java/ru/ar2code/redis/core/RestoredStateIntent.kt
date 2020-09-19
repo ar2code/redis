@@ -23,6 +23,6 @@ package ru.ar2code.redis.core
  * @param intentMessage if is not null service will send this intent to itself after initialization
  */
 class RestoredStateIntent(
-    val state: ActorServiceState?,
+    val state: State?,
     val intentMessage: IntentMessage?
 )

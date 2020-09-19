@@ -17,6 +17,25 @@
 
 package ru.ar2code.redis.core
 
-interface ServiceSubscriber {
-    fun onReceive(newState: State)
+abstract class State {
+
+    class Created : State() {
+        override fun clone(): State {
+            return Created()
+        }
+    }
+
+    class Initiated : State() {
+        override fun clone(): State {
+            return Initiated()
+        }
+    }
+
+    class Disposed : State() {
+        override fun clone(): State {
+            return Disposed()
+        }
+    }
+
+    abstract fun clone(): State
 }

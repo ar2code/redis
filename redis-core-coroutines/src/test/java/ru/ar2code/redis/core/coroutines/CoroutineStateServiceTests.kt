@@ -20,15 +20,15 @@ package ru.ar2code.redis.core.coroutines
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.coroutines.prepares.*
 
 @ExperimentalCoroutinesApi
-class CoroutineActorServiceTests {
+class CoroutineStateServiceTests {
 
-    private val testDelayBeforeCheckingResult = 20L
+    private val testDelayBeforeCheckingResult = 50L
 
     @Test
     fun `Concurrent subscribe and unsubscribe (2000 subs) gives no any concurrent exceptions`() =
@@ -43,7 +43,7 @@ class CoroutineActorServiceTests {
                 println("start subscribe task 1")
                 repeat(1000) {
                     val subscriber = object : ServiceSubscriber {
-                        override fun onReceive(newState: ActorServiceState) {
+                        override fun onReceive(newState: State) {
 
                         }
                     }
@@ -60,7 +60,7 @@ class CoroutineActorServiceTests {
                 println("start subscribe task 2")
                 repeat(1000) {
                     val subscriber = object : ServiceSubscriber {
-                        override fun onReceive(newState: ActorServiceState) {
+                        override fun onReceive(newState: State) {
 
                         }
                     }
@@ -82,7 +82,7 @@ class CoroutineActorServiceTests {
                 println("start subscribe task 4")
                 repeat(1000) {
                     val subscriber = object : ServiceSubscriber {
-                        override fun onReceive(newState: ActorServiceState) {
+                        override fun onReceive(newState: State) {
 
                         }
                     }
@@ -118,7 +118,7 @@ class CoroutineActorServiceTests {
         this.cancel()
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
 
             }
         }
@@ -130,7 +130,7 @@ class CoroutineActorServiceTests {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `When scope throw exception on attempt to send intent`() = runBlocking {
+    fun `When scope was cancelled throws exception on attempt to send intent`() = runBlocking {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -158,10 +158,10 @@ class CoroutineActorServiceTests {
     fun `SimpleIntentType and Initialized state select SimpleStateReducer`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var lastStateFromIntent: ActorServiceState? = null
+        var lastStateFromIntent: State? = null
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
                 lastStateFromIntent = newState
             }
         }
@@ -182,10 +182,10 @@ class CoroutineActorServiceTests {
     fun `FloatIntentType and SimpleState state select FloatStateReducer`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var lastStateFromIntent: ActorServiceState? = null
+        var lastStateFromIntent: State? = null
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
                 lastStateFromIntent = newState
             }
         }
@@ -211,10 +211,10 @@ class CoroutineActorServiceTests {
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-            var lastStateFromIntent: ActorServiceState? = null
+            var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: ActorServiceState) {
+                override fun onReceive(newState: State) {
                     lastStateFromIntent = newState
                 }
             }
@@ -247,10 +247,10 @@ class CoroutineActorServiceTests {
     fun `AnotherIntentType and Initialized state select AnotherStateReducer`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var lastStateFromIntent: ActorServiceState? = null
+        var lastStateFromIntent: State? = null
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
                 lastStateFromIntent = newState
             }
         }
@@ -267,134 +267,108 @@ class CoroutineActorServiceTests {
         Unit
     }
 
-//    @Test
-//    fun `Receive result from subscription after sending intent`() = runBlocking {
-//        val service = SimpleServiceCoroutine(this, Dispatchers.Default)
-//
-//        val payload = "1"
-//        var emptyResult = false
-//        var gotResult = false
-//
-//        val subscriber = object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    emptyResult = true
-//                    return
-//                }
-//
-//                gotResult = stateWithResult?.result?.payload == payload
-//
-//                service.dispose()
-//            }
-//        }
-//        service.subscribe(subscriber)
-//
-//        service.sendIntent(IntentMessage(SimpleServiceCoroutine.SimpleIntentType(payload)))
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        Assert.assertTrue(gotResult)
-//        Assert.assertTrue(emptyResult)
-//    }
-//
-//    @Test
-//    fun `Receive init result from subscription after service initiated`() = runBlocking {
-//        val service = SimpleServiceCoroutine(this, Dispatchers.Default)
-//
-//        var emptyResult = false
-//
-//        val subscriber = object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    emptyResult = true
-//                    service.dispose()
-//                }
-//            }
-//        }
-//        service.subscribe(subscriber)
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        Assert.assertTrue(emptyResult)
-//    }
-//
-//    @Test
-//    fun `Receive init result from all subscriptions after service initiated`() = runBlocking {
-//        val service = SimpleServiceCoroutine(this, Dispatchers.Default)
-//
-//        var emptyResult = false
-//        var emptyResultTwo = false
-//
-//        service.subscribe(object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    emptyResult = true
-//                }
-//            }
-//        })
-//
-//        service.subscribe(object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    emptyResultTwo = true
-//                }
-//            }
-//        })
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        service.dispose()
-//
-//        Assert.assertTrue(emptyResult)
-//        Assert.assertTrue(emptyResultTwo)
-//    }
-//
-//    @Test
-//    fun `Receive last result from newly added subscription`() = runBlocking {
-//        val service = SimpleServiceCoroutine(this, Dispatchers.Default)
-//        val payload = "1"
-//
-//        var emptyResultOne = false
-//        var payloadResultOne = false
-//
-//        var emptyResultTwo = false
-//        var payloadResultTwo = false
-//
-//        service.subscribe(object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    emptyResultOne = true
-//                } else {
-//                    payloadResultOne = stateWithResult?.result?.payload == payload
-//                }
-//            }
-//        })
-//
-//        service.dispatch(IntentMessage(SimpleServiceCoroutine.SimpleIntentType(payload)))
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        service.subscribe(object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    emptyResultTwo = true
-//                } else {
-//                    payloadResultTwo = stateWithResult?.result?.payload == payload
-//                }
-//            }
-//        })
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        service.dispose()
-//
-//        val firstSubscriberReceiveEmptyAndPayloadResult = emptyResultOne && payloadResultOne
-//        val secondSubscriberReceiveOnlyPayloadResult = !emptyResultTwo && payloadResultTwo
-//
-//        Assert.assertTrue(firstSubscriberReceiveEmptyAndPayloadResult)
-//        Assert.assertTrue(secondSubscriberReceiveOnlyPayloadResult)
-//
-//    }
+    @Test
+    fun `Reducer can change service state with flow`() = runBlocking {
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+        val expected = "${FlowFirstState.NAME}${FlowSecondState.NAME}"
+        var result = ""
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is FlowState) {
+                    result += newState.name
+                }
+            }
+        }
+        service.subscribe(subscriber)
+
+        service.dispatch(IntentMessage(FlowIntentType()))
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(result).isEqualTo(expected)
+
+        service.dispose()
+    }
+
+
+    @Test
+    fun `Receive init state from all subscriptions after service initiated`() = runBlocking {
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+        var emptyResult = false
+        var emptyResultTwo = false
+
+        service.subscribe(object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is State.Initiated) {
+                    emptyResult = true
+                }
+            }
+        })
+
+        service.subscribe(object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is State.Initiated) {
+                    emptyResultTwo = true
+                }
+            }
+        })
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(emptyResult && emptyResultTwo)
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Receive last state from newly added subscription`() = runBlocking {
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        val payload = "1"
+
+        var emptyResultOne = false
+        var payloadResultOne = false
+
+        var emptyResultTwo = false
+        var payloadResultTwo = false
+
+        service.subscribe(object : ServiceSubscriber {
+            override fun onReceive(newState: ActorServiceState) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
+                    emptyResultOne = true
+                } else {
+                    payloadResultOne = stateWithResult?.result?.payload == payload
+                }
+            }
+        })
+
+        service.dispatch(IntentMessage(SimpleServiceCoroutine.SimpleIntentType(payload)))
+
+        delay(testDelayBeforeCheckingResult)
+
+        service.subscribe(object : ServiceSubscriber {
+            override fun onReceive(newState: ActorServiceState) {
+                if (stateWithResult?.result is ServiceResult.InitResult) {
+                    emptyResultTwo = true
+                } else {
+                    payloadResultTwo = stateWithResult?.result?.payload == payload
+                }
+            }
+        })
+
+        delay(testDelayBeforeCheckingResult)
+
+        service.dispose()
+
+        val firstSubscriberReceiveEmptyAndPayloadResult = emptyResultOne && payloadResultOne
+        val secondSubscriberReceiveOnlyPayloadResult = !emptyResultTwo && payloadResultTwo
+
+        Assert.assertTrue(firstSubscriberReceiveEmptyAndPayloadResult)
+        Assert.assertTrue(secondSubscriberReceiveOnlyPayloadResult)
+
+    }
 
     @Test
     fun `Do not subscribe again if subscriber already exists`() = runBlocking {
@@ -402,7 +376,7 @@ class CoroutineActorServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
 
             }
         }
@@ -422,7 +396,7 @@ class CoroutineActorServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
 
             }
         }
@@ -441,7 +415,7 @@ class CoroutineActorServiceTests {
         val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
+            override fun onReceive(newState: State) {
                 if (newState is CustomInitState) {
                     emptyResultOne = true
                 }

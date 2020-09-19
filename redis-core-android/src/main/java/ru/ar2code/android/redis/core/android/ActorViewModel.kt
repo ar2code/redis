@@ -25,7 +25,7 @@ import ru.ar2code.redis.core.android.impl.CoroutineActorViewModelService
 import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.models.ServiceResult
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
@@ -64,7 +64,7 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
      * Current state of the view model
      */
     @VisibleForTesting(otherwise = PROTECTED)
-    val state: ActorServiceState
+    val state: State
         get() = viewModelService.serviceState
 
     init {
@@ -82,7 +82,7 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
      * You should check current ViewModel [state] here and previous result for making decision.
      */
     protected open fun canChangeState(
-        newServiceState: ActorServiceState,
+        newServiceState: State,
         withEvent: ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>
     ): Boolean = true
 

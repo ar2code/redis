@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines.prepares
 
-interface ServiceSubscriber {
-    fun onReceive(newState: State)
-}
+class TestException : Exception()

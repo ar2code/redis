@@ -15,14 +15,19 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines.prepares
 
-/**
- * Each [ActorService] can listen another services and dispatch intent to itself if state of listened service was changed
- * @param service listened service
- * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
- */
-class ListenedActorService(
-    val service: ActorService,
-    val intentBuilder : (newState : ActorServiceState) -> IntentMessage
-)
+import ru.ar2code.redis.core.IntentMessage
+
+class SimpleIntentType(payload: String? = null) :
+    IntentMessage.IntentMessageType<String>(payload)
+
+class AnotherIntentType(payload: Int? = null) :
+    IntentMessage.IntentMessageType<Int>(payload)
+
+class FloatIntentType(payload: Float? = null) :
+    IntentMessage.IntentMessageType<Float>(payload)
+
+class FlowIntentType(payload: Int? = null) :
+    IntentMessage.IntentMessageType<Int>(payload)
+

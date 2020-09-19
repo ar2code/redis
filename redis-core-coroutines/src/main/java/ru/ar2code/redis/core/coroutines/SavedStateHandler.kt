@@ -17,12 +17,12 @@
 
 package ru.ar2code.redis.core.coroutines
 
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.RestoredStateIntent
 
-interface ServiceSavedStateHandler {
+interface SavedStateHandler {
 
-    suspend fun storeState(state: ActorServiceState, store: SavedStateStore?)
+    suspend fun storeState(state: State, store: SavedStateStore?)
 
     suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
 

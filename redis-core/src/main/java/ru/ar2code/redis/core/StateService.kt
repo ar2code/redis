@@ -17,9 +17,9 @@
 
 package ru.ar2code.redis.core
 
-interface ActorService {
+interface StateService {
 
-    val serviceState: ActorServiceState
+    val serviceState: State
 
     /**
      * Dispatch intent to service for doing some action

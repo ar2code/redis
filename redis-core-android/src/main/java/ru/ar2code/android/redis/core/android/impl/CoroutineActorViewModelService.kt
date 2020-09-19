@@ -25,7 +25,7 @@ import ru.ar2code.redis.core.android.BaseViewState
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.models.ServiceResult
 import ru.ar2code.redis.core.services.CoroutineActorService
-import ru.ar2code.redis.core.ActorServiceState
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.utils.Logger
 
@@ -35,7 +35,7 @@ internal class CoroutineActorViewModelService<ViewState, ViewEvent>(
     dispatcher: CoroutineDispatcher,
     logger: Logger,
     private val onIntentMsgCallback: (suspend (IntentMessage) -> ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>)?,
-    private val canChangeStateCallback: ((ActorServiceState, ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>) -> Boolean)?
+    private val canChangeStateCallback: ((State, ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>) -> Boolean)?
 ) :
     CoroutineActorService<ViewModelStateWithEvent<ViewState, ViewEvent>>(
         scope, dispatcher, null, logger
@@ -46,7 +46,7 @@ internal class CoroutineActorViewModelService<ViewState, ViewEvent>(
     }
 
     override fun canChangeState(
-        newServiceState: ActorServiceState,
+        newServiceState: State,
         result: ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>
     ): Boolean {
         return canChangeStateCallback?.invoke(newServiceState, result) ?: true
