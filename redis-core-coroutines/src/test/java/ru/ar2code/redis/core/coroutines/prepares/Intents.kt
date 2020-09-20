@@ -30,4 +30,3 @@ class FloatIntentType(payload: Float? = null) :
 
 class FlowIntentType(payload: Int? = null) :
     IntentMessage.IntentMessageType<Int>(payload)
-

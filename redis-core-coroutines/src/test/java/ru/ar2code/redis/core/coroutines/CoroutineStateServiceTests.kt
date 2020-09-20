@@ -326,7 +326,6 @@ class CoroutineStateServiceTests {
     @Test
     fun `Receive last state from newly added subscription`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-        val payload = "1"
 
         var emptyResultOne = false
         var payloadResultOne = false
@@ -335,39 +334,38 @@ class CoroutineStateServiceTests {
         var payloadResultTwo = false
 
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
-                if (stateWithResult?.result is ServiceResult.InitResult) {
+            override fun onReceive(newState: State) {
+                if (newState is State.Initiated) {
                     emptyResultOne = true
-                } else {
-                    payloadResultOne = stateWithResult?.result?.payload == payload
+                } else if (newState is AnotherState) {
+                    payloadResultOne = true
                 }
             }
         })
 
-        service.dispatch(IntentMessage(SimpleServiceCoroutine.SimpleIntentType(payload)))
+        service.dispatch(IntentMessage(AnotherIntentType()))
 
         delay(testDelayBeforeCheckingResult)
 
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: ActorServiceState) {
-                if (stateWithResult?.result is ServiceResult.InitResult) {
+            override fun onReceive(newState: State) {
+                if (newState is State.Initiated) {
                     emptyResultTwo = true
-                } else {
-                    payloadResultTwo = stateWithResult?.result?.payload == payload
+                } else if (newState is AnotherState) {
+                    payloadResultTwo = true
                 }
             }
         })
 
         delay(testDelayBeforeCheckingResult)
 
-        service.dispose()
-
         val firstSubscriberReceiveEmptyAndPayloadResult = emptyResultOne && payloadResultOne
         val secondSubscriberReceiveOnlyPayloadResult = !emptyResultTwo && payloadResultTwo
 
-        Assert.assertTrue(firstSubscriberReceiveEmptyAndPayloadResult)
-        Assert.assertTrue(secondSubscriberReceiveOnlyPayloadResult)
+        assertThat(firstSubscriberReceiveEmptyAndPayloadResult)
+        assertThat(secondSubscriberReceiveOnlyPayloadResult)
 
+        service.dispose()
     }
 
     @Test
@@ -431,77 +429,135 @@ class CoroutineStateServiceTests {
         service.dispose()
     }
 
-//    @Test
-//    fun `Service stores arbitrary data in state handler`() = runBlocking {
-//
-//        val savedId = "123"
-//
-//        val stateHandler = TestMemorySavedStateStore()
-//
-//        val service = ServiceWithSavedStateHandlerCoroutine(
-//            this,
-//            Dispatchers.Default
-//        )
-//
-//        service.dispatch(IntentMessage(SimpleIntentType(savedId)))
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        val storedData = stateHandler.get<String>(SAVE_KEY)
-//
-//        assertThat(storedData).isEqualTo(savedId)
-//
-//        service.dispose()
-//    }
+    @Test
+    fun `Service stores arbitrary data in state storage`() = runBlocking {
 
-//    @Test
-//    fun `Service restore state if state handler contains data`() = runBlocking {
-//
-//        val savedId = "123"
-//
-//        val stateHandler = TestMemorySavedStateHandler()
-//
-//        val service = ServiceWithSavedStateHandlerCoroutine(
-//            this,
-//            Dispatchers.Default
-//        )
-//
-//        service.setServiceSavedStateHandler(stateHandler)
-//
-//        service.dispatch(IntentMessage(SimpleServiceCoroutine.SimpleIntentType(savedId)))
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        service.dispose()
-//
-//        val serviceWithRestoring = ServiceWithSavedStateHandlerCoroutine(
-//            this,
-//            Dispatchers.Default
-//        )
-//
-//        var isGotInitResult = false
-//        var isGotPreviousServiceResult = false
-//
-//        val subscriber = object : ServiceSubscriber {
-//            override fun onReceive(newState: ActorServiceState) {
-//                if (stateWithResult?.result is ServiceResult.InitResult) {
-//                    isGotInitResult = true
-//                }
-//                if (stateWithResult?.result is ServiceResult.BasicResult) {
-//                    isGotPreviousServiceResult = stateWithResult.result.payload == savedId
-//                }
-//            }
-//        }
-//
-//        serviceWithRestoring.subscribe(subscriber)
-//
-//        serviceWithRestoring.setServiceSavedStateHandler(stateHandler)
-//
-//        delay(testDelayBeforeCheckingResult)
-//
-//        Assert.assertTrue(isGotInitResult)
-//        Assert.assertTrue(isGotPreviousServiceResult)
-//
-//        serviceWithRestoring.dispose()
-//    }
+        val savedId = 123
+
+        val stateHandler = TestMemorySavedStateStore()
+
+        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        service.dispatch(IntentMessage(AnotherIntentType(savedId)))
+
+        delay(testDelayBeforeCheckingResult)
+
+        val storedData = stateHandler.get<Int>(TestSavedStateHandler.KEY)
+
+        assertThat(storedData).isEqualTo(savedId)
+
+        service.dispose()
+    }
+
+    @Test
+    fun `Service restore state if state handler contains data`() = runBlocking {
+
+        val savedId = 123
+
+        val stateHandler = TestMemorySavedStateStore()
+
+        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        service.dispatch(IntentMessage(AnotherIntentType(savedId)))
+
+        delay(testDelayBeforeCheckingResult)
+
+        service.dispose()
+
+        val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        var isGotInitResult = false
+        var isGotPreviousServiceResult = false
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is State.Initiated) {
+                    isGotInitResult = true
+                }
+                if (newState is AnotherState) {
+                    isGotPreviousServiceResult = newState.data == savedId
+                }
+            }
+        }
+
+        serviceWithRestoring.subscribe(subscriber)
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(isGotInitResult)
+        assertThat(isGotPreviousServiceResult)
+
+        serviceWithRestoring.dispose()
+    }
+
+    @Test
+    fun `Service dispatch intent after restoring if intent specified`() = runBlocking {
+
+        val savedId = 123
+
+        val stateHandler = TestMemorySavedStateStore()
+
+        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        service.dispatch(IntentMessage(AnotherIntentType(savedId)))
+
+        delay(testDelayBeforeCheckingResult)
+
+        service.dispose()
+
+        val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        var isGotInitResult = false
+        var isGotPreviousServiceResult = false
+        var isGotFlowStateAfterRestoring = false
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is State.Initiated) {
+                    isGotInitResult = true
+                }
+                if (newState is AnotherState) {
+                    isGotPreviousServiceResult = newState.data == savedId
+                }
+                if (newState is FlowFirstState) {
+                    isGotFlowStateAfterRestoring = true
+                }
+            }
+        }
+
+        serviceWithRestoring.subscribe(subscriber)
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(isGotInitResult)
+        assertThat(isGotPreviousServiceResult)
+        assertThat(isGotFlowStateAfterRestoring)
+
+        serviceWithRestoring.dispose()
+    }
 }

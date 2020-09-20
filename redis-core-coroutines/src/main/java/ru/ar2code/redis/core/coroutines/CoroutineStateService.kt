@@ -268,7 +268,7 @@ class CoroutineStateService(
 
                     val reducer = findReducer(msg.msgType)
 
-                    logger.info("Service [${this@CoroutineStateService}] Founded reducer: $reducer for intent $msg")
+                    logger.info("Service [${this@CoroutineStateService}] Received intent ${msg.msgType}. Founded reducer: $reducer.")
 
                     val newStateFlow = reducer.reduce(serviceState, msg.msgType)
 
@@ -289,8 +289,6 @@ class CoroutineStateService(
     private fun findReducer(
         intentMessageType: IntentMessage.IntentMessageType<Any>
     ): StateReducer {
-        logger.info("Service [$this] try to find reducer for ($serviceState,$intentMessageType)")
-
         return reducers.firstOrNull {
             it.isReducerApplicable(serviceState, intentMessageType)
         }

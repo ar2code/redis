@@ -32,9 +32,9 @@ class SimpleState : State() {
     }
 }
 
-class AnotherState : State() {
+class AnotherState(val data : Int = 0) : State() {
     override fun clone(): State {
-        return AnotherState()
+        return AnotherState(data)
     }
 }
 
@@ -66,4 +66,3 @@ class FlowSecondState(name: String) : FlowState(name) {
         return FlowSecondState(name)
     }
 }
-

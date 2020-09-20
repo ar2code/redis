@@ -56,10 +56,24 @@ class AnotherStateReducer :
         intent: IntentMessage.IntentMessageType<Any>
     ): Flow<State> {
         return flow {
-            emit(AnotherState())
+            emit(AnotherState((intent as AnotherIntentType).payload ?: 0))
         }
     }
 }
+
+class AnotherStateFromFlowIntentReducer :
+    StateReducer(AnotherState::class, FlowIntentType::class) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowFirstState(FlowFirstState.NAME))
+        }
+    }
+}
+
 
 class FloatStateReducer :
     StateReducer(SimpleState::class, FloatIntentType::class) {

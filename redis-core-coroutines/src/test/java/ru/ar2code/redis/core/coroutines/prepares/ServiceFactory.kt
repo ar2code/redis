@@ -23,12 +23,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.StateService
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.CoroutineStateService
+import ru.ar2code.redis.core.coroutines.SavedStateHandler
+import ru.ar2code.redis.core.coroutines.SavedStateStore
 
 @ExperimentalCoroutinesApi
 object ServiceFactory {
 
     private val defaultReducers =
-        listOf(SimpleStateReducer(), AnotherStateReducer(), FloatStateReducer(), FlowStateReducer())
+        listOf(SimpleStateReducer(), AnotherStateReducer(), FloatStateReducer(), FlowStateReducer(), AnotherStateFromFlowIntentReducer())
 
     fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): StateService {
         return CoroutineStateService(
@@ -40,6 +42,24 @@ object ServiceFactory {
             SimpleTestLogger(),
             null,
             null
+        )
+    }
+
+    fun buildSimpleServiceWithSavedStateStore(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        stateStore: SavedStateStore,
+        stateHandler: SavedStateHandler
+    ): StateService {
+        return CoroutineStateService(
+            scope,
+            dispatcher,
+            State.Initiated(),
+            defaultReducers,
+            null,
+            SimpleTestLogger(),
+            stateStore,
+            stateHandler
         )
     }
 
