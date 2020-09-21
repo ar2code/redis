@@ -15,21 +15,17 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.coroutines.prepares
+package ru.ar2code.redis.core.coroutines
 
 import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.State
 
-class IntentTypeA(payload: String? = null) :
-    IntentMessage.IntentMessageType<String>(payload)
+interface ReducerSelector {
 
-class IntentTypeB(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
+    fun findReducer(
+        reducers: List<StateReducer>,
+        state: State,
+        intentMessageType: IntentMessage.IntentMessageType<Any>
+    ): StateReducer
 
-class IntentTypeC(payload: Float? = null) :
-    IntentMessage.IntentMessageType<Float>(payload)
-
-class IntentTypeFlow(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
-
-class IntentTypeDelayFlow(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
+}

@@ -51,14 +51,14 @@ class TestSavedStateHandler : SavedStateHandler {
     }
 
     override suspend fun storeState(state: State, store: SavedStateStore?) {
-        if(state is AnotherState){
+        if(state is StateB){
             store?.set(KEY, state.data)
         }
     }
 
     override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
         val data = store?.get<Int>(KEY) ?: return null
-        return RestoredStateIntent(AnotherState(data), IntentMessage(FlowIntentType()))
+        return RestoredStateIntent(StateB(data), IntentMessage(IntentTypeFlow()))
     }
 
 }

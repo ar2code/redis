@@ -29,6 +29,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 class CoroutineStateServiceTests {
 
     private val testDelayBeforeCheckingResult = 50L
+    private val testDelayBeforeDispatchSecondIntent = 1L
 
     @Test
     fun `Concurrent subscribe and unsubscribe (2000 subs) gives no any concurrent exceptions`() =
@@ -136,7 +137,7 @@ class CoroutineStateServiceTests {
 
         this.cancel()
 
-        service.dispatch(IntentMessage(SimpleIntentType()))
+        service.dispatch(IntentMessage(IntentTypeA()))
 
         assertThat(service.isDisposed())
 
@@ -147,7 +148,7 @@ class CoroutineStateServiceTests {
     fun `Propagated exception that occurred inside reducer fun block`() = runBlocking {
         val service = ServiceFactory.buildServiceWithReducerException(this, Dispatchers.Default)
 
-        service.dispatch(IntentMessage(SimpleIntentType()))
+        service.dispatch(IntentMessage(IntentTypeA()))
 
         delay(testDelayBeforeCheckingResult)
 
@@ -167,13 +168,13 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(SimpleIntentType()))
+        service.dispatch(IntentMessage(IntentTypeA()))
 
         delay(testDelayBeforeCheckingResult)
 
         service.dispose()
 
-        assertThat(lastStateFromIntent).isInstanceOf(SimpleState::class.java)
+        assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
 
         Unit
     }
@@ -191,17 +192,17 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(SimpleIntentType()))
+        service.dispatch(IntentMessage(IntentTypeA()))
 
         delay(testDelayBeforeCheckingResult)
 
-        service.dispatch(IntentMessage(FloatIntentType()))
+        service.dispatch(IntentMessage(IntentTypeC()))
 
         delay(testDelayBeforeCheckingResult)
 
         service.dispose()
 
-        assertThat(lastStateFromIntent).isInstanceOf(FloatState::class.java)
+        assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
 
         Unit
     }
@@ -220,17 +221,17 @@ class CoroutineStateServiceTests {
             }
             service.subscribe(subscriber)
 
-            service.dispatch(IntentMessage(AnotherIntentType()))
+            service.dispatch(IntentMessage(IntentTypeB()))
 
             delay(testDelayBeforeCheckingResult)
 
-            service.dispatch(IntentMessage(FloatIntentType()))
+            service.dispatch(IntentMessage(IntentTypeC()))
 
             delay(testDelayBeforeCheckingResult)
 
             service.dispose()
 
-            assertThat(lastStateFromIntent).isInstanceOf(FloatState::class.java)
+            assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
 
             Unit
         }
@@ -240,7 +241,7 @@ class CoroutineStateServiceTests {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        service.dispatch(IntentMessage(FloatIntentType()))
+        service.dispatch(IntentMessage(IntentTypeC()))
     }
 
     @Test
@@ -256,13 +257,13 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(AnotherIntentType()))
+        service.dispatch(IntentMessage(IntentTypeB()))
 
         delay(testDelayBeforeCheckingResult)
 
         service.dispose()
 
-        assertThat(lastStateFromIntent).isInstanceOf(AnotherState::class.java)
+        assertThat(lastStateFromIntent).isInstanceOf(StateB::class.java)
 
         Unit
     }
@@ -271,7 +272,7 @@ class CoroutineStateServiceTests {
     fun `Reducer can change service state with flow`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val expected = "${FlowFirstState.NAME}${FlowSecondState.NAME}"
+        val expected = "${FlowStateD.NAME}${FlowStateF.NAME}"
         var result = ""
 
         val subscriber = object : ServiceSubscriber {
@@ -283,7 +284,7 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(FlowIntentType()))
+        service.dispatch(IntentMessage(IntentTypeFlow()))
 
         delay(testDelayBeforeCheckingResult)
 
@@ -337,13 +338,13 @@ class CoroutineStateServiceTests {
             override fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     emptyResultOne = true
-                } else if (newState is AnotherState) {
+                } else if (newState is StateB) {
                     payloadResultOne = true
                 }
             }
         })
 
-        service.dispatch(IntentMessage(AnotherIntentType()))
+        service.dispatch(IntentMessage(IntentTypeB()))
 
         delay(testDelayBeforeCheckingResult)
 
@@ -351,7 +352,7 @@ class CoroutineStateServiceTests {
             override fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     emptyResultTwo = true
-                } else if (newState is AnotherState) {
+                } else if (newState is StateB) {
                     payloadResultTwo = true
                 }
             }
@@ -430,6 +431,40 @@ class CoroutineStateServiceTests {
     }
 
     @Test
+    fun `Service executes intents consistently`() = runBlocking {
+
+        //First intent invoke InitiatedStateTypeDelayFlowReducer F->D and after InitiatedStateTypeFlowReducer D->F
+        val expectedFlow =
+            "${FlowStateF.NAME}${FlowStateD.NAME}${FlowStateD.NAME}${FlowStateF.NAME}"
+
+        var resultData = ""
+
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is FlowState) {
+                    resultData += newState.name
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.dispatch(IntentMessage(IntentTypeDelayFlow()))
+
+        delay(testDelayBeforeDispatchSecondIntent)
+
+        service.dispatch(IntentMessage(IntentTypeFlow()))
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(resultData).isEqualTo(expectedFlow)
+
+        service.dispose()
+    }
+
+    @Test
     fun `Service stores arbitrary data in state storage`() = runBlocking {
 
         val savedId = 123
@@ -443,7 +478,7 @@ class CoroutineStateServiceTests {
             TestSavedStateHandler()
         )
 
-        service.dispatch(IntentMessage(AnotherIntentType(savedId)))
+        service.dispatch(IntentMessage(IntentTypeB(savedId)))
 
         delay(testDelayBeforeCheckingResult)
 
@@ -468,7 +503,7 @@ class CoroutineStateServiceTests {
             TestSavedStateHandler()
         )
 
-        service.dispatch(IntentMessage(AnotherIntentType(savedId)))
+        service.dispatch(IntentMessage(IntentTypeB(savedId)))
 
         delay(testDelayBeforeCheckingResult)
 
@@ -489,7 +524,7 @@ class CoroutineStateServiceTests {
                 if (newState is State.Initiated) {
                     isGotInitResult = true
                 }
-                if (newState is AnotherState) {
+                if (newState is StateB) {
                     isGotPreviousServiceResult = newState.data == savedId
                 }
             }
@@ -519,7 +554,7 @@ class CoroutineStateServiceTests {
             TestSavedStateHandler()
         )
 
-        service.dispatch(IntentMessage(AnotherIntentType(savedId)))
+        service.dispatch(IntentMessage(IntentTypeB(savedId)))
 
         delay(testDelayBeforeCheckingResult)
 
@@ -541,10 +576,10 @@ class CoroutineStateServiceTests {
                 if (newState is State.Initiated) {
                     isGotInitResult = true
                 }
-                if (newState is AnotherState) {
+                if (newState is StateB) {
                     isGotPreviousServiceResult = newState.data == savedId
                 }
-                if (newState is FlowFirstState) {
+                if (newState is FlowStateD) {
                     isGotFlowStateAfterRestoring = true
                 }
             }

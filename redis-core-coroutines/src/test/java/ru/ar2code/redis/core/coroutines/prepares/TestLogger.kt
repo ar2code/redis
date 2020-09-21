@@ -19,7 +19,7 @@ package ru.ar2code.redis.core.coroutines.prepares
 
 import ru.ar2code.utils.Logger
 
-class SimpleTestLogger : Logger("TestLogger") {
+class TestLogger : Logger("TestLogger") {
     override fun info(msg: String) {
         println(msg)
     }

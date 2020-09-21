@@ -23,8 +23,8 @@ import ru.ar2code.redis.core.State
 import kotlin.reflect.KClass
 
 abstract class StateReducer(
-    private val expectState: KClass<*>,
-    private val expectIntentType: KClass<*>
+    private val expectState: KClass<*>?,
+    private val expectIntentType: KClass<*>?
 ) {
     abstract fun reduce(
         currentState: State,
@@ -35,6 +35,21 @@ abstract class StateReducer(
         currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Boolean {
-        return expectState.isInstance(currentState) && expectIntentType.isInstance(intent)
+        val isExpectedOrAnyState = isAnyState() || expectState?.isInstance(currentState) == true
+        val isExpectedOrAnyIntent = isAnyIntentType() || expectIntentType?.isInstance(intent) == true
+
+        return isExpectedOrAnyState && isExpectedOrAnyIntent
+    }
+
+    fun isStateWithIntentSpecified() : Boolean {
+        return !isAnyState() && !isAnyIntentType()
+    }
+
+    fun isAnyState(): Boolean {
+        return expectState == null
+    }
+
+    fun isAnyIntentType(): Boolean {
+        return expectIntentType == null
     }
 }

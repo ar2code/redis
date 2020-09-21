@@ -17,13 +17,14 @@
 
 package ru.ar2code.redis.core.coroutines.prepares
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
 
-class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, SimpleIntentType::class) {
+class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, IntentTypeA::class) {
 
     override fun reduce(
         currentState: State,
@@ -35,69 +36,113 @@ class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, SimpleI
     }
 }
 
-class SimpleStateReducer :
-    StateReducer(State.Initiated::class, SimpleIntentType::class) {
+class InitiatedStateTypeAReducer :
+    StateReducer(State.Initiated::class, IntentTypeA::class) {
 
     override fun reduce(
         currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Flow<State> {
         return flow {
-            emit(SimpleState())
+            emit(StateA())
         }
     }
 }
 
-class AnotherStateReducer :
-    StateReducer(State.Initiated::class, AnotherIntentType::class) {
+class InitiatedStateTypeBReducer :
+    StateReducer(State.Initiated::class, IntentTypeB::class) {
 
     override fun reduce(
         currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Flow<State> {
         return flow {
-            emit(AnotherState((intent as AnotherIntentType).payload ?: 0))
+            emit(StateB((intent as IntentTypeB).payload ?: 0))
         }
     }
 }
 
-class AnotherStateFromFlowIntentReducer :
-    StateReducer(AnotherState::class, FlowIntentType::class) {
+class StateBTypeFlowReducer :
+    StateReducer(StateB::class, IntentTypeFlow::class) {
 
     override fun reduce(
         currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Flow<State> {
         return flow {
-            emit(FlowFirstState(FlowFirstState.NAME))
+            emit(FlowStateD(FlowStateD.NAME))
         }
     }
 }
 
 
-class FloatStateReducer :
-    StateReducer(SimpleState::class, FloatIntentType::class) {
+class StateATypeCReducer :
+    StateReducer(StateA::class, IntentTypeC::class) {
 
     override fun reduce(
         currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Flow<State> {
         return flow {
-            emit(FloatState())
+            emit(StateC())
         }
     }
 }
 
-class FlowStateReducer :
-    StateReducer(State.Initiated::class, FlowIntentType::class) {
+class InitiatedStateTypeFlowReducer :
+    StateReducer(State.Initiated::class, IntentTypeFlow::class) {
 
     override fun reduce(
         currentState: State,
         intent: IntentMessage.IntentMessageType<Any>
     ): Flow<State> {
         return flow {
-            emit(FlowFirstState(FlowFirstState.NAME))
-            emit(FlowSecondState(FlowSecondState.NAME))
+            emit(FlowStateD(FlowStateD.NAME))
+            emit(FlowStateF(FlowStateF.NAME))
+        }
+    }
+}
+
+class FlowStateTypeFlowReducer :
+    StateReducer(FlowState::class, IntentTypeFlow::class) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowStateD(FlowStateD.NAME))
+            emit(FlowStateF(FlowStateF.NAME))
+        }
+    }
+}
+
+class InitiatedStateTypeDelayFlowReducer :
+    StateReducer(State.Initiated::class, IntentTypeDelayFlow::class) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowStateF(FlowStateF.NAME))
+            delay(25)
+            emit(FlowStateD(FlowStateD.NAME))
+        }
+    }
+}
+
+class FlowStateTypeDelayFlowReducer :
+    StateReducer(FlowState::class, IntentTypeDelayFlow::class) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowStateF(FlowStateF.NAME))
+            delay(25)
+            emit(FlowStateD(FlowStateD.NAME))
         }
     }
 }

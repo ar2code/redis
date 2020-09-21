@@ -23,6 +23,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.StateService
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.CoroutineStateService
+import ru.ar2code.redis.core.coroutines.DefaultReducerSelector
 import ru.ar2code.redis.core.coroutines.SavedStateHandler
 import ru.ar2code.redis.core.coroutines.SavedStateStore
 
@@ -30,7 +31,16 @@ import ru.ar2code.redis.core.coroutines.SavedStateStore
 object ServiceFactory {
 
     private val defaultReducers =
-        listOf(SimpleStateReducer(), AnotherStateReducer(), FloatStateReducer(), FlowStateReducer(), AnotherStateFromFlowIntentReducer())
+        listOf(
+            InitiatedStateTypeAReducer(),
+            InitiatedStateTypeBReducer(),
+            StateATypeCReducer(),
+            InitiatedStateTypeFlowReducer(),
+            StateBTypeFlowReducer(),
+            InitiatedStateTypeDelayFlowReducer(),
+            FlowStateTypeFlowReducer(),
+            FlowStateTypeDelayFlowReducer()
+        )
 
     fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): StateService {
         return CoroutineStateService(
@@ -38,8 +48,9 @@ object ServiceFactory {
             dispatcher,
             State.Initiated(),
             defaultReducers,
+            DefaultReducerSelector(),
             null,
-            SimpleTestLogger(),
+            TestLogger(),
             null,
             null
         )
@@ -56,8 +67,9 @@ object ServiceFactory {
             dispatcher,
             State.Initiated(),
             defaultReducers,
+            DefaultReducerSelector(),
             null,
-            SimpleTestLogger(),
+            TestLogger(),
             stateStore,
             stateHandler
         )
@@ -72,8 +84,9 @@ object ServiceFactory {
             dispatcher,
             CustomInitState(),
             emptyList(),
+            DefaultReducerSelector(),
             null,
-            SimpleTestLogger(),
+            TestLogger(),
             null,
             null
         )
@@ -88,8 +101,9 @@ object ServiceFactory {
             dispatcher,
             State.Initiated(),
             listOf(SimpleExceptionStateReducer()),
+            DefaultReducerSelector(),
             null,
-            SimpleTestLogger(),
+            TestLogger(),
             null,
             null
         )

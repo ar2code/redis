@@ -30,10 +30,11 @@ class CoroutineStateService(
     private val dispatcher: CoroutineDispatcher,
     private val initialState: State,
     private val reducers: List<StateReducer>,
+    private val reducerSelector: ReducerSelector,
     private val listenedServices: List<ListenedService>?,
     private val logger: Logger,
     savedStateStore: SavedStateStore? = null,
-    savedStateHandler: SavedStateHandler?= null
+    savedStateHandler: SavedStateHandler? = null
 ) : SavedStateService(savedStateStore, savedStateHandler) {
 
     companion object {
@@ -289,10 +290,7 @@ class CoroutineStateService(
     private fun findReducer(
         intentMessageType: IntentMessage.IntentMessageType<Any>
     ): StateReducer {
-        return reducers.firstOrNull {
-            it.isReducerApplicable(serviceState, intentMessageType)
-        }
-            ?: throw IllegalArgumentException("Reducer for ($serviceState,$intentMessageType) did not found.")
+        return reducerSelector.findReducer(reducers, serviceState, intentMessageType)
     }
 
     private fun disposeIfScopeNotActive() {

@@ -17,7 +17,6 @@
 
 package ru.ar2code.redis.core.coroutines.prepares
 
-import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 
 class CustomInitState : State() {
@@ -26,43 +25,43 @@ class CustomInitState : State() {
     }
 }
 
-class SimpleState : State() {
+class StateA : State() {
     override fun clone(): State {
-        return SimpleState()
+        return StateA()
     }
 }
 
-class AnotherState(val data : Int = 0) : State() {
+class StateB(val data: Int = 0) : State() {
     override fun clone(): State {
-        return AnotherState(data)
+        return StateB(data)
     }
 }
 
-class FloatState : State() {
+class StateC : State() {
     override fun clone(): State {
-        return FloatState()
+        return StateC()
     }
 }
 
 abstract class FlowState(val name: String) : State()
 
-class FlowFirstState(name: String) : FlowState(name) {
+class FlowStateD(name: String) : FlowState(name) {
 
     companion object {
-        const val NAME = "FlowFirstState"
+        const val NAME = "FlowStateD"
     }
 
     override fun clone(): State {
-        return FlowFirstState(name)
+        return FlowStateD(name)
     }
 }
 
-class FlowSecondState(name: String) : FlowState(name) {
+class FlowStateF(name: String) : FlowState(name) {
     companion object {
-        const val NAME = "FlowSecondState"
+        const val NAME = "FlowStateF"
     }
 
     override fun clone(): State {
-        return FlowSecondState(name)
+        return FlowStateF(name)
     }
 }
