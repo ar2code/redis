@@ -30,7 +30,7 @@ import ru.ar2code.redis.core.coroutines.SavedStateStore
 @ExperimentalCoroutinesApi
 object ServiceFactory {
 
-    private val defaultReducers =
+    val defaultReducers =
         listOf(
             InitiatedStateTypeAReducer(),
             InitiatedStateTypeBReducer(),

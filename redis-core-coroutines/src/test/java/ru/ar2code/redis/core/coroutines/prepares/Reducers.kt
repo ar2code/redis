@@ -146,3 +146,48 @@ class FlowStateTypeDelayFlowReducer :
         }
     }
 }
+
+class AnyStateTypeCReducer :
+    StateReducer(null, IntentTypeC::class) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowStateF(FlowStateF.NAME))
+            delay(25)
+            emit(FlowStateD(FlowStateD.NAME))
+        }
+    }
+}
+
+class AnyStateAnyTypeReducer :
+    StateReducer(null, null) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowStateF(FlowStateF.NAME))
+            delay(25)
+            emit(FlowStateD(FlowStateD.NAME))
+        }
+    }
+}
+
+class StateCAnyTypeReducer :
+    StateReducer(StateC::class, null) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage.IntentMessageType<Any>
+    ): Flow<State> {
+        return flow {
+            emit(FlowStateF(FlowStateF.NAME))
+            delay(25)
+            emit(FlowStateD(FlowStateD.NAME))
+        }
+    }
+}
