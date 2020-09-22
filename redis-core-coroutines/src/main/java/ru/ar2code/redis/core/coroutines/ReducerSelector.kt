@@ -25,7 +25,7 @@ interface ReducerSelector {
     fun findReducer(
         reducers: List<StateReducer>,
         state: State,
-        intentMessageType: IntentMessage.IntentMessageType<Any>
+        intentMessage: IntentMessage
     ): StateReducer
 
 }

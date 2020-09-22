@@ -30,16 +30,16 @@ class DefaultReducerSelector : ReducerSelector {
     override fun findReducer(
         reducers: List<StateReducer>,
         state: State,
-        intentMessageType: IntentMessage.IntentMessageType<Any>
+        intentMessage: IntentMessage
     ): StateReducer {
         return reducers.firstOrNull {
             it.isStateWithIntentSpecified() && it.isReducerApplicable(
                 state,
-                intentMessageType
+                intentMessage
             )
         } ?: reducers.firstOrNull {
-            it.isReducerApplicable(state, intentMessageType)
+            it.isReducerApplicable(state, intentMessage)
         }
-        ?: throw IllegalArgumentException("Reducer for ($state,$intentMessageType) did not found.")
+        ?: throw IllegalArgumentException("Reducer for ($state,$intentMessage) did not found.")
     }
 }

@@ -19,17 +19,17 @@ package ru.ar2code.redis.core.coroutines.prepares
 
 import ru.ar2code.redis.core.IntentMessage
 
-class IntentTypeA(payload: String? = null) :
-    IntentMessage.IntentMessageType<String>(payload)
+class IntentTypeA(val payload: String? = null) :
+    IntentMessage()
 
-class IntentTypeB(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
+class IntentTypeB(val payload: Int? = null) :
+    IntentMessage()
 
-class IntentTypeC(payload: Float? = null) :
-    IntentMessage.IntentMessageType<Float>(payload)
+class IntentTypeC(val payload: Float? = null) :
+    IntentMessage()
 
-class IntentTypeFlow(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
+class IntentTypeFlow(val payload: Int? = null) :
+    IntentMessage()
 
-class IntentTypeDelayFlow(payload: Int? = null) :
-    IntentMessage.IntentMessageType<Int>(payload)
+class IntentTypeDelayFlow(val payload: Int? = null) :
+    IntentMessage()

@@ -29,7 +29,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 class CoroutineStateServiceTests {
 
     private val testDelayBeforeCheckingResult = 50L
-    private val testDelayBeforeDispatchSecondIntent = 1L
+    private val testDelayBeforeDispatchSecondIntent = 10L
 
     @Test
     fun `Concurrent subscribe and unsubscribe (2000 subs) gives no any concurrent exceptions`() =
@@ -137,7 +137,7 @@ class CoroutineStateServiceTests {
 
         this.cancel()
 
-        service.dispatch(IntentMessage(IntentTypeA()))
+        service.dispatch(IntentTypeA())
 
         assertThat(service.isDisposed())
 
@@ -148,7 +148,7 @@ class CoroutineStateServiceTests {
     fun `Propagated exception that occurred inside reducer fun block`() = runBlocking {
         val service = ServiceFactory.buildServiceWithReducerException(this, Dispatchers.Default)
 
-        service.dispatch(IntentMessage(IntentTypeA()))
+        service.dispatch(IntentTypeA())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -168,7 +168,7 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(IntentTypeA()))
+        service.dispatch(IntentTypeA())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -192,11 +192,11 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(IntentTypeA()))
+        service.dispatch(IntentTypeA())
 
         delay(testDelayBeforeCheckingResult)
 
-        service.dispatch(IntentMessage(IntentTypeC()))
+        service.dispatch(IntentTypeC())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -221,11 +221,11 @@ class CoroutineStateServiceTests {
             }
             service.subscribe(subscriber)
 
-            service.dispatch(IntentMessage(IntentTypeB()))
+            service.dispatch(IntentTypeB())
 
             delay(testDelayBeforeCheckingResult)
 
-            service.dispatch(IntentMessage(IntentTypeC()))
+            service.dispatch(IntentTypeC())
 
             delay(testDelayBeforeCheckingResult)
 
@@ -241,7 +241,7 @@ class CoroutineStateServiceTests {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        service.dispatch(IntentMessage(IntentTypeC()))
+        service.dispatch(IntentTypeC())
     }
 
     @Test
@@ -257,7 +257,7 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(IntentTypeB()))
+        service.dispatch(IntentTypeB())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -284,7 +284,7 @@ class CoroutineStateServiceTests {
         }
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(IntentTypeFlow()))
+        service.dispatch(IntentTypeFlow())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -344,7 +344,7 @@ class CoroutineStateServiceTests {
             }
         })
 
-        service.dispatch(IntentMessage(IntentTypeB()))
+        service.dispatch(IntentTypeB())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -451,11 +451,11 @@ class CoroutineStateServiceTests {
 
         service.subscribe(subscriber)
 
-        service.dispatch(IntentMessage(IntentTypeDelayFlow()))
+        service.dispatch(IntentTypeDelayFlow())
 
         delay(testDelayBeforeDispatchSecondIntent)
 
-        service.dispatch(IntentMessage(IntentTypeFlow()))
+        service.dispatch(IntentTypeFlow())
 
         delay(testDelayBeforeCheckingResult)
 
@@ -464,135 +464,5 @@ class CoroutineStateServiceTests {
         service.dispose()
     }
 
-    @Test
-    fun `Service stores arbitrary data in state storage`() = runBlocking {
 
-        val savedId = 123
-
-        val stateHandler = TestMemorySavedStateStore()
-
-        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
-            this,
-            Dispatchers.Default,
-            stateHandler,
-            TestSavedStateHandler()
-        )
-
-        service.dispatch(IntentMessage(IntentTypeB(savedId)))
-
-        delay(testDelayBeforeCheckingResult)
-
-        val storedData = stateHandler.get<Int>(TestSavedStateHandler.KEY)
-
-        assertThat(storedData).isEqualTo(savedId)
-
-        service.dispose()
-    }
-
-    @Test
-    fun `Service restore state if state handler contains data`() = runBlocking {
-
-        val savedId = 123
-
-        val stateHandler = TestMemorySavedStateStore()
-
-        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
-            this,
-            Dispatchers.Default,
-            stateHandler,
-            TestSavedStateHandler()
-        )
-
-        service.dispatch(IntentMessage(IntentTypeB(savedId)))
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
-
-        val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
-            this,
-            Dispatchers.Default,
-            stateHandler,
-            TestSavedStateHandler()
-        )
-
-        var isGotInitResult = false
-        var isGotPreviousServiceResult = false
-
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                if (newState is State.Initiated) {
-                    isGotInitResult = true
-                }
-                if (newState is StateB) {
-                    isGotPreviousServiceResult = newState.data == savedId
-                }
-            }
-        }
-
-        serviceWithRestoring.subscribe(subscriber)
-
-        delay(testDelayBeforeCheckingResult)
-
-        assertThat(isGotInitResult)
-        assertThat(isGotPreviousServiceResult)
-
-        serviceWithRestoring.dispose()
-    }
-
-    @Test
-    fun `Service dispatch intent after restoring if intent specified`() = runBlocking {
-
-        val savedId = 123
-
-        val stateHandler = TestMemorySavedStateStore()
-
-        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
-            this,
-            Dispatchers.Default,
-            stateHandler,
-            TestSavedStateHandler()
-        )
-
-        service.dispatch(IntentMessage(IntentTypeB(savedId)))
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
-
-        val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
-            this,
-            Dispatchers.Default,
-            stateHandler,
-            TestSavedStateHandler()
-        )
-
-        var isGotInitResult = false
-        var isGotPreviousServiceResult = false
-        var isGotFlowStateAfterRestoring = false
-
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                if (newState is State.Initiated) {
-                    isGotInitResult = true
-                }
-                if (newState is StateB) {
-                    isGotPreviousServiceResult = newState.data == savedId
-                }
-                if (newState is FlowStateD) {
-                    isGotFlowStateAfterRestoring = true
-                }
-            }
-        }
-
-        serviceWithRestoring.subscribe(subscriber)
-
-        delay(testDelayBeforeCheckingResult)
-
-        assertThat(isGotInitResult)
-        assertThat(isGotPreviousServiceResult)
-        assertThat(isGotFlowStateAfterRestoring)
-
-        serviceWithRestoring.dispose()
-    }
 }

@@ -28,12 +28,12 @@ abstract class StateReducer(
 ) {
     abstract fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State>
 
     fun isReducerApplicable(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Boolean {
         val isExpectedOrAnyState = isAnyState() || expectState?.isInstance(currentState) == true
         val isExpectedOrAnyIntent = isAnyIntentType() || expectIntentType?.isInstance(intent) == true

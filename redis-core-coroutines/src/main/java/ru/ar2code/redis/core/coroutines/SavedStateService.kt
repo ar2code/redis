@@ -17,18 +17,42 @@
 
 package ru.ar2code.redis.core.coroutines
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.*
+import ru.ar2code.utils.Logger
 
-abstract class SavedStateService(
+@ExperimentalCoroutinesApi
+open class SavedStateService(
+    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher,
+    initialState: State,
+    reducers: List<StateReducer>,
+    reducerSelector: ReducerSelector,
+    logger: Logger,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?
-) : StateService {
+) : CoroutineStateService(scope, dispatcher, initialState, reducers, reducerSelector, logger) {
 
-    internal suspend fun storeState(state: State) {
-        savedStateHandler?.storeState(state, savedStateStore)
+    override suspend fun onStateChanged(old: State, new: State) {
+        super.onStateChanged(old, new)
+        savedStateHandler?.storeState(new, savedStateStore)
     }
 
-    internal suspend fun restoreState() : RestoredStateIntent? {
-        return savedStateHandler?.restoreState(savedStateStore)
+    override suspend fun onInitialized() {
+        super.onInitialized()
+
+        restoreStateWithIntent()
+    }
+
+    private suspend fun restoreStateWithIntent() {
+        val stateWithIntent = savedStateHandler?.restoreState(savedStateStore)
+        stateWithIntent?.state?.let {
+            broadcastNewState(it)
+        }
+        stateWithIntent?.intentMessage?.let {
+            dispatch(it)
+        }
     }
 }

@@ -28,7 +28,7 @@ class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, IntentT
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             throw TestException()
@@ -41,7 +41,7 @@ class InitiatedStateTypeAReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(StateA())
@@ -54,7 +54,7 @@ class InitiatedStateTypeBReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(StateB((intent as IntentTypeB).payload ?: 0))
@@ -67,7 +67,7 @@ class StateBTypeFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
@@ -81,7 +81,7 @@ class StateATypeCReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(StateC())
@@ -94,7 +94,7 @@ class InitiatedStateTypeFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
@@ -108,7 +108,7 @@ class FlowStateTypeFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
@@ -122,7 +122,7 @@ class InitiatedStateTypeDelayFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -137,7 +137,7 @@ class FlowStateTypeDelayFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -152,7 +152,7 @@ class AnyStateTypeCReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -167,7 +167,7 @@ class AnyStateAnyTypeReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -182,7 +182,7 @@ class StateCAnyTypeReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage.IntentMessageType<Any>
+        intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))

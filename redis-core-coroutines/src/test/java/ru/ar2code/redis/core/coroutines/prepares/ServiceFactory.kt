@@ -22,10 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.StateService
 import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.coroutines.CoroutineStateService
-import ru.ar2code.redis.core.coroutines.DefaultReducerSelector
-import ru.ar2code.redis.core.coroutines.SavedStateHandler
-import ru.ar2code.redis.core.coroutines.SavedStateStore
+import ru.ar2code.redis.core.coroutines.*
 
 @ExperimentalCoroutinesApi
 object ServiceFactory {
@@ -49,10 +46,7 @@ object ServiceFactory {
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
-            null,
-            TestLogger(),
-            null,
-            null
+            TestLogger()
         )
     }
 
@@ -62,13 +56,12 @@ object ServiceFactory {
         stateStore: SavedStateStore,
         stateHandler: SavedStateHandler
     ): StateService {
-        return CoroutineStateService(
+        return SavedStateService(
             scope,
             dispatcher,
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
-            null,
             TestLogger(),
             stateStore,
             stateHandler
@@ -85,10 +78,7 @@ object ServiceFactory {
             CustomInitState(),
             emptyList(),
             DefaultReducerSelector(),
-            null,
-            TestLogger(),
-            null,
-            null
+            TestLogger()
         )
     }
 
@@ -102,10 +92,7 @@ object ServiceFactory {
             State.Initiated(),
             listOf(SimpleExceptionStateReducer()),
             DefaultReducerSelector(),
-            null,
-            TestLogger(),
-            null,
-            null
+            TestLogger()
         )
     }
 }

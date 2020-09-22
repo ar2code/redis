@@ -17,6 +17,4 @@
 
 package ru.ar2code.redis.core
 
-class IntentMessage(val msgType: IntentMessageType<Any>) {
-    abstract class IntentMessageType<out T>(val payload: T? = null) where T : Any
-}
+abstract class IntentMessage
