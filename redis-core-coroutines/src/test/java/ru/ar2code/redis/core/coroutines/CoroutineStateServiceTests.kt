@@ -495,7 +495,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Stop listen to another service changes`() = runBlocking {
+    fun `Stop listening to another service changes`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
@@ -523,6 +523,37 @@ class CoroutineStateServiceTests {
         assertThat(stateBCount).isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
 
         service.dispose()
+        listenedService.dispose()
+    }
+
+    @Test
+    fun `Stop listening to another unknown service do nothing`() = runBlocking {
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+        val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
+
+        var stateBCount = 0
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is StateB) {
+                    stateBCount++
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+        service.stopListening(listenedServiceInfo)
+
+        listenedService.dispatch(IntentTypeA())
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(stateBCount).isEqualTo(0)
+
+        service.dispose()
+
         listenedService.dispose()
     }
 }
