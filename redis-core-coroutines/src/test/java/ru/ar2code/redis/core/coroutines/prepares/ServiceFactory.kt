@@ -36,10 +36,11 @@ object ServiceFactory {
             StateBTypeFlowReducer(),
             InitiatedStateTypeDelayFlowReducer(),
             FlowStateTypeFlowReducer(),
-            FlowStateTypeDelayFlowReducer()
+            FlowStateTypeDelayFlowReducer(),
+            StateBTypeBReducer()
         )
 
-    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): StateService {
+    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): CoroutineStateService {
         return CoroutineStateService(
             scope,
             dispatcher,
@@ -55,7 +56,7 @@ object ServiceFactory {
         dispatcher: CoroutineDispatcher,
         stateStore: SavedStateStore,
         stateHandler: SavedStateHandler
-    ): StateService {
+    ): SavedStateService {
         return SavedStateService(
             scope,
             dispatcher,
@@ -71,12 +72,12 @@ object ServiceFactory {
     fun buildServiceWithCustomInit(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher
-    ): StateService {
+    ): CoroutineStateService {
         return CoroutineStateService(
             scope,
             dispatcher,
             CustomInitState(),
-            emptyList(),
+            defaultReducers,
             DefaultReducerSelector(),
             TestLogger()
         )
@@ -85,7 +86,7 @@ object ServiceFactory {
     fun buildServiceWithReducerException(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher
-    ): StateService {
+    ): CoroutineStateService {
         return CoroutineStateService(
             scope,
             dispatcher,

@@ -22,6 +22,7 @@ import kotlinx.coroutines.*
 import org.junit.Test
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.ListenedService
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.coroutines.prepares.*
 
@@ -464,5 +465,64 @@ class CoroutineStateServiceTests {
         service.dispose()
     }
 
+    @Test
+    fun `Listen to another service changes`() = runBlocking {
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+        var stateBCount = 0
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is StateB) {
+                    stateBCount++
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.listen(ListenedService(listenedService) { _ -> IntentTypeB() })
+
+        listenedService.dispatch(IntentTypeA())
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(stateBCount).isEqualTo(2) //First time when listenedService initiated and second time when dispatch intent
+
+        service.dispose()
+        listenedService.dispose()
+    }
+
+    @Test
+    fun `Stop listen to another service changes`() = runBlocking {
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
+
+        var stateBCount = 0
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is StateB) {
+                    stateBCount++
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.listen(listenedServiceInfo)
+
+        service.stopListening(listenedServiceInfo)
+
+        listenedService.dispatch(IntentTypeA())
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(stateBCount).isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
+
+        service.dispose()
+        listenedService.dispose()
+    }
 }

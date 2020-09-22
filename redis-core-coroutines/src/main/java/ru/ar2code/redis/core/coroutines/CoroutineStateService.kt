@@ -51,24 +51,35 @@ open class CoroutineStateService(
         ConcurrentHashMap<ServiceSubscriber, ReceiveChannel<State>>()
 
     private val listenedServicesSubscribers =
-        ConcurrentHashMap<ServiceSubscriber, ListenedService>()
+        ConcurrentHashMap<ListenedService, ServiceSubscriber>()
 
     init {
         initialize()
     }
 
     /**
-     * Listening of state changing of another services.
+     * Listening of state changing of another service.
      */
-    fun listen(listenedServices : List<ListenedService>) {
-        listenedServices.forEach {
-            val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
-                    dispatch(it.intentBuilder(newState))
-                }
+    @Synchronized
+    fun listen(listenedService: ListenedService) {
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                dispatch(listenedService.intentBuilder(newState))
             }
-            it.service.subscribe(subscriber)
-            listenedServicesSubscribers[subscriber] = it
+        }
+        listenedService.service.subscribe(subscriber)
+        listenedServicesSubscribers[listenedService] = subscriber
+    }
+
+    /**
+     * Stop listening of service state changing
+     */
+    @Synchronized
+    fun stopListening(listenedService: ListenedService) {
+        val subscriber = listenedServicesSubscribers[listenedService]
+        subscriber?.let {
+            listenedService.service.unsubscribe(subscriber)
+            listenedServicesSubscribers.remove(listenedService)
         }
     }
 
@@ -104,7 +115,7 @@ open class CoroutineStateService(
 
         fun unsubscribeFromListenedServices() {
             listenedServicesSubscribers.forEach {
-                it.value.service.unsubscribe(it.key)
+                it.key.service.unsubscribe(it.value)
             }
             listenedServicesSubscribers.clear()
         }
