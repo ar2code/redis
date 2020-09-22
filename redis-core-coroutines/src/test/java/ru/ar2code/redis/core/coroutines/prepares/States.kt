@@ -65,3 +65,23 @@ class FlowStateF(name: String) : FlowState(name) {
         return FlowStateF(name)
     }
 }
+
+class FlowStateG(name: String) : FlowState(name) {
+    companion object {
+        const val NAME = "FlowStateG"
+    }
+
+    override fun clone(): State {
+        return FlowStateG(name)
+    }
+}
+
+class FlowStateH(name: String) : FlowState(name) {
+    companion object {
+        const val NAME = "FlowStateH"
+    }
+
+    override fun clone(): State {
+        return FlowStateH(name)
+    }
+}

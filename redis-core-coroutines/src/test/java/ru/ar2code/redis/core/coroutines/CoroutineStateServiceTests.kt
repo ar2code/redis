@@ -33,7 +33,7 @@ class CoroutineStateServiceTests {
     private val testDelayBeforeDispatchSecondIntent = 10L
 
     @Test
-    fun `Concurrent subscribe and unsubscribe (2000 subs) gives no any concurrent exceptions`() =
+    fun service_ConcurrentSubscribeUnsubscribe_NoAnyConcurrentExceptions() =
         runBlocking(Dispatchers.Default) {
 
             println("Start ActionService concurrent test")
@@ -99,7 +99,7 @@ class CoroutineStateServiceTests {
         }
 
     @Test
-    fun `When scope is cancelled services is disposed`() = runBlocking {
+    fun service_ScopeCancelled_ServiceDisposed() = runBlocking {
 
         val scope = this + Job()
 
@@ -113,7 +113,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `When scope throw exception on attempt to subscribe again`() = runBlocking {
+    fun serviceScopeCancelled_SubscribeToService_throwException() = runBlocking {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -132,7 +132,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `When scope was cancelled throws exception on attempt to send intent`() = runBlocking {
+    fun serviceScopeCancelled_dispatch_throwException() = runBlocking {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -146,7 +146,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test(expected = TestException::class)
-    fun `Propagated exception that occurred inside reducer fun block`() = runBlocking {
+    fun service_ExceptionInsideReducer_throwException() = runBlocking {
         val service = ServiceFactory.buildServiceWithReducerException(this, Dispatchers.Default)
 
         service.dispatch(IntentTypeA())
@@ -157,59 +157,61 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `SimpleIntentType and Initialized state select SimpleStateReducer`() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+    fun serviceInitializedState_DispatchSimpleIntentType_SelectSimpleStateReducer() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var lastStateFromIntent: State? = null
+            var lastStateFromIntent: State? = null
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                lastStateFromIntent = newState
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    lastStateFromIntent = newState
+                }
             }
+            service.subscribe(subscriber)
+
+            service.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
+
+            Unit
         }
-        service.subscribe(subscriber)
-
-        service.dispatch(IntentTypeA())
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
-
-        assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
-
-        Unit
-    }
 
     @Test
-    fun `FloatIntentType and SimpleState state select FloatStateReducer`() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+    fun serviceInitializedState_DispatchFloatIntentType_SelectFloatStateReducer() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var lastStateFromIntent: State? = null
+            var lastStateFromIntent: State? = null
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                lastStateFromIntent = newState
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    lastStateFromIntent = newState
+                }
             }
+            service.subscribe(subscriber)
+
+            service.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispatch(IntentTypeC())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
+
+            Unit
         }
-        service.subscribe(subscriber)
-
-        service.dispatch(IntentTypeA())
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispatch(IntentTypeC())
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
-
-        assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
-
-        Unit
-    }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `FloatIntentType and AnotherState state throws reducer not found exception cause FloatStateReducer expect SimpleState`() =
+    fun serviceAnotherState_DispatchFloatIntentType_ThrowReducerNotFoundException() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -238,65 +240,68 @@ class CoroutineStateServiceTests {
         }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `Reducer not found throws exception`() = runBlocking {
+    fun service_DispatchNoReducerIntent_ThrowReducerNotFoundException() =
+        runBlocking {
 
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        service.dispatch(IntentTypeC())
-    }
-
-    @Test
-    fun `AnotherIntentType and Initialized state select AnotherStateReducer`() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-
-        var lastStateFromIntent: State? = null
-
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                lastStateFromIntent = newState
-            }
+            service.dispatch(IntentTypeC())
         }
-        service.subscribe(subscriber)
-
-        service.dispatch(IntentTypeB())
-
-        delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
-
-        assertThat(lastStateFromIntent).isInstanceOf(StateB::class.java)
-
-        Unit
-    }
 
     @Test
-    fun `Reducer can change service state with flow`() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+    fun serviceInitializedState_DispatchAnotherIntentType_AnotherStateReducer() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val expected = "${FlowStateD.NAME}${FlowStateF.NAME}"
-        var result = ""
+            var lastStateFromIntent: State? = null
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                if (newState is FlowState) {
-                    result += newState.name
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    lastStateFromIntent = newState
                 }
             }
+            service.subscribe(subscriber)
+
+            service.dispatch(IntentTypeB())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(lastStateFromIntent).isInstanceOf(StateB::class.java)
+
+            Unit
         }
-        service.subscribe(subscriber)
 
-        service.dispatch(IntentTypeFlow())
+    @Test
+    fun service_DispatchIntentForReducerWithFlow_ChangeStateSeveralTimes() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        delay(testDelayBeforeCheckingResult)
+            val expected = "${FlowStateD.NAME}${FlowStateF.NAME}"
+            var result = ""
 
-        assertThat(result).isEqualTo(expected)
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    if (newState is FlowState) {
+                        result += newState.name
+                    }
+                }
+            }
+            service.subscribe(subscriber)
 
-        service.dispose()
-    }
+            service.dispatch(IntentTypeFlow())
+
+            delay(testDelayBeforeCheckingResult)
+
+            assertThat(result).isEqualTo(expected)
+
+            service.dispose()
+        }
 
 
     @Test
-    fun `Receive init state from all subscriptions after service initiated`() = runBlocking {
+    fun service_NewSubscribersAdded_ReceiveInitStateToAll() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         var emptyResult = false
@@ -326,7 +331,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Receive last state from newly added subscription`() = runBlocking {
+    fun service_NewSubscriberAdded_ReceiveLastState() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         var emptyResultOne = false
@@ -371,27 +376,28 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Do not subscribe again if subscriber already exists`() = runBlocking {
+    fun service_AddSameSubscriberTwoTimes_SubscriberDidNotAddedIfExists() =
+        runBlocking {
 
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
 
+                }
             }
+
+            service.subscribe(subscriber)
+            service.subscribe(subscriber)
+            service.subscribe(subscriber)
+
+            assertThat(service.getSubscribersCount()).isEqualTo(1)
+
+            service.dispose()
         }
 
-        service.subscribe(subscriber)
-        service.subscribe(subscriber)
-        service.subscribe(subscriber)
-
-        assertThat(service.getSubscribersCount()).isEqualTo(1)
-
-        service.dispose()
-    }
-
     @Test
-    fun `No active subscribers if service is disposed`() = runBlocking {
+    fun service_Dispose_NoActiveSubscribers() = runBlocking {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -409,7 +415,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Can provide init service state with own state class type`() = runBlocking {
+    fun service_SpecifyInitialState_SubscriberReceiveCustomInitState() = runBlocking {
         var emptyResultOne = false
 
         val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
@@ -432,11 +438,11 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Service executes intents consistently`() = runBlocking {
+    fun service_DispatchTwoIntents_CallReducersConsistently() = runBlocking {
 
-        //First intent invoke InitiatedStateTypeDelayFlowReducer F->D and after InitiatedStateTypeFlowReducer D->F
+        //First intent invoke InitiatedStateTypeDelayFlowReducer G->H and after InitiatedStateTypeFlowReducer D->F
         val expectedFlow =
-            "${FlowStateF.NAME}${FlowStateD.NAME}${FlowStateD.NAME}${FlowStateF.NAME}"
+            "${FlowStateG.NAME}${FlowStateH.NAME}${FlowStateD.NAME}${FlowStateF.NAME}"
 
         var resultData = ""
 
@@ -466,7 +472,7 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Listen to another service changes`() = runBlocking {
+    fun service_AddListenedService_GotSpecifiedIntentWhenListenedServiceStateChanged() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -495,39 +501,40 @@ class CoroutineStateServiceTests {
     }
 
     @Test
-    fun `Stop listening to another service changes`() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-        val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-        val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
+    fun service_StopListeningService_DoNotDispatchIntentWhenListenedServiceStateChanged() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
 
-        var stateBCount = 0
+            var stateBCount = 0
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                if (newState is StateB) {
-                    stateBCount++
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    if (newState is StateB) {
+                        stateBCount++
+                    }
                 }
             }
+
+            service.subscribe(subscriber)
+
+            service.listen(listenedServiceInfo)
+
+            service.stopListening(listenedServiceInfo)
+
+            listenedService.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            assertThat(stateBCount).isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
+
+            service.dispose()
+            listenedService.dispose()
         }
 
-        service.subscribe(subscriber)
-
-        service.listen(listenedServiceInfo)
-
-        service.stopListening(listenedServiceInfo)
-
-        listenedService.dispatch(IntentTypeA())
-
-        delay(testDelayBeforeCheckingResult)
-
-        assertThat(stateBCount).isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
-
-        service.dispose()
-        listenedService.dispose()
-    }
-
     @Test
-    fun `Stop listening to another unknown service do nothing`() = runBlocking {
+    fun service_RemoveUnknownServiceForListening_DoNothing() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 

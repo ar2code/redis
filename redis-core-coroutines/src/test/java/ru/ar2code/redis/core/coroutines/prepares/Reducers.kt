@@ -138,9 +138,9 @@ class InitiatedStateTypeDelayFlowReducer :
         intent: IntentMessage
     ): Flow<State> {
         return flow {
-            emit(FlowStateF(FlowStateF.NAME))
+            emit(FlowStateG(FlowStateG.NAME))
             delay(25)
-            emit(FlowStateD(FlowStateD.NAME))
+            emit(FlowStateH(FlowStateH.NAME))
         }
     }
 }
