@@ -24,4 +24,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
     implementation project(path: ':redis-utils')
     implementation project(path: ':redis-core')
+    implementation project(path: ':redis-core-coroutines')
+    implementation project(path: ':redis-clean-arch-coroutines')
 }

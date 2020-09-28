@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-package ru.ar2code.defaults
+package ru.ar2code.redis.core.defaults
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.services.CoroutineActorService
-import ru.ar2code.redis.core.SavedStateStore
+import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCaseAwaitConfig
 
-/**
- * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]
- */
-abstract class DefaultCoroutineActorService<TResult>(scope: CoroutineScope, savedStateStore: SavedStateStore? = null) :
-    CoroutineActorService(scope, Dispatchers.Default, State.Initiated(), emptyList(), savedStateStore, DefaultLogger())
+class DefaultSynchronizedUseCaseAwaitConfig :
+    SynchronizedUseCaseAwaitConfig {
+    override val awaitStepDelayMs: Long
+        get() = 10
+    override val awaitTimeoutMs: Long
+        get() = 60_000
+}

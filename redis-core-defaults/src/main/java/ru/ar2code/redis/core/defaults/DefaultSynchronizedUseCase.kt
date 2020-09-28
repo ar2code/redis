@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-package ru.ar2code.defaults
+package ru.ar2code.redis.core.defaults
 
-import ru.ar2code.utils.impl.ConsoleLogger
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
 
-class DefaultLogger : ConsoleLogger("Ar2CodeAndroidArchCore")
+@ExperimentalCoroutinesApi
+abstract class DefaultSynchronizedUseCase<TParams, TResult> :
+    SynchronizedUseCase<TParams, TResult>(DefaultSynchronizedUseCaseAwaitConfig(), DefaultLogger()) where TResult : Any

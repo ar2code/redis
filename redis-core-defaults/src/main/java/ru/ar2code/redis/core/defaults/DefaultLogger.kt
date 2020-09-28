@@ -15,14 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.defaults
+package ru.ar2code.redis.core.defaults
 
-import ru.ar2code.redis.core.interfaces.SynchronizedUseCaseAwaitConfig
+import ru.ar2code.utils.impl.ConsoleLogger
 
-class DefaultSynchronizedUseCaseAwaitConfig :
-    SynchronizedUseCaseAwaitConfig {
-    override val awaitStepDelayMs: Long
-        get() = 10
-    override val awaitTimeoutMs: Long
-        get() = 60_000
-}
+class DefaultLogger : ConsoleLogger("Ar2CodeAndroidArchCore")

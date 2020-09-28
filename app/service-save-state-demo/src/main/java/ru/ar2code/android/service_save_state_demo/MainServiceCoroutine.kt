@@ -23,9 +23,9 @@ import ru.ar2code.redis.core.models.ServiceResult
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.services.ServiceStateWithResult
-import ru.ar2code.defaults.DefaultCoroutineActorService
+import ru.ar2code.redis.core.defaults.DefaultCoroutineService
 
-class MainServiceCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) : DefaultCoroutineActorService<String>(scope, savedStateStore) {
+class MainServiceCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) : DefaultCoroutineService<String>(scope, savedStateStore) {
 
     companion object {
         private const val SAVE_KEY = "state"
