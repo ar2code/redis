@@ -41,7 +41,7 @@ abstract class StateViewModel<ViewState, ViewEvent>(
 
     protected abstract val reducers: List<StateReducer>
 
-    protected abstract val reducerSelector: ReducerSelector
+    protected open val reducerSelector: ReducerSelector = DefaultReducerSelector()
 
     protected open val savedStateHandler: SavedStateHandler? = null
 
