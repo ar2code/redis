@@ -17,21 +17,18 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.android.redis.core.android.ActorViewModel
-import ru.ar2code.redis.core.android.ViewModelStateWithEvent
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.services.ServiceStateWithResult
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.android.StateViewModel
+import ru.ar2code.redis.core.coroutines.StateReducer
 
-class TestViewModel : ActorViewModel<TestViewModelState, TestViewModelEvent>(SimpleTestLogger()) {
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>> {
-        return ServiceStateWithResult(
-            TestViewModelInternalOkState(),
-            ViewModelStateWithEvent.createViewModelServiceResult<TestViewModelState, TestViewModelEvent>(
-                null,
-                null
-            )
-        )
-    }
+@ExperimentalCoroutinesApi
+class TestViewModel() : StateViewModel<TestViewModelState, TestViewModelEvent>(
+    null, SimpleTestLogger()
+) {
+    override val initialState: State
+        get() = State.Initiated()
 
-
+    override val reducers: List<StateReducer>
+        get() = TODO("Not yet implemented")
 }

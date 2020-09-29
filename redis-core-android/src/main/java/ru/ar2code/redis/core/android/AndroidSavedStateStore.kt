@@ -20,16 +20,16 @@ package ru.ar2code.redis.core.android
 import androidx.lifecycle.SavedStateHandle
 import ru.ar2code.redis.core.coroutines.SavedStateStore
 
-class AndroidSavedStateStore(private val savedState: SavedStateHandle) : SavedStateStore {
+class AndroidSavedStateStore(private val savedState: SavedStateHandle?) : SavedStateStore {
     override fun <T> get(key: String): T? {
-        return savedState.get(key)
+        return savedState?.get(key)
     }
 
     override fun <T> set(key: String, value: T?) {
-        savedState.set(key, value)
+        savedState?.set(key, value)
     }
 
     override fun keys(): List<String> {
-        return savedState.keys().toList()
+        return savedState?.keys()?.toList() ?: emptyList()
     }
 }

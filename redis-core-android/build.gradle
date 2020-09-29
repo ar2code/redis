@@ -50,6 +50,7 @@ dependencies {
     implementation project(path: ':redis-core-defaults')
     implementation project(path: ':redis-core')
     implementation project(path: ':redis-utils')
+    implementation project(path: ':redis-core-coroutines')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

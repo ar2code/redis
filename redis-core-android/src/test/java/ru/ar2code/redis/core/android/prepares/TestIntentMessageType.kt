@@ -19,4 +19,4 @@ package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.IntentMessage
 
-class TestIntentMessageType : IntentMessage.IntentMessageType<String>()
+class TestIntentMessageType : IntentMessage()

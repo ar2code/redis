@@ -18,6 +18,7 @@
 package ru.ar2code.redis.core.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -27,6 +28,7 @@ import ru.ar2code.redis.core.android.prepares.*
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 
+@ExperimentalCoroutinesApi
 class StateViewModelUnitTest {
 
     private val delayBeforeAssertMs = 20L
@@ -56,7 +58,7 @@ class StateViewModelUnitTest {
 
         assertTrue(viewModel.state is State.Created || viewModel.state is State.Initiated)
 
-        viewModel.sendIntent(IntentMessage(TestIntentMessageType()))
+        viewModel.dispatch(TestIntentMessageType())
 
         delay(delayBeforeAssertMs)
 
@@ -70,7 +72,7 @@ class StateViewModelUnitTest {
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
 
-        viewModel.sendIntent(IntentMessage(TestIntentMessageType()))
+        viewModel.dispatch(TestIntentMessageType())
 
         delay(delayBeforeAssertMs)
 
@@ -85,7 +87,7 @@ class StateViewModelUnitTest {
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
 
-        viewModel.sendIntent(IntentMessage(TestIntentMessageType()))
+        viewModel.dispatch(TestIntentMessageType())
 
         delay(delayBeforeAssertMs)
 
@@ -100,7 +102,7 @@ class StateViewModelUnitTest {
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
 
-        viewModel.sendIntent(IntentMessage(TestIntentMessageType()))
+        viewModel.dispatch(TestIntentMessageType())
 
         delay(delayBeforeAssertMs)
 

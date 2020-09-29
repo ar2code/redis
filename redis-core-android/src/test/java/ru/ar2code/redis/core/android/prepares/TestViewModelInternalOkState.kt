@@ -20,4 +20,7 @@ package ru.ar2code.redis.core.android.prepares
 import ru.ar2code.redis.core.State
 
 class TestViewModelInternalOkState : State() {
+    override fun clone(): State {
+        return TestViewModelInternalOkState()
+    }
 }
