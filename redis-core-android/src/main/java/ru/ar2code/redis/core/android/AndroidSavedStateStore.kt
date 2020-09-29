@@ -15,11 +15,21 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.android.impl
+package ru.ar2code.redis.core.android
 
-import ru.ar2code.redis.core.android.BaseViewEvent
-import ru.ar2code.redis.core.android.BaseViewState
-import ru.ar2code.redis.core.models.ServiceResult
+import androidx.lifecycle.SavedStateHandle
+import ru.ar2code.redis.core.coroutines.SavedStateStore
 
-class ViewModelServiceResult<ViewState, ViewEvent>(payload: ViewModelStateWithEvent<ViewState, ViewEvent>) :
-    ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>(payload) where ViewState : BaseViewState, ViewEvent : BaseViewEvent
+class AndroidSavedStateStore(private val savedState: SavedStateHandle) : SavedStateStore {
+    override fun <T> get(key: String): T? {
+        return savedState.get(key)
+    }
+
+    override fun <T> set(key: String, value: T?) {
+        savedState.set(key, value)
+    }
+
+    override fun keys(): List<String> {
+        return savedState.keys().toList()
+    }
+}

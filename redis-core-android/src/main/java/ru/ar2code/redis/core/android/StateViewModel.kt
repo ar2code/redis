@@ -21,29 +21,42 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import ru.ar2code.redis.core.android.impl.CoroutineActorViewModelService
-import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.models.ServiceResult
 import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
+import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
-abstract class ActorViewModel<ViewState, ViewEvent>(
+@ExperimentalCoroutinesApi
+abstract class StateViewModel<ViewState, ViewEvent>(
+    protected val savedState: SavedStateHandle,
     protected val logger: Logger
 ) :
     ViewModel() where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
-    private val viewModelService = CoroutineActorViewModelService(
-        viewModelScope,
-        Dispatchers.Default,
-        logger,
-        ::onIntentMsg,
-        ::canChangeState
-    )
+    protected abstract val initialState: State
+
+    protected abstract val reducers: List<StateReducer>
+
+    protected abstract val reducerSelector: ReducerSelector
+
+    protected open val savedStateHandler: SavedStateHandler? = null
+
+    private val viewModelService by lazy {
+        SavedStateService(
+            viewModelScope,
+            Dispatchers.Default,
+            initialState,
+            reducers,
+            reducerSelector,
+            logger,
+            AndroidSavedStateStore(savedState),
+            savedStateHandler
+        )
+    }
 
     private val viewStateLiveMutable = MutableLiveData<ViewState>()
 
@@ -72,60 +85,55 @@ abstract class ActorViewModel<ViewState, ViewEvent>(
     }
 
     /**
-     * Handle each intent within this method
-     * @return is a pair that consists of a new internal viewModel [state] and UI result that consists of UI State and Event.
-     */
-    protected abstract suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>
-
-    /**
-     * Check is [newServiceState] can be applied for this ViewModel with current result [withEvent]
-     * You should check current ViewModel [state] here and previous result for making decision.
-     */
-    protected open fun canChangeState(
-        newServiceState: State,
-        withEvent: ServiceResult<ViewModelStateWithEvent<ViewState, ViewEvent>>
-    ): Boolean = true
-
-    /**
      * Send some intent for changing view model state.
      * UI uses this method for communicating with internal services and use cases.
      */
-    fun sendIntent(msg: IntentMessage) {
-        logger.info("[ActorViewModel] send intent $msg")
+    fun dispatch(msg: IntentMessage) {
+        logger.info("[ActorViewModel] dispatch intent $msg")
 
-        viewModelService.sendIntent(msg)
+        viewModelService.dispatch(msg)
     }
 
     /**
-     * Set result from [onIntentMsg]
-     * If [stateWithResult.payload.viewState] is not null set to [viewStateLive]
-     * If [stateWithResult.payload.viewEvent] is not null set to [viewEventLive]
+     * Set result from IntentMessage if reducer return [ViewModelStateWithEvent] state
+     * If [newState.viewState] is not null set to [viewStateLive]
+     * If [newState.viewEvent] is not null set to [viewEventLive]
      */
-    protected open fun postResult(stateWithResult: ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>?) {
-        logger.info("[ActorViewModel] view model got result from own service $stateWithResult")
+    protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
+        logger.info("[ActorViewModel] view model got result from own service $newState")
 
-            stateWithResult?.result?.payload?.viewState?.let {
+        newState.viewState?.let {
             viewStateLiveMutable.postValue(it)
         } ?: kotlin.run {
             logger.info("[ActorViewModel] viewState is null. No post value to live data {viewEventLive}.")
         }
 
-        stateWithResult?.result?.payload?.viewEvent?.let {
+        newState.viewEvent?.let {
             viewEventLiveMutable.postValue(EventArgs(it))
         } ?: kotlin.run {
             logger.info("[ActorViewModel] viewEvent is null. No post value to live event {viewEventLive}.")
         }
     }
 
+    /**
+     * Set result from IntentMessage if reducer return state that not inherited from [ViewModelStateWithEvent]
+     */
+    protected open fun postResult(newState: State) {
+
+    }
+
     private fun subscribeToServiceResults() {
 
         logger.info("[ActorViewModel] subscribe to internal service")
 
-        viewModelService.subscribe(object :
-            ServiceSubscriber<ViewModelStateWithEvent<ViewState, ViewEvent>> {
-
-            override fun onReceive(stateWithResult: ServiceStateWithResult<ViewModelStateWithEvent<ViewState, ViewEvent>>?) {
-                postResult(stateWithResult)
+        viewModelService.subscribe(object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                val viewModelState = newState as? ViewModelStateWithEvent<ViewState, ViewEvent>
+                viewModelState?.let {
+                    postResult(it)
+                } ?: kotlin.run {
+                    postResult(newState)
+                }
             }
         })
     }

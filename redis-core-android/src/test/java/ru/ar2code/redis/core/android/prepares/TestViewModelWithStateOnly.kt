@@ -17,17 +17,17 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.redis.core.android.ActorViewModel
-import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
+import ru.ar2code.android.redis.core.android.ActorViewModel
+import ru.ar2code.redis.core.android.ViewModelStateWithEvent
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.services.ServiceStateWithResult
 
-class TestViewModel : ActorViewModel<TestViewModelState, TestViewModelEvent>(SimpleTestLogger()) {
+class TestViewModelWithStateOnly : ActorViewModel<TestViewModelState, TestViewModelEvent>(SimpleTestLogger()) {
     override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>> {
         return ServiceStateWithResult(
             TestViewModelInternalOkState(),
             ViewModelStateWithEvent.createViewModelServiceResult<TestViewModelState, TestViewModelEvent>(
-                null,
+                TestViewModelState(),
                 null
             )
         )

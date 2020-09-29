@@ -27,7 +27,7 @@ import ru.ar2code.redis.core.android.prepares.*
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 
-class ActorViewModelUnitTest {
+class StateViewModelUnitTest {
 
     private val delayBeforeAssertMs = 20L
 

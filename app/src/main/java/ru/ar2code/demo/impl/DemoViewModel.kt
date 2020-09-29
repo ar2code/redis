@@ -17,17 +17,15 @@
 
 package ru.ar2code.demo.impl
 
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.inject
-import ru.ar2code.redis.core.android.ActorViewModel
+import ru.ar2code.android.redis.core.android.ActorViewModel
 import ru.ar2code.redis.core.android.BaseViewEvent
 import ru.ar2code.redis.core.android.ChangeableState
 import ru.ar2code.redis.core.android.ViewEventType
 import ru.ar2code.redis.core.android.impl.ViewModelServiceResult
-import ru.ar2code.redis.core.android.impl.ViewModelStateWithEvent
+import ru.ar2code.redis.core.android.ViewModelStateWithEvent
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.services.ServiceStateWithResult
