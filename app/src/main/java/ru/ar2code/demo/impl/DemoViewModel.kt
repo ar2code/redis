@@ -42,7 +42,7 @@ class DemoViewModel :
 
     class DemoViewEventType : ViewEventType<String>()
 
-    val injService : AbstractDemoServiceCoroutine by inject(AbstractDemoServiceCoroutine::class.java) { parametersOf(viewModelScope) }
+    val injService : AbstractDemoServiceRedisCoroutine by inject(AbstractDemoServiceRedisCoroutine::class.java) { parametersOf(viewModelScope) }
 
     init {
         val state = injService.serviceState

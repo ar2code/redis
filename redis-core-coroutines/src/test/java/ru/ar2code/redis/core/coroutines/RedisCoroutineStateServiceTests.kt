@@ -27,7 +27,7 @@ import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.coroutines.prepares.*
 
 @ExperimentalCoroutinesApi
-class CoroutineStateServiceTests {
+class RedisCoroutineStateServiceTests {
 
     private val testDelayBeforeCheckingResult = 50L
     private val testDelayBeforeDispatchSecondIntent = 10L

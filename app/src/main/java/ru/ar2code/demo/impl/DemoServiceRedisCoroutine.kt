@@ -17,24 +17,16 @@
 
 package ru.ar2code.demo.impl
 
-import android.app.Application
-import kotlinx.coroutines.CoroutineScope
-import org.koin.core.context.startKoin
-import org.koin.dsl.module
+import kotlinx.coroutines.*
+import ru.ar2code.redis.core.services.ServiceStateWithResult
 
-val module = module {
-    single { (scope: CoroutineScope) -> DemoServiceRedisCoroutine(scope) as AbstractDemoServiceRedisCoroutine }
-}
+@ExperimentalCoroutinesApi
+class DemoServiceRedisCoroutine(
+    scope: CoroutineScope
+) : AbstractDemoServiceRedisCoroutine(scope) {
 
-class AndroidApplication : Application() {
+    private var globalData = 0
 
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            modules(module)
-        }
-
-    }
+    private var demoUseCase = SimpleUseCase()
 
 }

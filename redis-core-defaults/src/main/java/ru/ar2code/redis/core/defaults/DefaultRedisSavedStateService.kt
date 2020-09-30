@@ -25,16 +25,20 @@ import ru.ar2code.redis.core.coroutines.*
 /**
  * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]
  */
-abstract class DefaultCoroutineService<TResult>(
+abstract class DefaultRedisSavedStateService<TResult>(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
-    reducerSelector: ReducerSelector
+    reducerSelector: ReducerSelector,
+    savedStateStore: SavedStateStore,
+    savedStateHandler: SavedStateHandler
 ) :
-    CoroutineStateService(
+    RedisSavedStateService(
         scope,
         Dispatchers.Default,
         State.Initiated(),
         reducers,
         reducerSelector,
-        DefaultLogger()
+        DefaultLogger(),
+        savedStateStore,
+        savedStateHandler
     )

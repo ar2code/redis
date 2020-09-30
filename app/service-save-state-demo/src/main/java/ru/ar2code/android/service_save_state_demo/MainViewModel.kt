@@ -39,7 +39,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
         }
     }
 
-    private val service = MainServiceCoroutine(viewModelScope, serviceStateHandler)
+    private val service = MainServiceRedisCoroutine(viewModelScope, serviceStateHandler)
 
     private val viewState = MutableLiveData<String>()
     val viewStateLive = viewState as LiveData<String>
@@ -53,7 +53,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
     }
 
     fun onButtonClick() {
-        service.sendIntent(IntentMessage(MainServiceCoroutine.MainServiceIntentType()))
+        service.sendIntent(IntentMessage(MainServiceRedisCoroutine.MainServiceIntentType()))
     }
 
 }

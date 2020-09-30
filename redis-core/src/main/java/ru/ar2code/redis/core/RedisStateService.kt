@@ -17,7 +17,7 @@
 
 package ru.ar2code.redis.core
 
-interface StateService {
+interface RedisStateService {
 
     val serviceState: State
 

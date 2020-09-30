@@ -25,14 +25,14 @@ import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
 
 @ExperimentalCoroutinesApi
-open class CoroutineStateService(
+open class RedisCoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
     private val initialState: State,
     private val reducers: List<StateReducer>,
     private val reducerSelector: ReducerSelector,
     private val logger: Logger
-) : StateService {
+) : RedisStateService {
 
     companion object {
         private const val AWAIT_INIT_DELAY_MS = 1L
@@ -43,7 +43,7 @@ open class CoroutineStateService(
             return field.clone()
         }
 
-    private var resultsChannel = BroadcastChannel<State>(Channel.CONFLATED)
+    private var resultsChannel = BroadcastChannel<State>(Channel.BUFFERED)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
@@ -67,7 +67,7 @@ open class CoroutineStateService(
                 dispatch(listenedService.intentBuilder(newState))
             }
         }
-        listenedService.service.subscribe(subscriber)
+        listenedService.serviceRedis.subscribe(subscriber)
         listenedServicesSubscribers[listenedService] = subscriber
     }
 
@@ -78,7 +78,7 @@ open class CoroutineStateService(
     fun stopListening(listenedService: ListenedService) {
         val subscriber = listenedServicesSubscribers[listenedService]
         subscriber?.let {
-            listenedService.service.unsubscribe(subscriber)
+            listenedService.serviceRedis.unsubscribe(subscriber)
             listenedServicesSubscribers.remove(listenedService)
         }
     }
@@ -95,7 +95,7 @@ open class CoroutineStateService(
                 awaitPassCreatedState()
                 intentMessagesChannel.send(msg)
             } catch (e: ClosedSendChannelException) {
-                logger.info("Service [${this@CoroutineStateService}] intent channel is closed.")
+                logger.info("Service [${this@RedisCoroutineStateService}] intent channel is closed.")
             }
         }
     }
@@ -115,7 +115,7 @@ open class CoroutineStateService(
 
         fun unsubscribeFromListenedServices() {
             listenedServicesSubscribers.forEach {
-                it.key.service.unsubscribe(it.value)
+                it.key.serviceRedis.unsubscribe(it.value)
             }
             listenedServicesSubscribers.clear()
         }
@@ -162,18 +162,22 @@ open class CoroutineStateService(
 
         fun listening(subscription: ReceiveChannel<State>) {
             scope.launch(dispatcher) {
-                logger.info("Service [${this@CoroutineStateService}] start listening new subscription")
+                logger.info("Service [${this@RedisCoroutineStateService}] start listening new subscription")
 
                 while (isActive && !subscription.isClosedForReceive) {
                     try {
                         val result = subscription.receive()
                         subscriber.onReceive(result)
                     } catch (e: ClosedReceiveChannelException) {
-                        logger.info("Service [${this@CoroutineStateService}] result channel is closed.")
+                        logger.info("Service [${this@RedisCoroutineStateService}] result channel is closed.")
                     }
                 }
                 disposeIfScopeNotActive()
             }
+        }
+
+        fun sendCurrentStateToNewSubscriber() {
+            subscriber.onReceive(serviceState)
         }
 
         if (!assertScopeActive("subscribe $subscriber to service"))
@@ -184,8 +188,9 @@ open class CoroutineStateService(
 
         val subscription = openSubscription()
 
-        listening(subscription)
+        sendCurrentStateToNewSubscriber()
 
+        listening(subscription)
     }
 
     /**
@@ -266,7 +271,7 @@ open class CoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("Service [${this@CoroutineStateService}] on initialized. Send empty result.")
+                logger.info("Service [${this@RedisCoroutineStateService}] on initialized. Send empty result.")
                 broadcastNewState(initialState)
                 onInitialized()
             }
@@ -294,7 +299,7 @@ open class CoroutineStateService(
 
                     val reducer = findReducer(msg)
 
-                    logger.info("Service [${this@CoroutineStateService}] Received intent $msg. Founded reducer: $reducer.")
+                    logger.info("Service [${this@RedisCoroutineStateService}] Received intent $msg. Founded reducer: $reducer.")
 
                     val newStateFlow = reducer.reduce(serviceState, msg)
 
@@ -304,7 +309,7 @@ open class CoroutineStateService(
                         }
                     }
                 } catch (e: ClosedReceiveChannelException) {
-                    logger.info("Service [${this@CoroutineStateService}] intent channel is closed.")
+                    logger.info("Service [${this@RedisCoroutineStateService}] intent channel is closed.")
                 }
             }
 

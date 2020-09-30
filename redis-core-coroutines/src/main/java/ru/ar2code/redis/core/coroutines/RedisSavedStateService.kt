@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
-open class SavedStateService(
+open class RedisSavedStateService(
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,
     initialState: State,
@@ -33,7 +33,7 @@ open class SavedStateService(
     logger: Logger,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?
-) : CoroutineStateService(scope, dispatcher, initialState, reducers, reducerSelector, logger) {
+) : RedisCoroutineStateService(scope, dispatcher, initialState, reducers, reducerSelector, logger) {
 
     override suspend fun onStateChanged(old: State, new: State) {
         super.onStateChanged(old, new)

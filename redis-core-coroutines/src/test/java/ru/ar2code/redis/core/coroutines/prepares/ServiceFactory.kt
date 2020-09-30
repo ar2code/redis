@@ -20,7 +20,6 @@ package ru.ar2code.redis.core.coroutines.prepares
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.StateService
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
@@ -40,8 +39,8 @@ object ServiceFactory {
             StateBTypeBReducer()
         )
 
-    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): CoroutineStateService {
-        return CoroutineStateService(
+    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
             scope,
             dispatcher,
             State.Initiated(),
@@ -56,8 +55,8 @@ object ServiceFactory {
         dispatcher: CoroutineDispatcher,
         stateStore: SavedStateStore,
         stateHandler: SavedStateHandler
-    ): SavedStateService {
-        return SavedStateService(
+    ): RedisSavedStateService {
+        return RedisSavedStateService(
             scope,
             dispatcher,
             State.Initiated(),
@@ -72,8 +71,8 @@ object ServiceFactory {
     fun buildServiceWithCustomInit(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher
-    ): CoroutineStateService {
-        return CoroutineStateService(
+    ): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
             scope,
             dispatcher,
             CustomInitState(),
@@ -86,8 +85,8 @@ object ServiceFactory {
     fun buildServiceWithReducerException(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher
-    ): CoroutineStateService {
-        return CoroutineStateService(
+    ): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
             scope,
             dispatcher,
             State.Initiated(),

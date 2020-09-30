@@ -18,11 +18,11 @@
 package ru.ar2code.redis.core
 
 /**
- * Each [StateService] can listen another services and dispatch intent to itself if state of listened service was changed
- * @param service listened service
+ * Each [RedisStateService] can listen another services and dispatch intent to itself if state of listened service was changed
+ * @param serviceRedis listened service
  * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
  */
 class ListenedService(
-    val service: StateService,
+    val serviceRedis: RedisStateService,
     val intentBuilder : (newState : State) -> IntentMessage
 )

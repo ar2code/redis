@@ -17,16 +17,7 @@
 
 package ru.ar2code.demo.impl
 
-import kotlinx.coroutines.*
-import ru.ar2code.redis.core.services.ServiceStateWithResult
+import kotlinx.coroutines.CoroutineScope
+import ru.ar2code.redis.core.defaults.DefaultServiceRedisCoroutine
 
-@ExperimentalCoroutinesApi
-class DemoServiceCoroutine(
-    scope: CoroutineScope
-) : AbstractDemoServiceCoroutine(scope) {
-
-    private var globalData = 0
-
-    private var demoUseCase = SimpleUseCase()
-
-}
+abstract class AbstractDemoServiceRedisCoroutine(scope: CoroutineScope) : DefaultServiceRedisCoroutine<String>(scope)

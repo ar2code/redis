@@ -15,9 +15,26 @@
  * limitations under the License.
  */
 
-package ru.ar2code.demo.impl
+package ru.ar2code.redis.core.defaults
 
 import kotlinx.coroutines.CoroutineScope
-import ru.ar2code.redis.core.defaults.DefaultCoroutineService
+import kotlinx.coroutines.Dispatchers
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.coroutines.*
 
-abstract class AbstractDemoServiceCoroutine(scope: CoroutineScope) : DefaultCoroutineService<String>(scope)
+/**
+ * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]
+ */
+abstract class DefaultServiceRedisCoroutine<TResult>(
+    scope: CoroutineScope,
+    reducers: List<StateReducer>,
+    reducerSelector: ReducerSelector
+) :
+    RedisCoroutineStateService(
+        scope,
+        Dispatchers.Default,
+        State.Initiated(),
+        reducers,
+        reducerSelector,
+        DefaultLogger()
+    )

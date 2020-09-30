@@ -46,7 +46,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     protected open val savedStateHandler: SavedStateHandler? = null
 
     private val viewModelService by lazy {
-        SavedStateService(
+        RedisSavedStateService(
             viewModelScope,
             Dispatchers.Default,
             initialState,
@@ -122,8 +122,9 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         viewModelService.subscribe(object : ServiceSubscriber {
             override fun onReceive(newState: State) {
                 val viewModelState = newState as? ViewModelStateWithEvent<ViewState, ViewEvent>
-                    ?: throw IllegalStateException("StateViewModel should works only with ViewStateReducer and returns ViewModelStateWithEvent state")
-                postResult(viewModelState)
+                viewModelState?.let {
+                    postResult(viewModelState)
+                }
             }
         })
     }
