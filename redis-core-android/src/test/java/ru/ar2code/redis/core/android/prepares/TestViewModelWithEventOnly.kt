@@ -18,12 +18,12 @@
 package ru.ar2code.redis.core.android.prepares
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.android.StateViewModel
+import ru.ar2code.redis.core.android.RedisViewModel
 import ru.ar2code.redis.core.android.ViewModelStateWithEvent
 import ru.ar2code.redis.core.android.ViewStateReducer
 
 @ExperimentalCoroutinesApi
-class TestViewModelWithEventOnly : StateViewModel<TestViewModelState, TestViewModelEvent>(
+class TestViewModelWithEventOnly : RedisViewModel<TestViewModelState, TestViewModelEvent>(
     null, SimpleTestLogger()
 ) {
     override val initialState: ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>

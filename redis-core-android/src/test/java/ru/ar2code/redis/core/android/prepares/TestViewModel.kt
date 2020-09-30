@@ -18,14 +18,12 @@
 package ru.ar2code.redis.core.android.prepares
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.android.StateViewModel
+import ru.ar2code.redis.core.android.RedisViewModel
 import ru.ar2code.redis.core.android.ViewModelStateWithEvent
 import ru.ar2code.redis.core.android.ViewStateReducer
-import ru.ar2code.redis.core.coroutines.StateReducer
 
 @ExperimentalCoroutinesApi
-class TestViewModel() : StateViewModel<TestViewModelState, TestViewModelEvent>(
+class TestViewModel() : RedisViewModel<TestViewModelState, TestViewModelEvent>(
     null, SimpleTestLogger()
 ) {
 

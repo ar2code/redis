@@ -31,7 +31,7 @@ import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
-abstract class StateViewModel<ViewState, ViewEvent>(
+abstract class RedisViewModel<ViewState, ViewEvent>(
     protected val savedState: SavedStateHandle?,
     protected val logger: Logger
 ) :

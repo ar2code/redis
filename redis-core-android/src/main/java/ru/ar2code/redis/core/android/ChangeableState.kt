@@ -28,4 +28,4 @@ abstract class ChangeableState<T>(
      * False means nothing was changed and you should ignore this state assume that UI is up-to-date with state
      */
     val isChangedSincePrevious: Boolean
-) : BaseViewState() where T : Any
+) where T : Any

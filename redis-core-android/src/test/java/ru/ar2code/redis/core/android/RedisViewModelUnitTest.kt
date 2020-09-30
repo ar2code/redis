@@ -27,7 +27,7 @@ import org.junit.Test
 import ru.ar2code.redis.core.android.prepares.*
 
 @ExperimentalCoroutinesApi
-class StateViewModelUnitTest {
+class RedisViewModelUnitTest {
 
     private val delayBeforeAssertMs = 20L
 
@@ -67,7 +67,7 @@ class StateViewModelUnitTest {
 
     @Test
     fun viewModel_dispatchIntentUiViewOnly_viewStateLiveIsNotNullViewEventLiveIsNull() = runBlocking {
-        val viewModel = TestViewModelWithStateOnly()
+        val viewModel = TestViewModelWithRedisOnly()
 
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
@@ -86,7 +86,7 @@ class StateViewModelUnitTest {
 
     @Test
     fun viewModel_dispatchIntentUiEventOnly_viewStateLiveIsNullViewEventLiveIsNotNull() = runBlocking {
-        val viewModel = TestViewModelWithStateOnly()
+        val viewModel = TestViewModelWithRedisOnly()
 
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
@@ -106,7 +106,7 @@ class StateViewModelUnitTest {
 
     @Test
     fun viewModel_dispatchIntentUiViewStateWithEvent_viewStateLiveIsNotNullViewEventLiveIsNotNull() = runBlocking {
-        val viewModel = TestViewModelWithStateOnly()
+        val viewModel = TestViewModelWithRedisOnly()
 
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
