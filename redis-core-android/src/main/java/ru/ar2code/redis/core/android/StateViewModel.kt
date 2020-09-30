@@ -37,9 +37,9 @@ abstract class StateViewModel<ViewState, ViewEvent>(
 ) :
     ViewModel() where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
-    protected abstract val initialState: State
+    protected abstract val initialState: ViewModelStateWithEvent<ViewState, ViewEvent>
 
-    protected abstract val reducers: List<StateReducer>
+    protected abstract val reducers: List<ViewStateReducer<ViewState, ViewEvent>>
 
     protected open val reducerSelector: ReducerSelector = DefaultReducerSelector()
 
@@ -115,13 +115,6 @@ abstract class StateViewModel<ViewState, ViewEvent>(
         }
     }
 
-    /**
-     * Set result from IntentMessage if reducer return state that not inherited from [ViewModelStateWithEvent]
-     */
-    protected open fun postResult(newState: State) {
-
-    }
-
     private fun subscribeToServiceResults() {
 
         logger.info("[ActorViewModel] subscribe to internal service")
@@ -129,11 +122,8 @@ abstract class StateViewModel<ViewState, ViewEvent>(
         viewModelService.subscribe(object : ServiceSubscriber {
             override fun onReceive(newState: State) {
                 val viewModelState = newState as? ViewModelStateWithEvent<ViewState, ViewEvent>
-                viewModelState?.let {
-                    postResult(it)
-                } ?: kotlin.run {
-                    postResult(newState)
-                }
+                    ?: throw IllegalStateException("StateViewModel should works only with ViewStateReducer and returns ViewModelStateWithEvent state")
+                postResult(viewModelState)
             }
         })
     }

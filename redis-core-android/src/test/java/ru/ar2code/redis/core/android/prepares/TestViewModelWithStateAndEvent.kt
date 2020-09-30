@@ -17,16 +17,18 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.redis.core.State
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.android.StateViewModel
-import ru.ar2code.redis.core.coroutines.StateReducer
+import ru.ar2code.redis.core.android.ViewModelStateWithEvent
+import ru.ar2code.redis.core.android.ViewStateReducer
 
+@ExperimentalCoroutinesApi
 class TestViewModelWithStateAndEvent : StateViewModel<TestViewModelState, TestViewModelEvent>(
     null, SimpleTestLogger()
 ) {
-    override val initialState: State
-        get() = State.Initiated()
+    override val initialState: ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>
+        get() = ViewModelInitiatedState()
 
-    override val reducers: List<StateReducer>
-        get() = TODO("Not yet implemented")
+    override val reducers: List<ViewStateReducer<TestViewModelState, TestViewModelEvent>>
+        get() = defaultReducers
 }

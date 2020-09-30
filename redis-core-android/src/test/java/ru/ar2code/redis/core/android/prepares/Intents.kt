@@ -19,4 +19,17 @@ package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.IntentMessage
 
-class TestIntentMessageType : IntentMessage()
+class IntentUiTypeA(val payload: String? = null) :
+    IntentMessage()
+
+class IntentUiTypeB(val payload: String? = null) :
+    IntentMessage()
+
+class IntentUiViewStateOnly(val payload: String? = null) :
+    IntentMessage()
+
+class IntentUiViewEventOnly(val payload: String? = null) :
+    IntentMessage()
+
+class IntentUiViewStateWithEvent(val payload: String? = null) :
+    IntentMessage()

@@ -15,23 +15,15 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.android.prepares
+package ru.ar2code.redis.core.android
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.android.StateViewModel
-import ru.ar2code.redis.core.android.ViewModelStateWithEvent
-import ru.ar2code.redis.core.android.ViewStateReducer
 import ru.ar2code.redis.core.coroutines.StateReducer
+import kotlin.reflect.KClass
 
-@ExperimentalCoroutinesApi
-class TestViewModel() : StateViewModel<TestViewModelState, TestViewModelEvent>(
-    null, SimpleTestLogger()
-) {
-
-    override val initialState: ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>
-        get() = ViewModelInitiatedState()
-
-    override val reducers: List<ViewStateReducer<TestViewModelState, TestViewModelEvent>>
-        get() = defaultReducers
-}
+abstract class ViewStateReducer<ViewState, ViewEvent>(
+    expectState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
+    expectIntentType: KClass<*>?
+) : StateReducer(
+    expectState,
+    expectIntentType
+) where ViewState : BaseViewState, ViewEvent : BaseViewEvent

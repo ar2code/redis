@@ -18,15 +18,13 @@
 package ru.ar2code.redis.core.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
-import org.junit.Assert.*
 import org.junit.Rule
+import org.junit.Test
 import ru.ar2code.redis.core.android.prepares.*
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.State
 
 @ExperimentalCoroutinesApi
 class StateViewModelUnitTest {
@@ -37,76 +35,91 @@ class StateViewModelUnitTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun `ViewModel's state is created or initiated immediately after creation`() = runBlocking {
-        val viewModel = TestViewModel()
-
-        assertTrue(viewModel.state is State.Created || viewModel.state is State.Initiated)
-    }
-
-    @Test
-    fun `ViewModel's state becomes initiated after creation with small delay`() = runBlocking {
+    fun viewModel_instantiated_stateIsInitiated() = runBlocking {
         val viewModel = TestViewModel()
 
         delay(delayBeforeAssertMs)
 
-        assertTrue(viewModel.state is State.Initiated)
+        assertThat(viewModel.state).isInstanceOf(ViewModelInitiatedState::class.java)
     }
 
     @Test
-    fun `Can change state set correct state after receiving results`() = runBlocking {
+    fun viewModel_dispatchIntentUiTypeA_stateSetToViewModelTypeAState() = runBlocking {
         val viewModel = TestViewModel()
 
-        assertTrue(viewModel.state is State.Created || viewModel.state is State.Initiated)
-
-        viewModel.dispatch(TestIntentMessageType())
+        viewModel.dispatch(IntentUiTypeA())
 
         delay(delayBeforeAssertMs)
 
-        assertTrue(viewModel.state is TestViewModelInternalOkState)
+        assertThat(viewModel.state).isInstanceOf(ViewModelTypeAState::class.java)
     }
 
     @Test
-    fun `Intent send new view state only and viewStateLive contains correct state`() = runBlocking {
+    fun viewModel_dispatchIntentUiTypeB_stateSetToViewModelTypeBState() = runBlocking {
+        val viewModel = TestViewModel()
+
+        viewModel.dispatch(IntentUiTypeB())
+
+        delay(delayBeforeAssertMs)
+
+        assertThat(viewModel.state).isInstanceOf(ViewModelTypeBState::class.java)
+    }
+
+    @Test
+    fun viewModel_dispatchIntentUiViewOnly_viewStateLiveIsNotNullViewEventLiveIsNull() = runBlocking {
         val viewModel = TestViewModelWithStateOnly()
 
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
 
-        viewModel.dispatch(TestIntentMessageType())
+        viewModel.dispatch(IntentUiViewStateOnly())
 
         delay(delayBeforeAssertMs)
 
-        assertTrue(viewModel.viewStateLive.value is TestViewModelState)
-        assertNull(viewModel.viewEventLive.value)
+        assertThat(viewModel.state).isInstanceOf(ViewModelViewOnlyState::class.java)
+
+        val state = viewModel.state as ViewModelViewOnlyState
+
+        assertThat(state.viewState).isNotNull()
+        assertThat(state.viewEvent).isNull()
     }
 
     @Test
-    fun `Intent send new view event only and viewEventLive contains correct event`() = runBlocking {
-        val viewModel = TestViewModelWithEventOnly()
+    fun viewModel_dispatchIntentUiEventOnly_viewStateLiveIsNullViewEventLiveIsNotNull() = runBlocking {
+        val viewModel = TestViewModelWithStateOnly()
 
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
 
-        viewModel.dispatch(TestIntentMessageType())
+        viewModel.dispatch(IntentUiViewEventOnly())
 
         delay(delayBeforeAssertMs)
 
-        assertTrue(viewModel.viewEventLive.value?.data is TestViewModelEvent)
-        assertNull(viewModel.viewStateLive.value)
+        assertThat(viewModel.state).isInstanceOf(ViewModelEventOnlyState::class.java)
+
+        val state = viewModel.state as ViewModelEventOnlyState
+
+        assertThat(state.viewState).isNull()
+        assertThat(state.viewEvent).isNotNull()
     }
 
+
     @Test
-    fun `Intent send new view state and event and viewStateLive and viewEventLive contains correct data`() = runBlocking {
-        val viewModel = TestViewModelWithStateAndEvent()
+    fun viewModel_dispatchIntentUiViewStateWithEvent_viewStateLiveIsNotNullViewEventLiveIsNotNull() = runBlocking {
+        val viewModel = TestViewModelWithStateOnly()
 
         viewModel.viewStateLive.observeForever {}
         viewModel.viewEventLive.observeForever {}
 
-        viewModel.dispatch(TestIntentMessageType())
+        viewModel.dispatch(IntentUiViewStateWithEvent())
 
         delay(delayBeforeAssertMs)
 
-        assertTrue(viewModel.viewEventLive.value?.data is TestViewModelEvent)
-        assertTrue(viewModel.viewStateLive.value is TestViewModelState)
+        assertThat(viewModel.state).isInstanceOf(ViewModelViewWithEventState::class.java)
+
+        val state = viewModel.state as ViewModelViewWithEventState
+
+        assertThat(state.viewState).isNotNull()
+        assertThat(state.viewEvent).isNotNull()
     }
 }
