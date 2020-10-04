@@ -15,26 +15,9 @@
  * limitations under the License.
  */
 
-package ru.ar2code.demo.impl
+package ru.ar2code.redis.core.coroutines
 
-import android.app.Application
-import kotlinx.coroutines.CoroutineScope
-import org.koin.core.context.startKoin
-import org.koin.dsl.module
-
-val module = module {
-    single { (scope: CoroutineScope) -> DemoServiceRedisCoroutine(scope) as AbstractDemoServiceRedisCoroutine }
-}
-
-class AndroidApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            modules(module)
-        }
-
-    }
-
-}
+/**
+ * Default reducer that can be applied to any state and anu intent
+ */
+abstract class DefaultReducer : StateReducer(null, null)

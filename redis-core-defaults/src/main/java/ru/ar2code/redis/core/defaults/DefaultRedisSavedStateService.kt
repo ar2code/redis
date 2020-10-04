@@ -19,12 +19,14 @@ package ru.ar2code.redis.core.defaults
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
 /**
  * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]
  */
+@ExperimentalCoroutinesApi
 abstract class DefaultRedisSavedStateService<TResult>(
     scope: CoroutineScope,
     reducers: List<StateReducer>,

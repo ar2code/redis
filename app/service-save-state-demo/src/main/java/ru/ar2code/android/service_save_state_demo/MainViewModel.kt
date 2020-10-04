@@ -19,9 +19,9 @@ package ru.ar2code.android.service_save_state_demo
 
 import androidx.lifecycle.*
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.SavedStateStore
-import ru.ar2code.redis.core.services.ServiceStateWithResult
 import ru.ar2code.redis.core.ServiceSubscriber
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.coroutines.SavedStateStore
 
 class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 
@@ -41,19 +41,22 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 
     private val service = MainServiceRedisCoroutine(viewModelScope, serviceStateHandler)
 
-    private val viewState = MutableLiveData<String>()
-    val viewStateLive = viewState as LiveData<String>
+    private val viewState = MutableLiveData<Long>()
+    val viewStateLive = viewState as LiveData<Long>
 
     init {
-        service.subscribe(object : ServiceSubscriber<String> {
-            override fun onReceive(stateWithResult: ServiceStateWithResult<String>?) {
-                viewState.postValue(stateWithResult?.result?.payload)
+        service.subscribe(object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                val keep = newState as? MainServiceRedisCoroutine.KeepState
+                keep?.let {
+                    viewState.postValue(it.timestamp)
+                }
             }
         })
     }
 
     fun onButtonClick() {
-        service.sendIntent(IntentMessage(MainServiceRedisCoroutine.MainServiceIntentType()))
+        service.dispatch(MainServiceRedisCoroutine.MainIntent(System.currentTimeMillis()))
     }
 
 }

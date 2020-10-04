@@ -18,43 +18,57 @@
 package ru.ar2code.android.service_save_state_demo
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.models.ServiceResult
+import ru.ar2code.redis.core.RestoredStateIntent
 import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.SavedStateStore
-import ru.ar2code.redis.core.services.ServiceStateWithResult
-import ru.ar2code.redis.core.defaults.DefaultServiceRedisCoroutine
+import ru.ar2code.redis.core.coroutines.*
+import ru.ar2code.redis.core.defaults.DefaultRedisSavedStateService
 
-class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) : DefaultServiceRedisCoroutine<String>(scope, savedStateStore) {
+class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) :
+    DefaultRedisSavedStateService<String>(
+        scope,
+        listOf(MainReducer()),
+        DefaultReducerSelector(),
+        savedStateStore,
+        SaveHandler()
+    ) {
+
+    class MainIntent(val timestamp: Long) : IntentMessage()
+
+    data class KeepState(val timestamp: Long) : State() {
+        override fun clone(): State {
+            return this.copy(timestamp = timestamp)
+        }
+    }
+
+    class MainReducer : StateReducer(null, MainIntent::class) {
+        override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
+            return flow {
+                val timeStamp = (intent as? MainIntent)?.timestamp
+                emit(KeepState(timeStamp!!))
+            }
+        }
+    }
+
+    class SaveHandler : SavedStateHandler {
+        override suspend fun storeState(state: State, store: SavedStateStore?) {
+            val keep = state as? KeepState
+            keep?.let {
+                store?.set(SAVE_KEY, it.timestamp)
+            }
+        }
+
+        override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
+            val timestamp = store?.get<Long>(SAVE_KEY) ?: return null
+            return RestoredStateIntent(null, MainIntent(timestamp))
+        }
+    }
 
     companion object {
         private const val SAVE_KEY = "state"
     }
 
-    class MainServiceIntentType : IntentMessage.IntentMessageType<String>()
-
-    override suspend fun onIntentMsg(msg: IntentMessage): ServiceStateWithResult<String>? {
-
-        savedStateStore?.set(SAVE_KEY, "intent")
-
-        return ServiceStateWithResult(
-            State.Same(),
-            ServiceResult.BasicResult("Some result for user button click.")
-        )
-    }
-
-    override fun getResultFotInitializedState(): ServiceResult<String> {
-        return ServiceResult.InitResult("Initial result. No state was saved.")
-    }
-
-    override fun restoreState() {
-        super.restoreState()
-
-        val state = savedStateStore?.get<String>(SAVE_KEY)
-        state?.let {
-            logger.info("Restore MainService state. Send intent.")
-            sendIntent(IntentMessage(MainServiceIntentType()))
-        }
-    }
 
 }
