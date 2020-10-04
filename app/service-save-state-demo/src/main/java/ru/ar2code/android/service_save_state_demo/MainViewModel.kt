@@ -18,7 +18,6 @@
 package ru.ar2code.android.service_save_state_demo
 
 import androidx.lifecycle.*
-import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.SavedStateStore

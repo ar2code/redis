@@ -18,6 +18,6 @@
 package ru.ar2code.redis.core.coroutines
 
 /**
- * Default reducer that can be applied to any state and anu intent
+ * Default reducer that can be applied to any state and any intent
  */
 abstract class DefaultReducer : StateReducer(null, null)
