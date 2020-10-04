@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.defaults
+package ru.ar2code.redis.core.android
 
 import ru.ar2code.utils.impl.ConsoleLogger
 
-class DefaultLogger : ConsoleLogger("Redis-core")
+internal class RedisCoreAndroidLogger : ConsoleLogger("Redis-core-android")

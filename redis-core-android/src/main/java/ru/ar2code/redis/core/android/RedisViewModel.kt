@@ -30,6 +30,7 @@ import ru.ar2code.mutableliveevent.MutableLiveEvent
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.redis.core.defaults.DefaultLogger
 import ru.ar2code.utils.Logger
+import ru.ar2code.utils.impl.ConsoleLogger
 
 @ExperimentalCoroutinesApi
 abstract class RedisViewModel<ViewState, ViewEvent>(
@@ -45,7 +46,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
     protected open val savedStateHandler: SavedStateHandler? = null
 
-    protected open val logger: Logger = DefaultLogger()
+    protected open val logger: Logger = RedisCoreAndroidLogger()
 
     private val viewModelService by lazy {
         RedisSavedStateService(
