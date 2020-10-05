@@ -38,12 +38,13 @@ abstract class StateReducer(
         intent: IntentMessage
     ): Boolean {
         val isExpectedOrAnyState = isAnyState() || expectState?.isInstance(currentState) == true
-        val isExpectedOrAnyIntent = isAnyIntentType() || expectIntentType?.isInstance(intent) == true
+        val isExpectedOrAnyIntent =
+            isAnyIntentType() || expectIntentType?.isInstance(intent) == true
 
         return isExpectedOrAnyState && isExpectedOrAnyIntent
     }
 
-    fun isStateWithIntentSpecified() : Boolean {
+    fun isStateWithIntentSpecified(): Boolean {
         return !isAnyState() && !isAnyIntentType()
     }
 
@@ -53,5 +54,9 @@ abstract class StateReducer(
 
     fun isAnyIntentType(): Boolean {
         return expectIntentType == null
+    }
+
+    protected fun <T> requireIntent(intent: IntentMessage): T where T : IntentMessage {
+        return intent as T
     }
 }
