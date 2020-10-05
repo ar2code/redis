@@ -24,6 +24,7 @@ import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.RestoredStateIntent
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
+import ru.ar2code.redis.core.defaults.DefaultLogger
 import ru.ar2code.redis.core.defaults.DefaultRedisSavedStateService
 
 class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) :
@@ -43,7 +44,7 @@ class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedSta
         }
     }
 
-    class MainReducer : StateReducer(null, MainIntent::class) {
+    class MainReducer : StateReducer(null, MainIntent::class, DefaultLogger()) {
         override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
             return flow {
                 val timeStamp = (intent as? MainIntent)?.timestamp

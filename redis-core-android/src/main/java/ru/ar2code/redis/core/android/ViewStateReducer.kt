@@ -18,12 +18,14 @@
 package ru.ar2code.redis.core.android
 
 import ru.ar2code.redis.core.coroutines.StateReducer
+import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
 abstract class ViewStateReducer<ViewState, ViewEvent>(
     expectState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
-    expectIntentType: KClass<*>?
+    expectIntentType: KClass<*>?,
+    logger: Logger
 ) : StateReducer(
     expectState,
-    expectIntentType
+    expectIntentType, logger
 ) where ViewState : BaseViewState, ViewEvent : BaseViewEvent

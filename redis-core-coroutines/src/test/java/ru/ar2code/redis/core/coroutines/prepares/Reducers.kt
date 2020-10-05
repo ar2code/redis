@@ -24,7 +24,10 @@ import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
 
-class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, IntentTypeA::class) {
+class SimpleExceptionStateReducer : StateReducer(
+    State.Initiated::class, IntentTypeA::class,
+    TestLogger()
+) {
 
     override fun reduce(
         currentState: State,
@@ -37,7 +40,7 @@ class SimpleExceptionStateReducer : StateReducer(State.Initiated::class, IntentT
 }
 
 class InitiatedStateTypeAReducer :
-    StateReducer(State.Initiated::class, IntentTypeA::class) {
+    StateReducer(State.Initiated::class, IntentTypeA::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -50,7 +53,7 @@ class InitiatedStateTypeAReducer :
 }
 
 class InitiatedStateTypeBReducer :
-    StateReducer(State.Initiated::class, IntentTypeB::class) {
+    StateReducer(State.Initiated::class, IntentTypeB::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -63,7 +66,7 @@ class InitiatedStateTypeBReducer :
 }
 
 class StateBTypeBReducer :
-    StateReducer(StateB::class, IntentTypeB::class) {
+    StateReducer(StateB::class, IntentTypeB::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -76,7 +79,7 @@ class StateBTypeBReducer :
 }
 
 class StateBTypeFlowReducer :
-    StateReducer(StateB::class, IntentTypeFlow::class) {
+    StateReducer(StateB::class, IntentTypeFlow::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -90,7 +93,7 @@ class StateBTypeFlowReducer :
 
 
 class StateATypeCReducer :
-    StateReducer(StateA::class, IntentTypeC::class) {
+    StateReducer(StateA::class, IntentTypeC::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -103,7 +106,7 @@ class StateATypeCReducer :
 }
 
 class InitiatedStateTypeFlowReducer :
-    StateReducer(State.Initiated::class, IntentTypeFlow::class) {
+    StateReducer(State.Initiated::class, IntentTypeFlow::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -117,7 +120,7 @@ class InitiatedStateTypeFlowReducer :
 }
 
 class FlowStateTypeFlowReducer :
-    StateReducer(FlowState::class, IntentTypeFlow::class) {
+    StateReducer(FlowState::class, IntentTypeFlow::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -131,7 +134,7 @@ class FlowStateTypeFlowReducer :
 }
 
 class InitiatedStateTypeDelayFlowReducer :
-    StateReducer(State.Initiated::class, IntentTypeDelayFlow::class) {
+    StateReducer(State.Initiated::class, IntentTypeDelayFlow::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -146,7 +149,7 @@ class InitiatedStateTypeDelayFlowReducer :
 }
 
 class FlowStateTypeDelayFlowReducer :
-    StateReducer(FlowState::class, IntentTypeDelayFlow::class) {
+    StateReducer(FlowState::class, IntentTypeDelayFlow::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -161,7 +164,7 @@ class FlowStateTypeDelayFlowReducer :
 }
 
 class AnyStateTypeCReducer :
-    StateReducer(null, IntentTypeC::class) {
+    StateReducer(null, IntentTypeC::class, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -176,7 +179,7 @@ class AnyStateTypeCReducer :
 }
 
 class AnyStateAnyTypeReducer :
-    StateReducer(null, null) {
+    StateReducer(null, null, TestLogger()) {
 
     override fun reduce(
         currentState: State,
@@ -191,7 +194,7 @@ class AnyStateAnyTypeReducer :
 }
 
 class StateCAnyTypeReducer :
-    StateReducer(StateC::class, null) {
+    StateReducer(StateC::class, null, TestLogger()) {
 
     override fun reduce(
         currentState: State,

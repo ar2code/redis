@@ -20,11 +20,13 @@ package ru.ar2code.redis.core.coroutines
 import kotlinx.coroutines.flow.Flow
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
+import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
 abstract class StateReducer(
     private val expectState: KClass<*>?,
-    private val expectIntentType: KClass<*>?
+    private val expectIntentType: KClass<*>?,
+    protected val logger: Logger
 ) {
     abstract fun reduce(
         currentState: State,

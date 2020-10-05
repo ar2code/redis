@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.android.ViewStateReducer
+import ru.ar2code.redis.core.defaults.DefaultLogger
 
 val defaultReducers = listOf(
     InitiatedStateTypeAReducer(),
@@ -32,7 +33,7 @@ val defaultReducers = listOf(
 )
 
 class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-    ViewModelInitiatedState::class, IntentUiTypeA::class
+    ViewModelInitiatedState::class, IntentUiTypeA::class, SimpleTestLogger()
 ) {
     override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
         return flow {
@@ -42,7 +43,7 @@ class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestView
 }
 
 class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-    ViewModelInitiatedState::class, IntentUiTypeB::class
+    ViewModelInitiatedState::class, IntentUiTypeB::class, SimpleTestLogger()
 ) {
     override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
         return flow {
@@ -53,7 +54,7 @@ class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestView
 
 class InitiatedStateUiViewStateOnlyReducer :
     ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-        ViewModelInitiatedState::class, IntentUiViewStateOnly::class
+        ViewModelInitiatedState::class, IntentUiViewStateOnly::class, SimpleTestLogger()
     ) {
     override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
         return flow {
@@ -63,7 +64,7 @@ class InitiatedStateUiViewStateOnlyReducer :
 }
 
 class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-    ViewModelInitiatedState::class, IntentUiViewEventOnly::class
+    ViewModelInitiatedState::class, IntentUiViewEventOnly::class, SimpleTestLogger()
 ) {
     override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
         return flow {
@@ -74,7 +75,7 @@ class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, Te
 
 class InitiatedStateUiViewWithEventReducer :
     ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-        ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class
+        ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class, SimpleTestLogger()
     ) {
     override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
         return flow {
