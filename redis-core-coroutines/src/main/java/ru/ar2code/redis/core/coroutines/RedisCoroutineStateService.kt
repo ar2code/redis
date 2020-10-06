@@ -303,7 +303,7 @@ open class RedisCoroutineStateService(
 
                     val newStateFlow = reducer.reduce(serviceState, msg)
 
-                    newStateFlow.let { stateFlow ->
+                    newStateFlow?.let { stateFlow ->
                         stateFlow.collect {
                             broadcastNewState(it)
                         }

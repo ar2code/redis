@@ -31,7 +31,7 @@ abstract class StateReducer(
     abstract fun reduce(
         currentState: State,
         intent: IntentMessage
-    ): Flow<State>
+    ): Flow<State>?
 
     fun isReducerApplicable(
         currentState: State,
