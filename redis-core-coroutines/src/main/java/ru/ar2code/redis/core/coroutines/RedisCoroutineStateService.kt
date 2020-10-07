@@ -31,7 +31,7 @@ open class RedisCoroutineStateService(
     private val initialState: State,
     private val reducers: List<StateReducer>,
     private val reducerSelector: ReducerSelector,
-    private val logger: Logger
+    protected val logger: Logger
 ) : RedisStateService {
 
     companion object {
