@@ -301,7 +301,8 @@ open class RedisCoroutineStateService(
 
                     logger.info("Service [${this@RedisCoroutineStateService}] Received intent $msg. Founded reducer: $reducer.")
 
-                    val newStateFlow = reducer.reduce(serviceState, msg)
+                    val newStateFlow =
+                        reducer.reduce(serviceState, msg, this@RedisCoroutineStateService)
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow.collect {

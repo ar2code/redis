@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.RedisServiceDispatcher
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
 
@@ -31,7 +32,8 @@ class SimpleExceptionStateReducer : StateReducer(
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             throw TestException()
@@ -44,7 +46,8 @@ class InitiatedStateTypeAReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(StateA())
@@ -57,7 +60,8 @@ class InitiatedStateTypeBReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(StateB((intent as IntentTypeB).payload ?: 0))
@@ -70,7 +74,8 @@ class StateBTypeBReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(StateB((intent as IntentTypeB).payload ?: 0))
@@ -83,7 +88,8 @@ class StateBTypeFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
@@ -97,7 +103,8 @@ class StateATypeCReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(StateC())
@@ -110,7 +117,8 @@ class InitiatedStateTypeFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
@@ -124,7 +132,8 @@ class FlowStateTypeFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
@@ -138,7 +147,8 @@ class InitiatedStateTypeDelayFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateG(FlowStateG.NAME))
@@ -153,7 +163,8 @@ class FlowStateTypeDelayFlowReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -168,7 +179,8 @@ class AnyStateTypeCReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -183,7 +195,8 @@ class AnyStateAnyTypeReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
@@ -198,7 +211,8 @@ class StateCAnyTypeReducer :
 
     override fun reduce(
         currentState: State,
-        intent: IntentMessage
+        intent: IntentMessage,
+        serviceDispatcher: RedisServiceDispatcher
     ): Flow<State> {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
