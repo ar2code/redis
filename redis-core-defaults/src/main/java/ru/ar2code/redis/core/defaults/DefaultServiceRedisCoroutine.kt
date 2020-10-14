@@ -32,7 +32,7 @@ import ru.ar2code.redis.core.coroutines.*
 abstract class DefaultServiceRedisCoroutine<TResult>(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
-    triggers : List<StateTrigger>
+    triggers : List<StateTrigger>?
 ) :
     RedisCoroutineStateService(
         scope,
