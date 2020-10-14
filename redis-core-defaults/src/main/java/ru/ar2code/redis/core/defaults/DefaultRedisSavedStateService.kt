@@ -29,7 +29,7 @@ import ru.ar2code.redis.core.coroutines.*
  * [reducerSelector] = [DefaultReducerSelector], [stateTriggerSelector] = [DefaultStateTriggerSelector]
  */
 @ExperimentalCoroutinesApi
-abstract class DefaultRedisSavedStateService<TResult>(
+abstract class DefaultRedisSavedStateService(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
     stateTriggers: List<StateTrigger>?,

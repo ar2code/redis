@@ -28,7 +28,7 @@ import ru.ar2code.redis.core.defaults.DefaultLogger
 import ru.ar2code.redis.core.defaults.DefaultRedisSavedStateService
 
 class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) :
-    DefaultRedisSavedStateService<String>(
+    DefaultRedisSavedStateService(
         scope,
         listOf(MainReducer()),
         null,
