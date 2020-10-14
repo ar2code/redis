@@ -36,7 +36,9 @@ object ServiceFactory {
             InitiatedStateTypeDelayFlowReducer(),
             FlowStateTypeFlowReducer(),
             FlowStateTypeDelayFlowReducer(),
-            StateBTypeBReducer()
+            StateBTypeBReducer(),
+            InitiatedStateConcurrentTypeReducer(),
+            StateAConcurrentTypeReducer()
         )
 
     val defaultTriggers = emptyList<StateTrigger>()

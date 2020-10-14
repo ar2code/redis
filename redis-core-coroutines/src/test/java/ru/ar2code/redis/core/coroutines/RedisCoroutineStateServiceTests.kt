@@ -33,10 +33,66 @@ class RedisCoroutineStateServiceTests {
     private val testDelayBeforeDispatchSecondIntent = 10L
 
     @Test
+    fun service_ConcurrentDispatch_NoAnyConcurrentExceptions() =
+        runBlocking(Dispatchers.Default) {
+
+            println("Start concurrent dispatch test")
+
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                }
+            }
+            service.subscribe(subscriber)
+
+            val d1 = async {
+                println("start dispatch task 1")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 1")
+            }
+
+            d1.await()
+
+            val d2 = async {
+                println("start dispatch task 2")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 2")
+
+            }
+            val d3 = async {
+                println("start dispatch task 3")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 3")
+            }
+            val d4 = async {
+                println("start dispatch task 4")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 4")
+            }
+
+            awaitAll(d2, d3, d4)
+
+            delay(testDelayBeforeCheckingResult * 2)
+
+            service.dispose()
+
+            Unit
+        }
+
+    @Test
     fun service_ConcurrentSubscribeUnsubscribe_NoAnyConcurrentExceptions() =
         runBlocking(Dispatchers.Default) {
 
-            println("Start ActionService concurrent test")
+            println("Start concurrent subscribe test")
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val subscriptions = mutableListOf<ServiceSubscriber>()
@@ -472,33 +528,34 @@ class RedisCoroutineStateServiceTests {
     }
 
     @Test
-    fun service_AddListenedService_GotSpecifiedIntentWhenListenedServiceStateChanged() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-        val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+    fun service_AddListenedService_GotSpecifiedIntentWhenListenedServiceStateChanged() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var stateBCount = 0
+            var stateBCount = 0
 
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                if (newState is StateB) {
-                    stateBCount++
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    if (newState is StateB) {
+                        stateBCount++
+                    }
                 }
             }
+
+            service.subscribe(subscriber)
+
+            service.listen(ListenedService(listenedService) { _ -> IntentTypeB() })
+
+            listenedService.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            assertThat(stateBCount).isEqualTo(2) //First time when listenedService initiated and second time when dispatch intent
+
+            service.dispose()
+            listenedService.dispose()
         }
-
-        service.subscribe(subscriber)
-
-        service.listen(ListenedService(listenedService) { _ -> IntentTypeB() })
-
-        listenedService.dispatch(IntentTypeA())
-
-        delay(testDelayBeforeCheckingResult)
-
-        assertThat(stateBCount).isEqualTo(2) //First time when listenedService initiated and second time when dispatch intent
-
-        service.dispose()
-        listenedService.dispose()
-    }
 
     @Test
     fun service_StopListeningService_DoNotDispatchIntentWhenListenedServiceStateChanged() =

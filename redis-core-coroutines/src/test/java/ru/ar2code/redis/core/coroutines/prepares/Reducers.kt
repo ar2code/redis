@@ -40,6 +40,32 @@ class SimpleExceptionStateReducer : StateReducer(
     }
 }
 
+class InitiatedStateConcurrentTypeReducer :
+    StateReducer(State.Initiated::class, IntentTypeConcurrentTest::class, TestLogger()) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage
+    ): Flow<State> {
+        return flow {
+            emit(StateA())
+        }
+    }
+}
+
+class StateAConcurrentTypeReducer :
+    StateReducer(StateA::class, IntentTypeConcurrentTest::class, TestLogger()) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage
+    ): Flow<State> {
+        return flow {
+            emit(StateA())
+        }
+    }
+}
+
 class InitiatedStateTypeAReducer :
     StateReducer(State.Initiated::class, IntentTypeA::class, TestLogger()) {
 

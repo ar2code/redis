@@ -33,3 +33,6 @@ class IntentTypeFlow(val payload: Int? = null) :
 
 class IntentTypeDelayFlow(val payload: Int? = null) :
     IntentMessage()
+
+class IntentTypeConcurrentTest(val payload: Int? = null) :
+    IntentMessage()
