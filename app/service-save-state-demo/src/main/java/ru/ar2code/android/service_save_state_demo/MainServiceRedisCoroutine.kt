@@ -32,6 +32,8 @@ class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedSta
         scope,
         listOf(MainReducer()),
         DefaultReducerSelector(),
+        null,
+        null,
         savedStateStore,
         SaveHandler()
     ) {

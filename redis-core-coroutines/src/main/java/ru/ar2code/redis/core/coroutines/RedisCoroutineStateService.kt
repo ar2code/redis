@@ -31,6 +31,8 @@ open class RedisCoroutineStateService(
     private val initialState: State,
     private val reducers: List<StateReducer>,
     private val reducerSelector: ReducerSelector,
+    private val stateTriggers: List<StateTrigger>?,
+    private val stateTriggerSelector: StateTriggerSelector?,
     protected val logger: Logger
 ) : RedisStateService {
 
@@ -188,9 +190,9 @@ open class RedisCoroutineStateService(
 
         val subscription = openSubscription()
 
-        sendCurrentStateToNewSubscriber()
-
         listening(subscription)
+
+        sendCurrentStateToNewSubscriber()
     }
 
     /**
@@ -255,10 +257,19 @@ open class RedisCoroutineStateService(
             serviceState = newServiceState
             resultsChannel.send(newServiceState)
 
+            dispatchTriggerByState(oldState, newServiceState)
+
             onStateChanged(oldState, newServiceState)
 
         } catch (e: ClosedSendChannelException) {
             logger.info("Service [$this] result channel is closed.")
+        }
+    }
+
+    private fun dispatchTriggerByState(old: State, new: State) {
+        val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
+        trigger?.let {
+            dispatch(it.triggerIntent)
         }
     }
 
@@ -302,7 +313,7 @@ open class RedisCoroutineStateService(
                     logger.info("Service [${this@RedisCoroutineStateService}] Received intent $msg. Founded reducer: $reducer.")
 
                     val newStateFlow =
-                        reducer.reduce(serviceState, msg, this@RedisCoroutineStateService)
+                        reducer.reduce(serviceState, msg)
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow.collect {

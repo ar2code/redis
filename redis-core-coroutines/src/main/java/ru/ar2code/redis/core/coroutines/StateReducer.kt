@@ -31,8 +31,7 @@ abstract class StateReducer(
 ) {
     abstract fun reduce(
         currentState: State,
-        intent: IntentMessage,
-        serviceDispatcher: RedisServiceDispatcher
+        intent: IntentMessage
     ): Flow<State>?
 
     fun isReducerApplicable(

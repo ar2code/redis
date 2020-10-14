@@ -31,6 +31,8 @@ abstract class DefaultRedisSavedStateService<TResult>(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
     reducerSelector: ReducerSelector,
+    stateTriggers: List<StateTrigger>?,
+    stateTriggerSelector: StateTriggerSelector?,
     savedStateStore: SavedStateStore,
     savedStateHandler: SavedStateHandler
 ) :
@@ -40,6 +42,8 @@ abstract class DefaultRedisSavedStateService<TResult>(
         State.Initiated(),
         reducers,
         reducerSelector,
+        stateTriggers,
+        stateTriggerSelector,
         DefaultLogger(),
         savedStateStore,
         savedStateHandler

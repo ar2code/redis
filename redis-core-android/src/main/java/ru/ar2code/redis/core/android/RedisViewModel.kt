@@ -42,7 +42,11 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
     protected abstract val reducers: List<ViewStateReducer<ViewState, ViewEvent>>
 
+    protected open val triggers: List<ViewStateTrigger<ViewState, ViewEvent>>? = null
+
     protected open val reducerSelector: ReducerSelector = DefaultReducerSelector()
+
+    protected open val triggerSelector: StateTriggerSelector = DefaultStateTriggerSelector()
 
     protected open val savedStateHandler: SavedStateHandler? = null
 
@@ -55,6 +59,8 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
             initialState,
             reducers,
             reducerSelector,
+            triggers,
+            triggerSelector,
             logger,
             AndroidSavedStateStore(savedState),
             savedStateHandler

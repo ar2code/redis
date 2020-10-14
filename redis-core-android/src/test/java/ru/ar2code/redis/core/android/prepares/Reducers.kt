@@ -37,8 +37,7 @@ class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestView
     ViewModelInitiatedState::class, IntentUiTypeA::class, SimpleTestLogger()
 ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage,
-        serviceDispatcher: RedisServiceDispatcher
+        currentState: State, intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(ViewModelTypeAState(null, null))
@@ -50,8 +49,7 @@ class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestView
     ViewModelInitiatedState::class, IntentUiTypeB::class, SimpleTestLogger()
 ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage,
-        serviceDispatcher: RedisServiceDispatcher
+        currentState: State, intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(ViewModelTypeBState(null, null))
@@ -64,8 +62,7 @@ class InitiatedStateUiViewStateOnlyReducer :
         ViewModelInitiatedState::class, IntentUiViewStateOnly::class, SimpleTestLogger()
     ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage,
-        serviceDispatcher: RedisServiceDispatcher
+        currentState: State, intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(ViewModelViewOnlyState(TestViewModelState()))
@@ -77,8 +74,7 @@ class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, Te
     ViewModelInitiatedState::class, IntentUiViewEventOnly::class, SimpleTestLogger()
 ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage,
-        serviceDispatcher: RedisServiceDispatcher
+        currentState: State, intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(ViewModelEventOnlyState(TestViewModelEvent(TestViewModelEvent.TestViewModelEventType())))
@@ -91,8 +87,7 @@ class InitiatedStateUiViewWithEventReducer :
         ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class, SimpleTestLogger()
     ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage,
-        serviceDispatcher: RedisServiceDispatcher
+        currentState: State, intent: IntentMessage
     ): Flow<State> {
         return flow {
             emit(

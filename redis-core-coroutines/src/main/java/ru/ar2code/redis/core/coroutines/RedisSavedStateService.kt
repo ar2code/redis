@@ -30,10 +30,21 @@ open class RedisSavedStateService(
     initialState: State,
     reducers: List<StateReducer>,
     reducerSelector: ReducerSelector,
+    stateTriggers: List<StateTrigger>?,
+    stateTriggerSelector: StateTriggerSelector?,
     logger: Logger,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?
-) : RedisCoroutineStateService(scope, dispatcher, initialState, reducers, reducerSelector, logger) {
+) : RedisCoroutineStateService(
+    scope,
+    dispatcher,
+    initialState,
+    reducers,
+    reducerSelector,
+    stateTriggers,
+    stateTriggerSelector,
+    logger
+) {
 
     override suspend fun onStateChanged(old: State, new: State) {
         super.onStateChanged(old, new)

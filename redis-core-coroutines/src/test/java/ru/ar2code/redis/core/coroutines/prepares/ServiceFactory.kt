@@ -39,13 +39,20 @@ object ServiceFactory {
             StateBTypeBReducer()
         )
 
-    fun buildSimpleService(scope: CoroutineScope, dispatcher: CoroutineDispatcher): RedisCoroutineStateService {
+    val defaultTriggers = emptyList<StateTrigger>()
+
+    fun buildSimpleService(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher
+    ): RedisCoroutineStateService {
         return RedisCoroutineStateService(
             scope,
             dispatcher,
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
+            defaultTriggers,
+            DefaultStateTriggerSelector(),
             TestLogger()
         )
     }
@@ -62,6 +69,8 @@ object ServiceFactory {
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
+            defaultTriggers,
+            DefaultStateTriggerSelector(),
             TestLogger(),
             stateStore,
             stateHandler
@@ -78,6 +87,8 @@ object ServiceFactory {
             CustomInitState(),
             defaultReducers,
             DefaultReducerSelector(),
+            defaultTriggers,
+            DefaultStateTriggerSelector(),
             TestLogger()
         )
     }
@@ -92,6 +103,8 @@ object ServiceFactory {
             State.Initiated(),
             listOf(SimpleExceptionStateReducer()),
             DefaultReducerSelector(),
+            defaultTriggers,
+            DefaultStateTriggerSelector(),
             TestLogger()
         )
     }

@@ -28,7 +28,9 @@ import ru.ar2code.redis.core.coroutines.*
 abstract class DefaultServiceRedisCoroutine<TResult>(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
-    reducerSelector: ReducerSelector
+    reducerSelector: ReducerSelector,
+    triggers : List<StateTrigger>,
+    triggerSelector: StateTriggerSelector
 ) :
     RedisCoroutineStateService(
         scope,
@@ -36,5 +38,7 @@ abstract class DefaultServiceRedisCoroutine<TResult>(
         State.Initiated(),
         reducers,
         reducerSelector,
+        triggers,
+        triggerSelector,
         DefaultLogger()
     )
