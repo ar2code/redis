@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
 /**
- * Actor Service with default
+ * Service with defaults:
  * [dispatcher] = [Dispatchers.Default], [logger] = [DefaultLogger],
  * [reducerSelector] = [DefaultReducerSelector], [stateTriggerSelector] = [DefaultStateTriggerSelector]
  */
