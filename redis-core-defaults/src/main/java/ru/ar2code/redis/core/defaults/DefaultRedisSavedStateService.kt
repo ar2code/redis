@@ -24,15 +24,15 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
 /**
- * Actor Service with default [dispatcher] = [Dispatchers.Default] and [logger] = [DefaultLogger]
+ * Actor Service with default
+ * [dispatcher] = [Dispatchers.Default], [logger] = [DefaultLogger],
+ * [reducerSelector] = [DefaultReducerSelector], [stateTriggerSelector] = [DefaultStateTriggerSelector]
  */
 @ExperimentalCoroutinesApi
 abstract class DefaultRedisSavedStateService<TResult>(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
-    reducerSelector: ReducerSelector,
     stateTriggers: List<StateTrigger>?,
-    stateTriggerSelector: StateTriggerSelector?,
     savedStateStore: SavedStateStore,
     savedStateHandler: SavedStateHandler
 ) :
@@ -41,9 +41,9 @@ abstract class DefaultRedisSavedStateService<TResult>(
         Dispatchers.Default,
         State.Initiated(),
         reducers,
-        reducerSelector,
+        DefaultReducerSelector(),
         stateTriggers,
-        stateTriggerSelector,
+        DefaultStateTriggerSelector(),
         DefaultLogger(),
         savedStateStore,
         savedStateHandler
