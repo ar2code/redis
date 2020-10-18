@@ -49,6 +49,6 @@ abstract class StateTrigger(
     }
 
     fun isAnyNewState(): Boolean {
-        return expectOldState == null
+        return expectNewState == null
     }
 }

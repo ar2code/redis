@@ -620,4 +620,35 @@ class RedisCoroutineStateServiceTests {
 
         listenedService.dispose()
     }
+
+    @Test
+    fun serviceWithTriggers_DispatchIntentA_ChangeStateToC() = runBlocking {
+        var result = ""
+        val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                when (newState) {
+                    is State.Initiated -> {
+                        result += "I"
+                    }
+                    is StateA -> {
+                        result += "A"
+                    }
+                    is StateC -> {
+                        result += "C"
+                    }
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.dispatch(IntentTypeA())
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(result).isEqualTo("IAC") //Initiated -> State A (Intent) -> trigger -> State C
+
+        service.dispose()
+    }
 }

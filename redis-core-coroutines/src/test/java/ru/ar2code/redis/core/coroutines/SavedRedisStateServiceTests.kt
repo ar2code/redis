@@ -59,7 +59,7 @@ class SavedRedisStateServiceTests {
     }
 
     @Test
-    fun `Service restore state if state handler contains data`() = runBlocking {
+    fun `Service restores state if state handler contains data`() = runBlocking {
 
         val savedId = 123
 
@@ -110,7 +110,7 @@ class SavedRedisStateServiceTests {
     }
 
     @Test
-    fun `Service dispatch intent after restoring if intent specified`() = runBlocking {
+    fun `Service dispatches intent after restoring if intent specified`() = runBlocking {
 
         val savedId = 123
 

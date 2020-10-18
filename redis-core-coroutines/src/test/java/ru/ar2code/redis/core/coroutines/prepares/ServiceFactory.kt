@@ -41,9 +41,35 @@ object ServiceFactory {
             StateAConcurrentTypeReducer()
         )
 
-    val defaultTriggers = emptyList<StateTrigger>()
+    val defaultTriggers = listOf(
+        InitiatedToAStateTrigger(),
+        InitiatedToBStateTrigger()
+    )
+
+    val defaultTriggersWithAny = listOf(
+        InitiatedToAStateTrigger(),
+        InitiatedToBStateTrigger(),
+        InitiatedToAnyStateTrigger(),
+        AnyToCStateTrigger()
+    )
 
     fun buildSimpleService(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher
+    ): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
+            scope,
+            dispatcher,
+            State.Initiated(),
+            defaultReducers,
+            DefaultReducerSelector(),
+            emptyList(),
+            DefaultStateTriggerSelector(),
+            TestLogger()
+        )
+    }
+
+    fun buildSimpleServiceWithTriggers(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher
     ): RedisCoroutineStateService {
@@ -71,7 +97,7 @@ object ServiceFactory {
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
-            defaultTriggers,
+            emptyList(),
             DefaultStateTriggerSelector(),
             TestLogger(),
             stateStore,
