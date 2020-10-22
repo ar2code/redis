@@ -19,10 +19,11 @@ package ru.ar2code.redis.core.coroutines
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 @ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
@@ -45,15 +46,14 @@ open class RedisCoroutineStateService(
             return field.clone()
         }
 
-    private var resultsChannel = BroadcastChannel<State>(Channel.BUFFERED)
+    private var resultsChannel = MutableSharedFlow<State>(1)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
-    private val subscribers =
-        ConcurrentHashMap<ServiceSubscriber, ReceiveChannel<State>>()
+    private val subscribers = ConcurrentLinkedQueue<CoroutineServiceSubscriber>()
 
     private val listenedServicesSubscribers =
-        ConcurrentHashMap<ListenedService, ServiceSubscriber>()
+        ConcurrentHashMap<ListenedService, CoroutineServiceSubscriber>()
 
     init {
         initialize()
@@ -63,12 +63,16 @@ open class RedisCoroutineStateService(
      * Listening of state changing of another service.
      */
     @Synchronized
-    fun listen(listenedService: ListenedService) {
-        val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
-                dispatch(listenedService.intentBuilder(newState))
-            }
-        }
+    override fun listen(listenedService: ListenedService) {
+        val listeningScope = CoroutineScope(dispatcher + Job())
+
+        val subscriber = CoroutineServiceSubscriber(listeningScope,
+            object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    dispatch(listenedService.intentBuilder(newState))
+                }
+            })
+
         listenedService.serviceRedis.subscribe(subscriber)
         listenedServicesSubscribers[listenedService] = subscriber
     }
@@ -77,7 +81,7 @@ open class RedisCoroutineStateService(
      * Stop listening of service state changing
      */
     @Synchronized
-    fun stopListening(listenedService: ListenedService) {
+    override fun stopListening(listenedService: ListenedService) {
         val subscriber = listenedServicesSubscribers[listenedService]
         subscriber?.let {
             listenedService.serviceRedis.unsubscribe(subscriber)
@@ -108,8 +112,7 @@ open class RedisCoroutineStateService(
     override fun dispose() {
 
         fun unsubscribeListeners() {
-            val listeners = subscribers.keys().toList()
-            listeners.forEach {
+            subscribers.forEach {
                 unsubscribe(it)
             }
             subscribers.clear()
@@ -125,7 +128,6 @@ open class RedisCoroutineStateService(
         serviceState = State.Disposed()
 
         intentMessagesChannel.close()
-        resultsChannel.close()
 
         unsubscribeListeners()
         unsubscribeFromListenedServices()
@@ -145,81 +147,58 @@ open class RedisCoroutineStateService(
      * Subscribe to service's results.
      * Subscribing is alive while service is not disposed [isDisposed] and [scope] not cancelled
      */
-    @Synchronized
     override fun subscribe(subscriber: ServiceSubscriber) {
 
+        val coroutineServiceSubscriber = CoroutineServiceSubscriber(
+            CoroutineScope(dispatcher + Job()),
+            subscriber
+        )
+
         fun isSubscriberExists(): Boolean {
-            val isSubscriberExists = subscribers.keys.any { it == subscriber }
-            if (isSubscriberExists) {
-                logger.warning("Subscriber $subscriber already exists in service $this.")
-            }
-            return isSubscriberExists
+            return subscribers.firstOrNull { it.originalSubscriber == subscriber } != null
         }
 
-        fun openSubscription(): ReceiveChannel<State> {
-            val subscription = resultsChannel.openSubscription()
-            subscribers[subscriber] = subscription
-            return subscription
+        fun addSubscriber() {
+            subscribers.add(coroutineServiceSubscriber)
         }
 
-        fun listening(subscription: ReceiveChannel<State>) {
-            scope.launch(dispatcher) {
+        fun listening() {
+            coroutineServiceSubscriber.scope.launch(dispatcher) {
                 logger.info("Service [${this@RedisCoroutineStateService}] start listening new subscription")
 
-                while (isActive && !subscription.isClosedForReceive) {
-                    try {
-                        val result = subscription.receive()
-                        subscriber.onReceive(result)
-                    } catch (e: ClosedReceiveChannelException) {
-                        logger.info("Service [${this@RedisCoroutineStateService}] result channel is closed.")
+                resultsChannel
+                    .collect {
+                        coroutineServiceSubscriber.onReceive(it)
                     }
-                }
-                disposeIfScopeNotActive()
+
             }
         }
 
-        fun sendCurrentStateToNewSubscriber() {
-            subscriber.onReceive(serviceState)
-        }
-
-        if (!assertScopeActive("subscribe $subscriber to service"))
+        if (!assertScopeActive("subscribe $coroutineServiceSubscriber to service"))
             return
 
         if (isSubscriberExists())
             return
 
-        val subscription = openSubscription()
+        addSubscriber()
 
-        listening(subscription)
-
-        sendCurrentStateToNewSubscriber()
+        listening()
     }
 
     /**
      * Stop listening service`s result by this [subscriber]
      */
-    @Synchronized
     override fun unsubscribe(subscriber: ServiceSubscriber) {
 
-        fun getSubscription(): ReceiveChannel<State>? {
-            val subscription = subscribers[subscriber]
-            if (subscription == null) {
-                logger.info("Subscriber $subscriber does not exist in service $this.")
-            }
-            return subscription
+        fun findSubscriber(): CoroutineServiceSubscriber? {
+            return subscribers.firstOrNull { it.originalSubscriber == subscriber }
         }
 
-        fun deleteSubscription(subscription: ReceiveChannel<State>?) {
-            subscription?.let {
-                it.cancel()
-                subscribers.remove(subscriber)
-
-                logger.info("Subscriber $subscriber unsubscribe from service $this.")
-            }
+        val coroutineServiceSubscriber = findSubscriber()
+        coroutineServiceSubscriber?.let {
+            it.scope.cancel("Cancel from service.unsubscribe method.")
+            subscribers.remove(it)
         }
-
-        val subscription = getSubscription()
-        deleteSubscription(subscription)
     }
 
     /**
@@ -255,7 +234,7 @@ open class RedisCoroutineStateService(
             val oldState = serviceState
 
             serviceState = newServiceState
-            resultsChannel.send(newServiceState)
+            resultsChannel.emit(newServiceState)
 
             dispatchTriggerByState(oldState, newServiceState)
 

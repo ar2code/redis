@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
 
-/**
- * Each [RedisStateService] can listen another services and dispatch intent to itself if state of listened service was changed
- * @param serviceRedis listened service
- * @param intentBuilder lambda that returns special [IntentMessage] for newState from listened service.
- */
-class ListenedService(
-    val serviceRedis: RedisStateService,
-    val intentBuilder: (newState: State) -> IntentMessage
-)
+import kotlinx.coroutines.CoroutineScope
+import ru.ar2code.redis.core.ServiceSubscriber
+import ru.ar2code.redis.core.State
+
+internal class CoroutineServiceSubscriber(
+    val scope: CoroutineScope,
+    val originalSubscriber: ServiceSubscriber
+) : ServiceSubscriber {
+    override fun onReceive(newState: State) = originalSubscriber.onReceive(newState)
+}

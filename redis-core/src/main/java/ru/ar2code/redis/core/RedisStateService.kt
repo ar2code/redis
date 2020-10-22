@@ -17,7 +17,8 @@
 
 package ru.ar2code.redis.core
 
-interface RedisStateService : RedisServiceDispatcher {
+interface RedisStateService :
+    RedisServiceDispatcher {
 
     val serviceState: State
 
@@ -46,4 +47,14 @@ interface RedisStateService : RedisServiceDispatcher {
      * @return count of active subscribers
      */
     fun getSubscribersCount(): Int
+
+    /**
+     * Listening of state changing of another service.
+     */
+    fun listen(listenedService: ListenedService)
+
+    /**
+     * Stop listening of service state changing
+     */
+    fun stopListening(listenedService: ListenedService)
 }

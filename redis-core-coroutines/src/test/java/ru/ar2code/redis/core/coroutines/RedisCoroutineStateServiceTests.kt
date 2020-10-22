@@ -29,19 +29,23 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 @ExperimentalCoroutinesApi
 class RedisCoroutineStateServiceTests {
 
-    private val testDelayBeforeCheckingResult = 50L
+    private val testDelayBeforeCheckingResult = 100L
     private val testDelayBeforeDispatchSecondIntent = 10L
 
     @Test
     fun service_ConcurrentDispatch_NoAnyConcurrentExceptions() =
         runBlocking(Dispatchers.Default) {
 
+
             println("Start concurrent dispatch test")
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+            var total = 0
+
             val subscriber = object : ServiceSubscriber {
                 override fun onReceive(newState: State) {
+                    total++
                 }
             }
             service.subscribe(subscriber)
@@ -99,7 +103,7 @@ class RedisCoroutineStateServiceTests {
 
             val d1 = async {
                 println("start subscribe task 1")
-                repeat(1000) {
+                repeat(500) {
                     val subscriber = object : ServiceSubscriber {
                         override fun onReceive(newState: State) {
 
@@ -116,7 +120,7 @@ class RedisCoroutineStateServiceTests {
 
             val d2 = async {
                 println("start subscribe task 2")
-                repeat(1000) {
+                repeat(500) {
                     val subscriber = object : ServiceSubscriber {
                         override fun onReceive(newState: State) {
 
@@ -138,7 +142,7 @@ class RedisCoroutineStateServiceTests {
             }
             val d4 = async {
                 println("start subscribe task 4")
-                repeat(1000) {
+                repeat(500) {
                     val subscriber = object : ServiceSubscriber {
                         override fun onReceive(newState: State) {
 
@@ -170,6 +174,8 @@ class RedisCoroutineStateServiceTests {
 
     @Test(expected = IllegalStateException::class)
     fun serviceScopeCancelled_SubscribeToService_throwException() = runBlocking {
+
+        
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -215,6 +221,8 @@ class RedisCoroutineStateServiceTests {
     @Test
     fun serviceInitializedState_DispatchSimpleIntentType_SelectSimpleStateReducer() =
         runBlocking {
+            
+
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
             var lastStateFromIntent: State? = null
@@ -241,6 +249,7 @@ class RedisCoroutineStateServiceTests {
     fun serviceInitializedState_DispatchFloatIntentType_SelectFloatStateReducer() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            
 
             var lastStateFromIntent: State? = null
 
@@ -270,6 +279,7 @@ class RedisCoroutineStateServiceTests {
     fun serviceAnotherState_DispatchFloatIntentType_ThrowReducerNotFoundException() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            
 
             var lastStateFromIntent: State? = null
 
@@ -308,6 +318,7 @@ class RedisCoroutineStateServiceTests {
     fun serviceInitializedState_DispatchAnotherIntentType_AnotherStateReducer() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            
 
             var lastStateFromIntent: State? = null
 
@@ -333,6 +344,7 @@ class RedisCoroutineStateServiceTests {
     fun service_DispatchIntentForReducerWithFlow_ChangeStateSeveralTimes() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            
 
             val expected = "${FlowStateD.NAME}${FlowStateF.NAME}"
             var result = ""
@@ -359,6 +371,7 @@ class RedisCoroutineStateServiceTests {
     @Test
     fun service_NewSubscribersAdded_ReceiveInitStateToAll() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        
 
         var emptyResult = false
         var emptyResultTwo = false
@@ -425,8 +438,8 @@ class RedisCoroutineStateServiceTests {
         val firstSubscriberReceiveEmptyAndPayloadResult = emptyResultOne && payloadResultOne
         val secondSubscriberReceiveOnlyPayloadResult = !emptyResultTwo && payloadResultTwo
 
-        assertThat(firstSubscriberReceiveEmptyAndPayloadResult)
-        assertThat(secondSubscriberReceiveOnlyPayloadResult)
+        assertThat(firstSubscriberReceiveEmptyAndPayloadResult).isTrue()
+        assertThat(secondSubscriberReceiveOnlyPayloadResult).isTrue()
 
         service.dispose()
     }
@@ -434,6 +447,7 @@ class RedisCoroutineStateServiceTests {
     @Test
     fun service_AddSameSubscriberTwoTimes_SubscriberDidNotAddedIfExists() =
         runBlocking {
+            
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -456,6 +470,7 @@ class RedisCoroutineStateServiceTests {
     fun service_Dispose_NoActiveSubscribers() = runBlocking {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        
 
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
@@ -473,6 +488,8 @@ class RedisCoroutineStateServiceTests {
     @Test
     fun service_SpecifyInitialState_SubscriberReceiveCustomInitState() = runBlocking {
         var emptyResultOne = false
+
+        
 
         val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
 
@@ -503,6 +520,8 @@ class RedisCoroutineStateServiceTests {
         var resultData = ""
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+        
 
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
@@ -535,6 +554,8 @@ class RedisCoroutineStateServiceTests {
 
             var stateBCount = 0
 
+            
+
             val subscriber = object : ServiceSubscriber {
                 override fun onReceive(newState: State) {
                     if (newState is StateB) {
@@ -566,6 +587,8 @@ class RedisCoroutineStateServiceTests {
 
             var stateBCount = 0
 
+            
+
             val subscriber = object : ServiceSubscriber {
                 override fun onReceive(newState: State) {
                     if (newState is StateB) {
@@ -577,6 +600,8 @@ class RedisCoroutineStateServiceTests {
             service.subscribe(subscriber)
 
             service.listen(listenedServiceInfo)
+
+            delay(testDelayBeforeCheckingResult)
 
             service.stopListening(listenedServiceInfo)
 
@@ -592,6 +617,8 @@ class RedisCoroutineStateServiceTests {
 
     @Test
     fun service_RemoveUnknownServiceForListening_DoNothing() = runBlocking {
+        
+
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
