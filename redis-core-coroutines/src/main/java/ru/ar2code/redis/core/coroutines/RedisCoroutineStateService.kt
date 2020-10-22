@@ -55,6 +55,12 @@ open class RedisCoroutineStateService(
     private val listenedServicesSubscribers =
         ConcurrentHashMap<ListenedService, CoroutineServiceSubscriber>()
 
+    /**
+     * You can subscribe to service's state flow with .collect method
+     * To unsubscribe just cancel scope used for collecting states
+     */
+    val stateFlow = resultsChannel.asSharedFlow()
+
     init {
         initialize()
     }
@@ -125,12 +131,12 @@ open class RedisCoroutineStateService(
             listenedServicesSubscribers.clear()
         }
 
+        unsubscribeListeners()
+        unsubscribeFromListenedServices()
+
         serviceState = State.Disposed()
 
         intentMessagesChannel.close()
-
-        unsubscribeListeners()
-        unsubscribeFromListenedServices()
 
         onDisposed()
     }

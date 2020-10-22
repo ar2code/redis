@@ -34,7 +34,7 @@ interface RedisStateService :
 
     /**
      * Subscribe to service's results.
-     * Subscribing is alive while service is not disposed [isDisposed] and [scope] not cancelled
+     * Subscribing is alive while service is not disposed [isDisposed]
      */
     fun subscribe(subscriber: ServiceSubscriber)
 
