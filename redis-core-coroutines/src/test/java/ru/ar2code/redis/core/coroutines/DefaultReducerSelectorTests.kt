@@ -27,37 +27,46 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 class DefaultReducerSelectorTests {
 
     @Test
-    fun `Find correct reducer for initiated state and intent type A`() {
+    fun defaultSelector_findReducerForInitiatedStateIntentTypeA_FoundInitiatedStateTypeAReducer() {
 
         val reducerSelector = DefaultReducerSelector()
 
-        val reducer = reducerSelector.findReducer(ServiceFactory.defaultReducers, State.Initiated(), IntentTypeA())
+        val reducer = reducerSelector.findReducer(
+            ServiceFactory.defaultReducers,
+            State.Initiated(),
+            IntentTypeA()
+        )
 
         assertThat(reducer).isInstanceOf(InitiatedStateTypeAReducer::class.java)
     }
 
     @Test
-    fun `Find correct reducer for initiated state and intent type B`() {
+    fun defaultSelector_findReducerForInitiatedStateIntentTypeB_FoundInitiatedStateTypeBReducer() {
 
         val reducerSelector = DefaultReducerSelector()
 
-        val reducer = reducerSelector.findReducer(ServiceFactory.defaultReducers, State.Initiated(), IntentTypeB())
+        val reducer = reducerSelector.findReducer(
+            ServiceFactory.defaultReducers,
+            State.Initiated(),
+            IntentTypeB()
+        )
 
         assertThat(reducer).isInstanceOf(InitiatedStateTypeBReducer::class.java)
     }
 
     @Test
-    fun `Find correct reducer for state B and intent type flow`() {
+    fun defaultSelector_findReducerForStateBIntentTypeFlow_FoundStateBTypeFlowReducer() {
 
         val reducerSelector = DefaultReducerSelector()
 
-        val reducer = reducerSelector.findReducer(ServiceFactory.defaultReducers, StateB(), IntentTypeFlow())
+        val reducer =
+            reducerSelector.findReducer(ServiceFactory.defaultReducers, StateB(), IntentTypeFlow())
 
         assertThat(reducer).isInstanceOf(StateBTypeFlowReducer::class.java)
     }
 
     @Test
-    fun `Find any reducer for intent type C`() {
+    fun defaultSelector_findAnyReducerForIntentTypeC_FoundAnyStateTypeCReducer() {
 
         val reducerSelector = DefaultReducerSelector()
 
@@ -70,7 +79,7 @@ class DefaultReducerSelectorTests {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `Throw exception no reducer found any state for intent type B`() {
+    fun defaultSelector_findReducerForStateCIntentTypeB_ThrowExceptionNotFound() {
 
         val reducerSelector = DefaultReducerSelector()
 
@@ -81,7 +90,7 @@ class DefaultReducerSelectorTests {
     }
 
     @Test
-    fun `Find any reducer for intent any type`() {
+    fun defaultSelector_findReducerForStateCIntentTypeB_FoundAnyStateAnyTypeReducer() {
 
         val reducerSelector = DefaultReducerSelector()
 
@@ -95,7 +104,7 @@ class DefaultReducerSelectorTests {
     }
 
     @Test
-    fun `Find reducer for intent any type`() {
+    fun defaultSelector_findReducerForStateCAnyIntent_FoundStateCAnyTypeReducer() {
 
         val reducerSelector = DefaultReducerSelector()
 
