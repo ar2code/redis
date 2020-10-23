@@ -254,7 +254,7 @@ open class RedisCoroutineStateService(
     private fun dispatchTriggerByState(old: State, new: State) {
         val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
         trigger?.let {
-            dispatch(it.triggerIntent)
+            dispatch(it.getTriggerIntent(old, new))
         }
     }
 

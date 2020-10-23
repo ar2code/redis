@@ -23,25 +23,21 @@ import ru.ar2code.redis.core.coroutines.StateTrigger
 import ru.ar2code.redis.core.test.TestLogger
 
 class InitiatedToAStateTrigger : StateTrigger(State.Initiated::class, StateA::class, TestLogger()) {
-
-    override val triggerIntent: IntentMessage
-        get() = IntentTypeC()
+    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
+        IntentTypeC()
 }
 
 class InitiatedToBStateTrigger : StateTrigger(State.Initiated::class, StateB::class, TestLogger()) {
-
-    override val triggerIntent: IntentMessage
-        get() = IntentTypeFlow()
+    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
+        IntentTypeFlow()
 }
 
 class AnyToCStateTrigger : StateTrigger(null, StateC::class, TestLogger()) {
-
-    override val triggerIntent: IntentMessage
-        get() = IntentTypeFlow()
+    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
+        IntentTypeFlow()
 }
 
 class InitiatedToAnyStateTrigger : StateTrigger(State.Initiated::class, null, TestLogger()) {
-
-    override val triggerIntent: IntentMessage
-        get() = IntentTypeC()
+    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
+        IntentTypeC()
 }
