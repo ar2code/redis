@@ -131,6 +131,8 @@ open class RedisCoroutineStateService(
             listenedServicesSubscribers.clear()
         }
 
+        logger.info("Service $this is going to be disposed.")
+
         unsubscribeListeners()
         unsubscribeFromListenedServices()
 
