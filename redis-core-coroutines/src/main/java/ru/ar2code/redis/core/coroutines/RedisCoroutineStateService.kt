@@ -238,6 +238,7 @@ open class RedisCoroutineStateService(
 
             if (isDisposed()) {
                 logger.info("Service [$this] isDisposed. Can not broadcastNewState and change state to $newServiceState.")
+                return
             }
 
             logger.info("Service [$this] change state from $serviceState to $newServiceState")
