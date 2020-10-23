@@ -24,6 +24,7 @@ import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
 
 @ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
@@ -45,6 +46,8 @@ open class RedisCoroutineStateService(
         get() {
             return field.clone()
         }
+
+    private val isDisposing = AtomicBoolean(false)
 
     private var resultsChannel = MutableSharedFlow<State>(1)
 
@@ -131,6 +134,8 @@ open class RedisCoroutineStateService(
             listenedServicesSubscribers.clear()
         }
 
+        isDisposing.set(true)
+
         logger.info("Service $this is going to be disposed.")
 
         unsubscribeListeners()
@@ -148,7 +153,7 @@ open class RedisCoroutineStateService(
      */
     override fun isDisposed(): Boolean {
         disposeIfScopeNotActive()
-        return serviceState is State.Disposed
+        return isDisposing.get() || serviceState is State.Disposed
     }
 
     /**
