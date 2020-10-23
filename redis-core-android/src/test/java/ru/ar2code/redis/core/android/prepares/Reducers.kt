@@ -20,10 +20,9 @@ package ru.ar2code.redis.core.android.prepares
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.RedisServiceDispatcher
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.android.ViewStateReducer
-import ru.ar2code.redis.core.defaults.DefaultLogger
+import ru.ar2code.redis.core.test.TestLogger
 
 val defaultReducers = listOf(
     InitiatedStateTypeAReducer(),
@@ -34,7 +33,7 @@ val defaultReducers = listOf(
 )
 
 class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-    ViewModelInitiatedState::class, IntentUiTypeA::class, SimpleTestLogger()
+    ViewModelInitiatedState::class, IntentUiTypeA::class, TestLogger()
 ) {
     override fun reduce(
         currentState: State, intent: IntentMessage
@@ -46,7 +45,7 @@ class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestView
 }
 
 class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-    ViewModelInitiatedState::class, IntentUiTypeB::class, SimpleTestLogger()
+    ViewModelInitiatedState::class, IntentUiTypeB::class, TestLogger()
 ) {
     override fun reduce(
         currentState: State, intent: IntentMessage
@@ -59,7 +58,7 @@ class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestView
 
 class InitiatedStateUiViewStateOnlyReducer :
     ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-        ViewModelInitiatedState::class, IntentUiViewStateOnly::class, SimpleTestLogger()
+        ViewModelInitiatedState::class, IntentUiViewStateOnly::class, TestLogger()
     ) {
     override fun reduce(
         currentState: State, intent: IntentMessage
@@ -71,7 +70,7 @@ class InitiatedStateUiViewStateOnlyReducer :
 }
 
 class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-    ViewModelInitiatedState::class, IntentUiViewEventOnly::class, SimpleTestLogger()
+    ViewModelInitiatedState::class, IntentUiViewEventOnly::class, TestLogger()
 ) {
     override fun reduce(
         currentState: State, intent: IntentMessage
@@ -84,7 +83,7 @@ class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, Te
 
 class InitiatedStateUiViewWithEventReducer :
     ViewStateReducer<TestViewModelState, TestViewModelEvent>(
-        ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class, SimpleTestLogger()
+        ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class, TestLogger()
     ) {
     override fun reduce(
         currentState: State, intent: IntentMessage

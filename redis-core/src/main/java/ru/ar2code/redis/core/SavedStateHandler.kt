@@ -15,20 +15,12 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.android.prepares
+package ru.ar2code.redis.core
 
-import ru.ar2code.utils.Logger
+interface SavedStateHandler {
 
-class SimpleTestLogger : Logger("TestLogger") {
-    override fun info(msg: String) {
+    suspend fun storeState(state: State, store: SavedStateStore?)
 
-    }
+    suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
 
-    override fun error(msg: String, t: Throwable) {
-        println(msg)
-    }
-
-    override fun warning(msg: String) {
-        println(msg)
-    }
 }

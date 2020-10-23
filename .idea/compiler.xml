@@ -6,6 +6,7 @@
       <module name="redis-core" target="1.7" />
       <module name="redis-core-coroutines" target="1.7" />
       <module name="redis-core-defaults" target="1.7" />
+      <module name="redis-core-test" target="1.7" />
       <module name="redis-utils" target="1.7" />
     </bytecodeTargetLevel>
   </component>

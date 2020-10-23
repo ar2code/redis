@@ -27,10 +27,9 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
+import ru.ar2code.redis.core.SavedStateHandler
 import ru.ar2code.redis.core.coroutines.*
-import ru.ar2code.redis.core.defaults.DefaultLogger
 import ru.ar2code.utils.Logger
-import ru.ar2code.utils.impl.ConsoleLogger
 
 @ExperimentalCoroutinesApi
 abstract class RedisViewModel<ViewState, ViewEvent>(

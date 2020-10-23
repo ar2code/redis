@@ -24,6 +24,7 @@ import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.RedisServiceDispatcher
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
+import ru.ar2code.redis.core.test.TestLogger
 
 class SimpleExceptionStateReducer : StateReducer(
     State.Initiated::class, IntentTypeA::class,

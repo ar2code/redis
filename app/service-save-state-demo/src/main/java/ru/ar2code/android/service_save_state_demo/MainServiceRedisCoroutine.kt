@@ -20,9 +20,7 @@ package ru.ar2code.android.service_save_state_demo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.RestoredStateIntent
-import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.redis.core.defaults.DefaultLogger
 import ru.ar2code.redis.core.defaults.DefaultRedisSavedStateService

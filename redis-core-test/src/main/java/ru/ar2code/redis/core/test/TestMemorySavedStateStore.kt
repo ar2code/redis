@@ -15,13 +15,9 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.coroutines.prepares
+package ru.ar2code.redis.core.test
 
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.RestoredStateIntent
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.coroutines.SavedStateHandler
-import ru.ar2code.redis.core.coroutines.SavedStateStore
+import ru.ar2code.redis.core.SavedStateStore
 
 class TestMemorySavedStateStore : SavedStateStore {
 
@@ -42,23 +38,4 @@ class TestMemorySavedStateStore : SavedStateStore {
     override fun keys(): List<String> {
         return dictionary.keys.toList()
     }
-}
-
-class TestSavedStateHandler : SavedStateHandler {
-
-    companion object {
-        const val KEY = "KEY"
-    }
-
-    override suspend fun storeState(state: State, store: SavedStateStore?) {
-        if(state is StateB){
-            store?.set(KEY, state.data)
-        }
-    }
-
-    override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
-        val data = store?.get<Int>(KEY) ?: return null
-        return RestoredStateIntent(StateB(data), IntentTypeFlow())
-    }
-
 }

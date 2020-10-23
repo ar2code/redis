@@ -20,6 +20,7 @@ package ru.ar2code.redis.core.coroutines.prepares
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateTrigger
+import ru.ar2code.redis.core.test.TestLogger
 
 class InitiatedToAStateTrigger : StateTrigger(State.Initiated::class, StateA::class, TestLogger()) {
 

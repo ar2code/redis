@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.android.RedisViewModel
 import ru.ar2code.redis.core.android.ViewModelStateWithEvent
 import ru.ar2code.redis.core.android.ViewStateReducer
+import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
@@ -28,11 +29,11 @@ class TestViewModelWithRedisOnly :
     RedisViewModel<TestViewModelState, TestViewModelEvent>(null) {
 
     override val logger: Logger
-        get() = SimpleTestLogger()
+        get() = TestLogger()
 
     override val initialState: ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>
         get() = ViewModelInitiatedState()
 
     override val reducers: List<ViewStateReducer<TestViewModelState, TestViewModelEvent>>
-        get() =defaultReducers
+        get() = defaultReducers
 }

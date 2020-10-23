@@ -15,15 +15,13 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.coroutines
+package ru.ar2code.redis.core
 
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.RestoredStateIntent
+interface SavedStateStore {
 
-interface SavedStateHandler {
+    fun <T> get(key: String): T?
 
-    suspend fun storeState(state: State, store: SavedStateStore?)
+    fun <T> set(key: String, value: T?)
 
-    suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
-
+    fun keys(): List<String>
 }

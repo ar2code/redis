@@ -15,21 +15,12 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.android
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
 
-import androidx.lifecycle.SavedStateHandle
-import ru.ar2code.redis.core.SavedStateStore
-
-class AndroidSavedStateStore(private val savedState: SavedStateHandle?) : SavedStateStore {
-    override fun <T> get(key: String): T? {
-        return savedState?.get(key)
-    }
-
-    override fun <T> set(key: String, value: T?) {
-        savedState?.set(key, value)
-    }
-
-    override fun keys(): List<String> {
-        return savedState?.keys()?.toList() ?: emptyList()
-    }
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(path: ':redis-core')
+    implementation project(path: ':redis-utils')
 }

@@ -27,6 +27,7 @@ import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
+import ru.ar2code.redis.core.test.TestMemorySavedStateStore
 
 @ExperimentalCoroutinesApi
 class SavedRedisStateServiceTests {

@@ -17,18 +17,26 @@
 
 package ru.ar2code.redis.core.coroutines.prepares
 
-import ru.ar2code.utils.Logger
+import ru.ar2code.redis.core.RestoredStateIntent
+import ru.ar2code.redis.core.SavedStateHandler
+import ru.ar2code.redis.core.SavedStateStore
+import ru.ar2code.redis.core.State
 
-class TestLogger : Logger("TestLogger") {
-    override fun info(msg: String) {
-        println(msg)
+class TestSavedStateHandler : SavedStateHandler {
+
+    companion object {
+        const val KEY = "KEY"
     }
 
-    override fun error(msg: String, t: Throwable) {
-        println(msg)
+    override suspend fun storeState(state: State, store: SavedStateStore?) {
+        if(state is StateB){
+            store?.set(KEY, state.data)
+        }
     }
 
-    override fun warning(msg: String) {
-        println(msg)
+    override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
+        val data = store?.get<Int>(KEY) ?: return null
+        return RestoredStateIntent(StateB(data), IntentTypeFlow())
     }
+
 }
