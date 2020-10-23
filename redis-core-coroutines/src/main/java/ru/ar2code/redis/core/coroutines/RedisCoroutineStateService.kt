@@ -235,6 +235,11 @@ open class RedisCoroutineStateService(
 
     internal suspend fun broadcastNewState(newServiceState: State) {
         try {
+
+            if (isDisposed()) {
+                logger.info("Service [$this] isDisposed. Can not broadcastNewState and change state to $newServiceState.")
+            }
+
             logger.info("Service [$this] change state from $serviceState to $newServiceState")
 
             val oldState = serviceState
