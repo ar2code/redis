@@ -19,7 +19,6 @@ package ru.ar2code.redis.core.coroutines
 
 import kotlinx.coroutines.flow.Flow
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.RedisServiceDispatcher
 import ru.ar2code.redis.core.State
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass

@@ -19,4 +19,4 @@ package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.android.BaseViewState
 
-class TestViewModelState : BaseViewState()
+class TestViewModelState : BaseViewState

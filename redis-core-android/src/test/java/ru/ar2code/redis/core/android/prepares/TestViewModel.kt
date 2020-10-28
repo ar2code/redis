@@ -37,4 +37,6 @@ class TestViewModel() : RedisViewModel<TestViewModelState, TestViewModelEvent>(
 
     override val reducers: List<ViewStateReducer<TestViewModelState, TestViewModelEvent>>
         get() = defaultReducers
+
+
 }

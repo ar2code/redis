@@ -17,4 +17,4 @@
 
 package ru.ar2code.redis.core.android
 
-abstract class BaseViewEvent(val viewEventType: ViewEventType<Any>)
+interface BaseViewEvent

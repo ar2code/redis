@@ -18,9 +18,5 @@
 package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.android.BaseViewEvent
-import ru.ar2code.redis.core.android.ViewEventType
 
-class TestViewModelEvent(eventType: TestViewModelEventType): BaseViewEvent(viewEventType = eventType) {
-
-    class TestViewModelEventType : ViewEventType<String>()
-}
+class TestViewModelEvent: BaseViewEvent

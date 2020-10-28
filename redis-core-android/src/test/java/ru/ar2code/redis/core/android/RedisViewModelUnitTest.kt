@@ -29,7 +29,7 @@ import ru.ar2code.redis.core.android.prepares.*
 @ExperimentalCoroutinesApi
 class RedisViewModelUnitTest {
 
-    private val delayBeforeAssertMs = 20L
+    private val delayBeforeAssertMs = 100L
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()

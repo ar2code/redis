@@ -76,7 +76,7 @@ class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, Te
         currentState: State, intent: IntentMessage
     ): Flow<State> {
         return flow {
-            emit(ViewModelEventOnlyState(TestViewModelEvent(TestViewModelEvent.TestViewModelEventType())))
+            emit(ViewModelEventOnlyState(TestViewModelEvent()))
         }
     }
 }
@@ -91,9 +91,7 @@ class InitiatedStateUiViewWithEventReducer :
         return flow {
             emit(
                 ViewModelViewWithEventState(
-                    TestViewModelState(), TestViewModelEvent(
-                        TestViewModelEvent.TestViewModelEventType()
-                    )
+                    TestViewModelState(), TestViewModelEvent()
                 )
             )
         }

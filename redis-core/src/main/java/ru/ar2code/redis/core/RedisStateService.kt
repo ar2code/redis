@@ -17,8 +17,7 @@
 
 package ru.ar2code.redis.core
 
-interface RedisStateService :
-    RedisServiceDispatcher {
+interface RedisStateService {
 
     val serviceState: State
 
@@ -26,6 +25,11 @@ interface RedisStateService :
      * After disposing service can not get intents and send results.
      */
     fun dispose()
+
+    /**
+     * Dispatch intent to service for doing some action
+     */
+    fun dispatch(msg: IntentMessage)
 
     /**
      * @return if true service can not get intents and send results.
