@@ -28,7 +28,10 @@ class ViewModelInitiatedState(
         viewState, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelInitiatedState(viewState, viewEvent)
+        return ViewModelInitiatedState(
+            viewState?.clone() as? TestViewModelState,
+            viewEvent?.clone() as? TestViewModelEvent
+        )
     }
 }
 
@@ -37,7 +40,10 @@ class ViewModelTypeAState(viewState: TestViewModelState?, viewEvent: TestViewMod
         viewState, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelTypeAState(viewState, viewEvent)
+        return ViewModelTypeAState(
+            viewState?.clone() as? TestViewModelState,
+            viewEvent?.clone() as? TestViewModelEvent
+        )
     }
 }
 
@@ -46,7 +52,10 @@ class ViewModelTypeBState(viewState: TestViewModelState?, viewEvent: TestViewMod
         viewState, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelTypeBState(viewState, viewEvent)
+        return ViewModelTypeBState(
+            viewState?.clone() as? TestViewModelState,
+            viewEvent?.clone() as? TestViewModelEvent
+        )
     }
 }
 
@@ -55,7 +64,9 @@ class ViewModelViewOnlyState(viewState: TestViewModelState) :
         viewState, null
     ) {
     override fun clone(): State {
-        return ViewModelViewOnlyState(viewState!!)
+        return ViewModelViewOnlyState(
+            viewState!!.clone() as TestViewModelState
+        )
     }
 }
 
@@ -64,7 +75,7 @@ class ViewModelEventOnlyState(viewEvent: TestViewModelEvent) :
         null, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelEventOnlyState(viewEvent!!)
+        return ViewModelEventOnlyState(viewEvent!!.clone() as TestViewModelEvent)
     }
 }
 
@@ -73,6 +84,9 @@ class ViewModelViewWithEventState(viewState: TestViewModelState, viewEvent: Test
         viewState, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelViewWithEventState(viewState!!, viewEvent!!)
+        return ViewModelViewWithEventState(
+            viewState!!.clone() as TestViewModelState,
+            viewEvent!!.clone() as TestViewModelEvent
+        )
     }
 }
