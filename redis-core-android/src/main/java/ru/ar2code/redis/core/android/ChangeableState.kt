@@ -20,7 +20,7 @@ package ru.ar2code.redis.core.android
 /**
  * todo comment here about this class
  */
-abstract class ChangeableState<T>(
+class ChangeableState<T>(
     val state: T?,
 
     /**
