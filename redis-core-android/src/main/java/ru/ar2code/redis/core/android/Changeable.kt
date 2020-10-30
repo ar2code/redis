@@ -17,14 +17,11 @@
 
 package ru.ar2code.redis.core.android
 
-/**
- * todo comment here about this class
- */
-class ChangeableState<T>(
-    val state: T?,
+class Changeable<T>(
+    val data: T?,
 
     /**
-     * True means that [state] was changed since previous time. You need to update UI with a new [state]
+     * True means that [data] was changed since previous time. You need to update UI with a new [data]
      * False means nothing was changed and you should ignore this state assume that UI is up-to-date with state
      */
     val isChangedSincePrevious: Boolean

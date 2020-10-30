@@ -20,8 +20,4 @@ package ru.ar2code.redis.core.android.prepares
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.android.BaseViewState
 
-class TestViewModelState : BaseViewState() {
-    override fun clone(): State {
-        return TestViewModelState()
-    }
-}
+class TestViewModelState : BaseViewState

@@ -29,8 +29,8 @@ class ViewModelInitiatedState(
     ) {
     override fun clone(): State {
         return ViewModelInitiatedState(
-            viewState?.clone() as? TestViewModelState,
-            viewEvent?.clone() as? TestViewModelEvent
+            viewState,
+            viewEvent
         )
     }
 }
@@ -41,8 +41,8 @@ class ViewModelTypeAState(viewState: TestViewModelState?, viewEvent: TestViewMod
     ) {
     override fun clone(): State {
         return ViewModelTypeAState(
-            viewState?.clone() as? TestViewModelState,
-            viewEvent?.clone() as? TestViewModelEvent
+            viewState,
+            viewEvent
         )
     }
 }
@@ -53,8 +53,8 @@ class ViewModelTypeBState(viewState: TestViewModelState?, viewEvent: TestViewMod
     ) {
     override fun clone(): State {
         return ViewModelTypeBState(
-            viewState?.clone() as? TestViewModelState,
-            viewEvent?.clone() as? TestViewModelEvent
+            viewState,
+            viewEvent
         )
     }
 }
@@ -65,7 +65,7 @@ class ViewModelViewOnlyState(viewState: TestViewModelState) :
     ) {
     override fun clone(): State {
         return ViewModelViewOnlyState(
-            viewState!!.clone() as TestViewModelState
+            viewState!!
         )
     }
 }
@@ -75,7 +75,7 @@ class ViewModelEventOnlyState(viewEvent: TestViewModelEvent) :
         null, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelEventOnlyState(viewEvent!!.clone() as TestViewModelEvent)
+        return ViewModelEventOnlyState(viewEvent!!)
     }
 }
 
@@ -85,8 +85,8 @@ class ViewModelViewWithEventState(viewState: TestViewModelState, viewEvent: Test
     ) {
     override fun clone(): State {
         return ViewModelViewWithEventState(
-            viewState!!.clone() as TestViewModelState,
-            viewEvent!!.clone() as TestViewModelEvent
+            viewState!!,
+            viewEvent!!
         )
     }
 }

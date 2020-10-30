@@ -17,6 +17,4 @@
 
 package ru.ar2code.redis.core.android
 
-import ru.ar2code.redis.core.State
-
-abstract class BaseViewState : State()
+interface BaseViewState
