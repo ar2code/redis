@@ -17,7 +17,7 @@
 
 package ru.ar2code.redis.core.android
 
-class Changeable<T>(
+data class Changeable<T>(
     val data: T?,
 
     /**
