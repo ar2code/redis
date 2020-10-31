@@ -15,21 +15,25 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.android
+package ru.ar2code.redis.core.android.ext
 
 import androidx.lifecycle.SavedStateHandle
 import ru.ar2code.redis.core.SavedStateStore
 
-class AndroidSavedStateStore(private val savedState: SavedStateHandle?) : SavedStateStore {
-    override fun <T> get(key: String): T? {
-        return savedState?.get(key)
-    }
+fun SavedStateHandle.toRedisSavedStateStore(): SavedStateStore {
 
-    override fun <T> set(key: String, value: T?) {
-        savedState?.set(key, value)
-    }
+    return object : SavedStateStore {
+        override fun <T> get(key: String): T? {
+            return this@toRedisSavedStateStore.get(key)
+        }
 
-    override fun keys(): List<String> {
-        return savedState?.keys()?.toList() ?: emptyList()
+        override fun <T> set(key: String, value: T?) {
+            this@toRedisSavedStateStore.set(key, value)
+        }
+
+        override fun keys(): List<String> {
+            return this@toRedisSavedStateStore.keys().toList()
+        }
+
     }
 }

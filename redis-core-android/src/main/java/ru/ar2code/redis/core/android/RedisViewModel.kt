@@ -28,6 +28,7 @@ import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
 import ru.ar2code.redis.core.SavedStateHandler
+import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
@@ -61,7 +62,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
             triggers,
             triggerSelector,
             logger,
-            AndroidSavedStateStore(savedState),
+            savedState?.toRedisSavedStateStore(),
             savedStateHandler
         )
     }
