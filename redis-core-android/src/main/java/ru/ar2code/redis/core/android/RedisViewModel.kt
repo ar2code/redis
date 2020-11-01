@@ -87,7 +87,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      */
     @VisibleForTesting(otherwise = PROTECTED)
     val state: State
-        get() = viewModelService.serviceState as ViewModelStateWithEvent<ViewState, ViewEvent>
+        get() = viewModelService.serviceState
 
     init {
         subscribeToServiceResults()
@@ -130,8 +130,10 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
         viewModelService.subscribe(object : ServiceSubscriber {
             override fun onReceive(newState: State) {
-                val viewModelState = newState as ViewModelStateWithEvent<ViewState, ViewEvent>
-                postResult(viewModelState)
+                val viewModelState = newState as? ViewModelStateWithEvent<ViewState, ViewEvent>
+                viewModelState?.let {
+                    postResult(viewModelState)
+                }
             }
         })
     }
