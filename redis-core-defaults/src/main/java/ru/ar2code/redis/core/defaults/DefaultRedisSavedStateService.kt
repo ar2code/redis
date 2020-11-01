@@ -34,9 +34,9 @@ import ru.ar2code.redis.core.coroutines.*
 abstract class DefaultRedisSavedStateService(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
-    stateTriggers: List<StateTrigger>?,
     savedStateStore: SavedStateStore,
-    savedStateHandler: SavedStateHandler
+    savedStateHandler: SavedStateHandler,
+    stateTriggers: List<StateTrigger>? = null
 ) :
     RedisSavedStateService(
         scope,
