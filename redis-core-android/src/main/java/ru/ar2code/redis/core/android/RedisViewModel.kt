@@ -98,7 +98,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * UI uses this method for communicating with internal services and use cases.
      */
     fun dispatch(msg: IntentMessage) {
-        logger.info("[ActorViewModel] dispatch intent $msg")
+        logger.info("[$this] dispatch intent $msg")
 
         viewModelService.dispatch(msg)
     }
@@ -109,7 +109,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * If [newState.viewEvent] is not null set to [viewEventLive]
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
-        logger.info("[$this] got result from own service $newState")
+        logger.info("[$this] is changing state to $newState")
 
         newState.viewState?.let {
             viewStateLiveMutable.postValue(it)
