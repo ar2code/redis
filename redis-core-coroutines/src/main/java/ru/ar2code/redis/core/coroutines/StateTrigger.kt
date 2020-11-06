@@ -27,7 +27,9 @@ abstract class StateTrigger(
     private val expectNewState: KClass<*>?,
     protected val logger: Logger
 ) {
-    abstract fun getTriggerIntent(oldState: State, newState: State): IntentMessage
+    open fun getTriggerIntent(oldState: State, newState: State): IntentMessage? = null
+
+    open suspend fun invokeAction(oldState: State, newState: State) {}
 
     fun isTriggerApplicable(
         oldState: State,
