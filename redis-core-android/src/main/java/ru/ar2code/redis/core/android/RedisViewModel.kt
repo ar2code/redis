@@ -109,24 +109,24 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * If [newState.viewEvent] is not null set to [viewEventLive]
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
-        logger.info("[ActorViewModel] view model got result from own service $newState")
+        logger.info("[$this] got result from own service $newState")
 
         newState.viewState?.let {
             viewStateLiveMutable.postValue(it)
         } ?: kotlin.run {
-            logger.info("[ActorViewModel] viewState is null. No post value to live data {viewEventLive}.")
+            logger.info("[$this] viewState is null. No post value to live data {viewEventLive}.")
         }
 
         newState.viewEvent?.let {
             viewEventLiveMutable.postValue(EventArgs(it))
         } ?: kotlin.run {
-            logger.info("[ActorViewModel] viewEvent is null. No post value to live event {viewEventLive}.")
+            logger.info("[$this] viewEvent is null. No post value to live event {viewEventLive}.")
         }
     }
 
     private fun subscribeToServiceResults() {
 
-        logger.info("[ActorViewModel] subscribe to internal service")
+        logger.info("[$this] subscribe to internal service")
 
         viewModelService.subscribe(object : ServiceSubscriber {
             override fun onReceive(newState: State) {

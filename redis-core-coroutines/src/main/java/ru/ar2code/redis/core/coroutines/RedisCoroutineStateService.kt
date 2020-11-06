@@ -267,6 +267,9 @@ open class RedisCoroutineStateService(
     private suspend fun dispatchTriggerByState(old: State, new: State) {
         val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
         trigger?.let {
+
+            logger.info("Service [$this] fired trigger $it.")
+
             it.invokeAction(old, new)
 
             val triggerIntent = it.getTriggerIntent(old, new)
@@ -286,7 +289,7 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("Service [${this@RedisCoroutineStateService}] on initialized. Send empty result.")
+                logger.info("Service [${this@RedisCoroutineStateService}] on initialized.")
                 broadcastNewState(initialState)
                 onInitialized()
             }
