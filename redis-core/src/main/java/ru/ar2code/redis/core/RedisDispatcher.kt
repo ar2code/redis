@@ -17,33 +17,9 @@
 
 package ru.ar2code.redis.core
 
-interface RedisStateService : RedisDispatcher, RedisListener {
-
-    val serviceState: State
-
+interface RedisDispatcher {
     /**
-     * After disposing service can not get intents and send results.
+     * Dispatch intent to service for doing some action
      */
-    fun dispose()
-
-    /**
-     * @return if true service can not get intents and send results.
-     */
-    fun isDisposed(): Boolean
-
-    /**
-     * Subscribe to service's results.
-     * Subscribing is alive while service is not disposed [isDisposed]
-     */
-    fun subscribe(subscriber: ServiceSubscriber)
-
-    /**
-     * Stop listening service`s result by this [subscriber]
-     */
-    fun unsubscribe(subscriber: ServiceSubscriber)
-
-    /**
-     * @return count of active subscribers
-     */
-    fun getSubscribersCount(): Int
+    fun dispatch(msg: IntentMessage)
 }

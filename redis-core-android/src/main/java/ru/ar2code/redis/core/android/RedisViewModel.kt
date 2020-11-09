@@ -22,12 +22,9 @@ import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
-import ru.ar2code.redis.core.SavedStateHandler
+import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
@@ -36,7 +33,8 @@ import ru.ar2code.utils.Logger
 abstract class RedisViewModel<ViewState, ViewEvent>(
     protected val savedState: SavedStateHandle?
 ) :
-    ViewModel() where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
+    ViewModel(), RedisDispatcher,
+    RedisListener where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
     protected abstract val initialState: ViewModelStateWithEvent<ViewState, ViewEvent>
 
@@ -97,10 +95,24 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * Send some intent for changing view model state.
      * UI uses this method for communicating with internal services and use cases.
      */
-    fun dispatch(msg: IntentMessage) {
+    override fun dispatch(msg: IntentMessage) {
         logger.info("[$this] dispatch intent $msg")
 
         viewModelService.dispatch(msg)
+    }
+
+    /**
+     * Listening of state changing of another service.
+     */
+    override fun listen(listenedService: ListenedService) {
+        viewModelService.listen(listenedService)
+    }
+
+    /**
+     * Stop listening of service state changing
+     */
+    override fun stopListening(listenedService: ListenedService) {
+        viewModelService.stopListening(listenedService)
     }
 
     /**
