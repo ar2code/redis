@@ -259,7 +259,7 @@ open class RedisCoroutineStateService(
 
             serviceState = newServiceState
 
-            logger.info(" [$this] [resultsChannel] emit $newServiceState ${resultsChannel.subscriptionCount}")
+            logger.info(" [$this] [resultsChannel] emit $newServiceState subscribers count = ${subscribers.size} : $subscribers")
 
             resultsChannel.emit(newServiceState)
 
