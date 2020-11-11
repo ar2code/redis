@@ -75,11 +75,7 @@ open class RedisCoroutineStateService(
     override fun listen(listenedService: ListenedService) {
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
-                logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] receive state changed from listened service. Start dispatch.")
-
                 dispatch(listenedService.intentBuilder(newState))
-
-                logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] receive state changed from listened service. Finish dispatch.")
             }
         }
 
@@ -177,11 +173,12 @@ open class RedisCoroutineStateService(
         }
 
         fun listening() {
-            coroutineServiceSubscriber.scope.launch(dispatcher) {
-                logger.info("Service [${this@RedisCoroutineStateService}] start listening new subscription")
-
+            coroutineServiceSubscriber.scope.launch {
                 resultsChannel
                     .collect {
+
+                        logger.info("Service [${this@RedisCoroutineStateService}] collect for subscriber $coroutineServiceSubscriber")
+
                         coroutineServiceSubscriber.onReceive(it)
                     }
 
