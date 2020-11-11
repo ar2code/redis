@@ -90,6 +90,65 @@ class RedisCoroutineStateServiceTests {
         }
 
     @Test
+    fun service_ConcurrentDispatch_ReceiveAllStateChanges() =
+        runBlocking(Dispatchers.Default) {
+
+            println("Start concurrent dispatch test")
+
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+            var total = 0
+
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    total++
+                }
+            }
+            service.subscribe(subscriber)
+
+            val d1 = async {
+                println("start dispatch task 1")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 1")
+            }
+
+            val d2 = async {
+                println("start dispatch task 2")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 2")
+
+            }
+            val d3 = async {
+                println("start dispatch task 3")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 3")
+            }
+            val d4 = async {
+                println("start dispatch task 4")
+                repeat(1000) {
+                    service.dispatch(IntentTypeConcurrentTest(it))
+                }
+                println("end dispatch task 4")
+            }
+
+            awaitAll(d1, d2, d3, d4)
+
+            delay(concurrentTestDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(total).isEqualTo(4001) //4000 dispatch + 1 initiated
+
+            Unit
+        }
+
+    @Test
     fun service_ConcurrentSubscribeUnsubscribe_NoAnyConcurrentExceptions() =
         runBlocking(Dispatchers.Default) {
 
@@ -332,6 +391,33 @@ class RedisCoroutineStateServiceTests {
         }
 
     @Test
+    fun service_DispatchIntentForReducerWithFlow_ChangeStateSeveralTimes() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+            val expected = "${FlowStateD.NAME}${FlowStateF.NAME}"
+            var result = ""
+
+            val subscriber = object : ServiceSubscriber {
+                override fun onReceive(newState: State) {
+                    if (newState is FlowState) {
+                        result += newState.name
+                    }
+                }
+            }
+            service.subscribe(subscriber)
+
+            service.dispatch(IntentTypeFlow())
+
+            delay(testDelayBeforeCheckingResult)
+
+            assertThat(result).isEqualTo(expected)
+
+            service.dispose()
+        }
+
+
+    @Test
     fun service_NewSubscribersAdded_ReceiveInitStateToAll() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -465,6 +551,40 @@ class RedisCoroutineStateServiceTests {
         delay(testDelayBeforeCheckingResult)
 
         assertThat(emptyResultOne)
+
+        service.dispose()
+    }
+
+    @Test
+    fun service_DispatchTwoIntents_CallReducersConsistently() = runBlocking {
+
+        //First intent invoke InitiatedStateTypeDelayFlowReducer G->H and after InitiatedStateTypeFlowReducer D->F
+        val expectedFlow =
+            "${FlowStateG.NAME}${FlowStateH.NAME}${FlowStateD.NAME}${FlowStateF.NAME}"
+
+        var resultData = ""
+
+        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                if (newState is FlowState) {
+                    resultData += newState.name
+                }
+            }
+        }
+
+        service.subscribe(subscriber)
+
+        service.dispatch(IntentTypeDelayFlow())
+
+        delay(testDelayBeforeDispatchSecondIntent)
+
+        service.dispatch(IntentTypeFlow())
+
+        delay(testDelayBeforeCheckingResult)
+
+        assertThat(resultData).isEqualTo(expectedFlow)
 
         service.dispose()
     }
