@@ -182,11 +182,7 @@ open class RedisCoroutineStateService(
 
                 resultsChannel
                     .collect {
-                        logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] results channel collect state to ${coroutineServiceSubscriber.originalSubscriber}")
-
                         coroutineServiceSubscriber.onReceive(it)
-
-                        logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] results channel sent collected state to ${coroutineServiceSubscriber.originalSubscriber}")
                     }
 
             }
@@ -335,10 +331,7 @@ open class RedisCoroutineStateService(
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow.collect {
-                            logger.info("Service [${this@RedisCoroutineStateService}] collect new state $it")
-
                             broadcastNewState(it)
-
                             logger.info("Service [${this@RedisCoroutineStateService}] broadcast new state")
                         }
                     }
