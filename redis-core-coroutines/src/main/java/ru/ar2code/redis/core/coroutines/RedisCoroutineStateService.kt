@@ -49,7 +49,7 @@ open class RedisCoroutineStateService(
 
     private val isDisposing = AtomicBoolean(false)
 
-    private var resultsChannel = MutableSharedFlow<State>(1, 64, BufferOverflow.DROP_OLDEST)
+    private var resultsChannel = MutableSharedFlow<State>(1)//(1, 64, BufferOverflow.DROP_OLDEST)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
@@ -75,11 +75,11 @@ open class RedisCoroutineStateService(
     override fun listen(listenedService: ListenedService) {
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
-                logger.info("Service [${this@RedisCoroutineStateService}] receive state changed from listened service. Start dispatch.")
+                logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] receive state changed from listened service. Start dispatch.")
 
                 dispatch(listenedService.intentBuilder(newState))
 
-                logger.info("Service [${this@RedisCoroutineStateService}] receive state changed from listened service. Finish dispatch.")
+                logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] receive state changed from listened service. Finish dispatch.")
             }
         }
 
@@ -182,11 +182,11 @@ open class RedisCoroutineStateService(
 
                 resultsChannel
                     .collect {
-                        logger.info("Service [${this@RedisCoroutineStateService}] results channel collect state to ${coroutineServiceSubscriber.originalSubscriber}")
+                        logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] results channel collect state to ${coroutineServiceSubscriber.originalSubscriber}")
 
                         coroutineServiceSubscriber.onReceive(it)
 
-                        logger.info("Service [${this@RedisCoroutineStateService}] results channel sent collected state to ${coroutineServiceSubscriber.originalSubscriber}")
+                        logger.info("Service [${this@RedisCoroutineStateService}] [resultsChannel] results channel sent collected state to ${coroutineServiceSubscriber.originalSubscriber}")
                     }
 
             }
@@ -258,6 +258,8 @@ open class RedisCoroutineStateService(
             val oldState = serviceState
 
             serviceState = newServiceState
+
+            logger.info(" [$this] [resultsChannel] emit $newServiceState ${resultsChannel.subscriptionCount}")
 
             resultsChannel.emit(newServiceState)
 
