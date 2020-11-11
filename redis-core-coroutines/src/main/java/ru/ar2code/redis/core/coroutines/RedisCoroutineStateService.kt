@@ -181,11 +181,11 @@ open class RedisCoroutineStateService(
 
                 resultsChannel
                     .collect {
-                        logger.info("Service [${this@RedisCoroutineStateService}] results channel collect state")
+                        logger.info("Service [${this@RedisCoroutineStateService}] results channel collect state to ${coroutineServiceSubscriber.originalSubscriber}")
 
                         coroutineServiceSubscriber.onReceive(it)
 
-                        logger.info("Service [${this@RedisCoroutineStateService}] results channel sent collected state")
+                        logger.info("Service [${this@RedisCoroutineStateService}] results channel sent collected state to ${coroutineServiceSubscriber.originalSubscriber}")
                     }
 
             }
