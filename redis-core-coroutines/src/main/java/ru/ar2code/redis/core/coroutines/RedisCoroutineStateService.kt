@@ -49,7 +49,7 @@ open class RedisCoroutineStateService(
 
     private val isDisposing = AtomicBoolean(false)
 
-    private var resultsChannel = MutableSharedFlow<State>(1)//MutableSharedFlow<State>(1, 0, BufferOverflow.DROP_OLDEST)
+    private var resultsChannel = MutableSharedFlow<State>(1)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
 
