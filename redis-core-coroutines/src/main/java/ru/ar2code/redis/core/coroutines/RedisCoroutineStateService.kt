@@ -266,6 +266,9 @@ open class RedisCoroutineStateService(
 
     private suspend fun dispatchTriggerByState(old: State, new: State) {
         val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
+
+        logger.info("Service [$this] try to find trigger for changing state from $old to $new. Trigger is found = ${trigger != null}")
+
         trigger?.let {
 
             logger.info("Service [$this] fired trigger $it.")
