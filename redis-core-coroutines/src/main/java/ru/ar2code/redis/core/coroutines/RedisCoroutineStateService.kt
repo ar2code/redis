@@ -256,7 +256,7 @@ open class RedisCoroutineStateService(
 
             resultsChannel.emit(newServiceState)
 
-            //dispatchTriggerByState(oldState, newServiceState)
+            dispatchTriggerByState(oldState, newServiceState)
 
             onStateChanged(oldState, newServiceState)
 
