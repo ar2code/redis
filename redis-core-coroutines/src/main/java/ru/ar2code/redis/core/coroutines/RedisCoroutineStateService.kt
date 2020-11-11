@@ -56,7 +56,7 @@ open class RedisCoroutineStateService(
     private val subscribers = ConcurrentLinkedQueue<CoroutineServiceSubscriber>()
 
     private val listenedServicesSubscribers =
-        ConcurrentHashMap<ListenedService, CoroutineServiceSubscriber>()
+        ConcurrentHashMap<ListenedService, ServiceSubscriber>()
 
     /**
      * You can subscribe to service's state flow with .collect method
@@ -73,14 +73,11 @@ open class RedisCoroutineStateService(
      */
     @Synchronized
     override fun listen(listenedService: ListenedService) {
-        val listeningScope = CoroutineScope(dispatcher + Job())
-
-        val subscriber = CoroutineServiceSubscriber(listeningScope,
-            object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
-                    dispatch(listenedService.intentBuilder(newState))
-                }
-            })
+        val subscriber = object : ServiceSubscriber {
+            override fun onReceive(newState: State) {
+                dispatch(listenedService.intentBuilder(newState))
+            }
+        }
 
         listenedService.serviceRedis.subscribe(subscriber)
         listenedServicesSubscribers[listenedService] = subscriber
@@ -162,14 +159,10 @@ open class RedisCoroutineStateService(
      */
     override fun subscribe(subscriber: ServiceSubscriber) {
 
-        val coroutineServiceSubscriber = if (subscriber is CoroutineServiceSubscriber) {
+        val coroutineServiceSubscriber = CoroutineServiceSubscriber(
+            CoroutineScope(dispatcher + Job()),
             subscriber
-        } else {
-            CoroutineServiceSubscriber(
-                CoroutineScope(dispatcher + Job()),
-                subscriber
-            )
-        }
+        )
 
         fun isSubscriberExists(): Boolean {
             return subscribers.firstOrNull { it.originalSubscriber == subscriber } != null
@@ -212,11 +205,7 @@ open class RedisCoroutineStateService(
     override fun unsubscribe(subscriber: ServiceSubscriber) {
 
         fun findSubscriber(): CoroutineServiceSubscriber? {
-            return if (subscriber is CoroutineServiceSubscriber) {
-                subscriber
-            } else {
-                subscribers.firstOrNull { it.originalSubscriber == subscriber }
-            }
+            return subscribers.firstOrNull { it.originalSubscriber == subscriber }
         }
 
         val coroutineServiceSubscriber = findSubscriber()
