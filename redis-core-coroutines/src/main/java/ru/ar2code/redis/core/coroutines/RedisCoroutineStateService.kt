@@ -176,9 +176,6 @@ open class RedisCoroutineStateService(
             coroutineServiceSubscriber.scope.launch {
                 resultsChannel
                     .collect {
-
-                        logger.info("Service [${this@RedisCoroutineStateService}] collect for subscriber $coroutineServiceSubscriber")
-
                         coroutineServiceSubscriber.onReceive(it)
                     }
 
@@ -242,17 +239,15 @@ open class RedisCoroutineStateService(
         try {
 
             if (isDisposed()) {
-                logger.info("Service [$this] isDisposed. Can not broadcastNewState and change state to $newServiceState.")
+                logger.info("[$this] isDisposed. Can not broadcastNewState and change state to $newServiceState.")
                 return
             }
 
-            logger.info("Service [$this] change state from $serviceState to $newServiceState")
+            logger.info("[$this] change state from $serviceState to $newServiceState")
 
             val oldState = serviceState
 
             serviceState = newServiceState
-
-            logger.info(" [$this] [resultsChannel] emit $newServiceState subscribers count = ${subscribers.size} : $subscribers")
 
             resultsChannel.emit(newServiceState)
 
@@ -261,18 +256,18 @@ open class RedisCoroutineStateService(
             onStateChanged(oldState, newServiceState)
 
         } catch (e: ClosedSendChannelException) {
-            logger.info("Service [$this] result channel is closed.")
+            logger.info("[$this] result channel is closed.")
         }
     }
 
     private suspend fun dispatchTriggerByState(old: State, new: State) {
         val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
 
-        logger.info("Service [$this] try to find trigger for changing state from $old to $new. Trigger is found = ${trigger != null}")
+        logger.info("[$this] try to find trigger for changing state from $old to $new. Trigger is found = ${trigger != null}")
 
         trigger?.let {
 
-            logger.info("Service [$this] fired trigger $it.")
+            logger.info("[$this] fire trigger $it.")
 
             it.invokeAction(old, new)
 
@@ -293,7 +288,7 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("Service [${this@RedisCoroutineStateService}] on initialized.")
+                logger.info("[${this@RedisCoroutineStateService}] on initialized.")
                 broadcastNewState(initialState)
                 onInitialized()
             }
@@ -305,7 +300,7 @@ open class RedisCoroutineStateService(
                 provideInitializedResult()
             }
             is State.Disposed -> {
-                throw IllegalStateException("Service $this is disposed. Cannot initialize again.")
+                throw IllegalStateException("$this is disposed. Cannot initialize again.")
             }
             else -> {
                 return
@@ -321,7 +316,7 @@ open class RedisCoroutineStateService(
 
                     val reducer = findReducer(msg)
 
-                    logger.info("Service [${this@RedisCoroutineStateService}] Received intent $msg. Founded reducer: $reducer.")
+                    logger.info("[${this@RedisCoroutineStateService}] Received intent $msg. Reducer: $reducer.")
 
                     val newStateFlow =
                         reducer.reduce(serviceState, msg)
@@ -329,11 +324,10 @@ open class RedisCoroutineStateService(
                     newStateFlow?.let { stateFlow ->
                         stateFlow.collect {
                             broadcastNewState(it)
-                            logger.info("Service [${this@RedisCoroutineStateService}] broadcast new state")
                         }
                     }
                 } catch (e: ClosedReceiveChannelException) {
-                    logger.info("Service [${this@RedisCoroutineStateService}] intent channel is closed.")
+                    logger.info("[${this@RedisCoroutineStateService}] intent channel is closed.")
                 }
             }
 
@@ -349,7 +343,7 @@ open class RedisCoroutineStateService(
 
     private fun disposeIfScopeNotActive() {
         if (!scope.isActive) {
-            logger.info("Service [$this] scope is not active anymore. Dispose service.")
+            logger.info("[$this] scope is not active anymore. Dispose service.")
             dispose()
         }
     }
@@ -360,7 +354,7 @@ open class RedisCoroutineStateService(
     ): Boolean {
         if (!scope.isActive) {
             val msg =
-                "Service [$this] scope is not active anymore. Service is disposed and cannot [$errorPostfixMsgIfNotActive]."
+                "[$this] scope is not active anymore. Service is disposed and cannot [$errorPostfixMsgIfNotActive]."
 
             logger.info(msg)
 
@@ -376,7 +370,7 @@ open class RedisCoroutineStateService(
     private suspend fun awaitPassCreatedState() {
         while (serviceState is State.Created) {
             delay(AWAIT_INIT_DELAY_MS)
-            logger.info("Service [$this] await passing initial state. Current state = $serviceState")
+            logger.info("[$this] await passing initial state. Current state = $serviceState")
         }
     }
 }
