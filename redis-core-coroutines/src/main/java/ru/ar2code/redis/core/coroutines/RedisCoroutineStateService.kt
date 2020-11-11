@@ -75,7 +75,11 @@ open class RedisCoroutineStateService(
     override fun listen(listenedService: ListenedService) {
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
+                logger.info("Service [${this@RedisCoroutineStateService}] receive state changed from listened service. Start dispatch.")
+
                 dispatch(listenedService.intentBuilder(newState))
+
+                logger.info("Service [${this@RedisCoroutineStateService}] receive state changed from listened service. Finish dispatch.")
             }
         }
 
