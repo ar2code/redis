@@ -162,10 +162,14 @@ open class RedisCoroutineStateService(
      */
     override fun subscribe(subscriber: ServiceSubscriber) {
 
-        val coroutineServiceSubscriber = CoroutineServiceSubscriber(
-            CoroutineScope(dispatcher + Job()),
+        val coroutineServiceSubscriber = if (subscriber is CoroutineServiceSubscriber) {
             subscriber
-        )
+        } else {
+            CoroutineServiceSubscriber(
+                CoroutineScope(dispatcher + Job()),
+                subscriber
+            )
+        }
 
         fun isSubscriberExists(): Boolean {
             return subscribers.firstOrNull { it.originalSubscriber == subscriber } != null
@@ -208,7 +212,11 @@ open class RedisCoroutineStateService(
     override fun unsubscribe(subscriber: ServiceSubscriber) {
 
         fun findSubscriber(): CoroutineServiceSubscriber? {
-            return subscribers.firstOrNull { it.originalSubscriber == subscriber }
+            return if (subscriber is CoroutineServiceSubscriber) {
+                subscriber
+            } else {
+                subscribers.firstOrNull { it.originalSubscriber == subscriber }
+            }
         }
 
         val coroutineServiceSubscriber = findSubscriber()
@@ -257,6 +265,7 @@ open class RedisCoroutineStateService(
             val oldState = serviceState
 
             serviceState = newServiceState
+
             resultsChannel.emit(newServiceState)
 
             dispatchTriggerByState(oldState, newServiceState)
