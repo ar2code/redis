@@ -334,6 +334,8 @@ open class RedisCoroutineStateService(
                             logger.info("Service [${this@RedisCoroutineStateService}] collect new state $it")
 
                             broadcastNewState(it)
+
+                            logger.info("Service [${this@RedisCoroutineStateService}] broadcast new state")
                         }
                     }
                 } catch (e: ClosedReceiveChannelException) {
