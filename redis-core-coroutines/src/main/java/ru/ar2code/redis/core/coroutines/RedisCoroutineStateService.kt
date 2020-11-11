@@ -327,6 +327,8 @@ open class RedisCoroutineStateService(
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow.collect {
+                            logger.info("Service [${this@RedisCoroutineStateService}] collect new state $it")
+
                             broadcastNewState(it)
                         }
                     }
