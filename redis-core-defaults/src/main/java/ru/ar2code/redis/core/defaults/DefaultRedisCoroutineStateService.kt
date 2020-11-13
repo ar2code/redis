@@ -40,6 +40,7 @@ abstract class DefaultRedisCoroutineStateService(
         State.Initiated(),
         reducers,
         DefaultReducerSelector(),
+        DefaultIntentSelector(),
         triggers,
         DefaultStateTriggerSelector(),
         DefaultLogger()

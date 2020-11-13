@@ -23,8 +23,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.SavedStateHandler
 import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateIntentMessageBuilder
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.redis.core.test.TestLogger
+import kotlin.reflect.KClass
 
 @ExperimentalCoroutinesApi
 object ServiceFactory {
@@ -56,6 +58,19 @@ object ServiceFactory {
         AnyToCStateTrigger()
     )
 
+    val defaultStateIntents = mapOf(
+        StateA::class to IntentTypeABuilder(),
+        StateB::class to IntentTypeBBuilder(),
+        StateC::class to IntentTypeCBuilder()
+    ) as Map<KClass<out State>?, StateIntentMessageBuilder>
+
+    val defaultStateIntentsWithAny = mapOf(
+        null to IntentTypeFlowBuilder(),
+        StateA::class to IntentTypeABuilder(),
+        StateB::class to IntentTypeBBuilder(),
+        StateC::class to IntentTypeCBuilder()
+    )
+
     fun buildSimpleService(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher
@@ -66,6 +81,7 @@ object ServiceFactory {
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
+            DefaultIntentSelector(),
             emptyList(),
             DefaultStateTriggerSelector(),
             TestLogger()
@@ -82,6 +98,7 @@ object ServiceFactory {
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
+            DefaultIntentSelector(),
             defaultTriggers,
             DefaultStateTriggerSelector(),
             TestLogger()
@@ -100,6 +117,7 @@ object ServiceFactory {
             State.Initiated(),
             defaultReducers,
             DefaultReducerSelector(),
+            DefaultIntentSelector(),
             emptyList(),
             DefaultStateTriggerSelector(),
             TestLogger(),
@@ -118,6 +136,7 @@ object ServiceFactory {
             CustomInitState(),
             defaultReducers,
             DefaultReducerSelector(),
+            DefaultIntentSelector(),
             defaultTriggers,
             DefaultStateTriggerSelector(),
             TestLogger()
@@ -134,6 +153,7 @@ object ServiceFactory {
             State.Initiated(),
             listOf(SimpleExceptionStateReducer()),
             DefaultReducerSelector(),
+            DefaultIntentSelector(),
             defaultTriggers,
             DefaultStateTriggerSelector(),
             TestLogger()

@@ -46,6 +46,8 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
     protected open val triggerSelector: StateTriggerSelector = DefaultStateTriggerSelector()
 
+    protected open val listenedServiceIntentSelector: IntentSelector = DefaultIntentSelector()
+
     protected open val savedStateHandler: SavedStateHandler? = null
 
     protected open val logger: Logger = RedisCoreAndroidLogger()
@@ -57,6 +59,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
             initialState,
             reducers,
             reducerSelector,
+            listenedServiceIntentSelector,
             triggers,
             triggerSelector,
             logger,

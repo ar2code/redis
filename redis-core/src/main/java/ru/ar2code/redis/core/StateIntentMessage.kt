@@ -17,14 +17,6 @@
 
 package ru.ar2code.redis.core
 
-import kotlin.reflect.KClass
-
-/**
- * Each [RedisStateService] can listen another services and dispatch intent to itself if state of listened service was changed
- * @param serviceRedis listened service
- * @param stateIntentMap lambda that returns special [IntentMessage] for newState from listened service.
- */
-class ListenedService(
-    val serviceRedis: RedisStateService,
-    val stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>
-)
+interface StateIntentMessageBuilder {
+    fun build(state: State) : IntentMessage
+}

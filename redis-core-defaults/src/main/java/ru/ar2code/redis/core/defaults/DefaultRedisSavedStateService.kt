@@ -44,6 +44,7 @@ abstract class DefaultRedisSavedStateService(
         State.Initiated(),
         reducers,
         DefaultReducerSelector(),
+        DefaultIntentSelector(),
         stateTriggers,
         DefaultStateTriggerSelector(),
         DefaultLogger(),

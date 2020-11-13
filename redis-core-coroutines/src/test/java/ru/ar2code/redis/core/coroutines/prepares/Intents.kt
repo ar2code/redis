@@ -18,6 +18,8 @@
 package ru.ar2code.redis.core.coroutines.prepares
 
 import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateIntentMessageBuilder
 
 class IntentTypeA(val payload: String? = null) :
     IntentMessage()
@@ -36,3 +38,27 @@ class IntentTypeDelayFlow(val payload: Int? = null) :
 
 class IntentTypeConcurrentTest(val payload: Int? = null) :
     IntentMessage()
+
+class IntentTypeABuilder : StateIntentMessageBuilder {
+    override fun build(state: State): IntentMessage {
+        return IntentTypeA()
+    }
+}
+
+class IntentTypeBBuilder : StateIntentMessageBuilder {
+    override fun build(state: State): IntentMessage {
+        return IntentTypeB()
+    }
+}
+
+class IntentTypeCBuilder : StateIntentMessageBuilder {
+    override fun build(state: State): IntentMessage {
+        return IntentTypeC()
+    }
+}
+
+class IntentTypeFlowBuilder : StateIntentMessageBuilder {
+    override fun build(state: State): IntentMessage {
+        return IntentTypeFlow()
+    }
+}

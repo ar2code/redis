@@ -607,7 +607,9 @@ class RedisCoroutineStateServiceTests {
 
             service.subscribe(subscriber)
 
-            service.listen(ListenedService(listenedService) { _ -> IntentTypeB() })
+            service.listen(
+                ListenedService(listenedService, mapOf(null to IntentTypeBBuilder()))
+            )
 
             listenedService.dispatch(IntentTypeA())
 
@@ -624,7 +626,7 @@ class RedisCoroutineStateServiceTests {
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
+            val listenedServiceInfo = ListenedService(listenedService, mapOf(null to IntentTypeBBuilder()))
 
             var stateBCount = 0
 
@@ -660,7 +662,7 @@ class RedisCoroutineStateServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val listenedServiceInfo = ListenedService(listenedService) { _ -> IntentTypeB() }
+        val listenedServiceInfo = ListenedService(listenedService, mapOf(null to IntentTypeBBuilder()))
 
         var stateBCount = 0
 

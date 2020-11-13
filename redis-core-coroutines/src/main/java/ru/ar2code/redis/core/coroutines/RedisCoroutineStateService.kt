@@ -33,6 +33,7 @@ open class RedisCoroutineStateService(
     private val initialState: State,
     private val reducers: List<StateReducer>,
     private val reducerSelector: ReducerSelector,
+    private val listenedServicesIntentSelector: IntentSelector,
     private val stateTriggers: List<StateTrigger>?,
     private val stateTriggerSelector: StateTriggerSelector?,
     protected val logger: Logger
@@ -75,7 +76,14 @@ open class RedisCoroutineStateService(
     override fun listen(listenedService: ListenedService) {
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
-                dispatch(listenedService.intentBuilder(newState))
+                logger.info("$this@RedisCoroutineStateService receive state change for listening service: ${listenedService.serviceRedis}")
+
+                val intent = listenedServicesIntentSelector.findIntent(
+                    listenedService.stateIntentMap,
+                    newState
+                )
+
+                dispatch(intent)
             }
         }
 

@@ -30,6 +30,7 @@ open class RedisSavedStateService(
     initialState: State,
     reducers: List<StateReducer>,
     reducerSelector: ReducerSelector,
+    listenedServicesIntentSelector: IntentSelector,
     stateTriggers: List<StateTrigger>?,
     stateTriggerSelector: StateTriggerSelector?,
     logger: Logger,
@@ -41,6 +42,7 @@ open class RedisSavedStateService(
     initialState,
     reducers,
     reducerSelector,
+    listenedServicesIntentSelector,
     stateTriggers,
     stateTriggerSelector,
     logger

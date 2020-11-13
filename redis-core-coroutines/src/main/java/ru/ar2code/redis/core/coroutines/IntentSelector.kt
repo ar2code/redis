@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
 
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateIntentMessageBuilder
 import kotlin.reflect.KClass
 
-/**
- * Each [RedisStateService] can listen another services and dispatch intent to itself if state of listened service was changed
- * @param serviceRedis listened service
- * @param stateIntentMap lambda that returns special [IntentMessage] for newState from listened service.
- */
-class ListenedService(
-    val serviceRedis: RedisStateService,
-    val stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>
-)
+interface IntentSelector {
+    fun findIntent(stateIntentMap : Map<KClass<out State>?, StateIntentMessageBuilder>, state : State) : IntentMessage
+}
