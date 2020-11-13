@@ -55,8 +55,4 @@ abstract class StateReducer(
     fun isAnyIntentType(): Boolean {
         return expectIntentType == null
     }
-
-    protected fun <T> requireIntent(intent: IntentMessage): T where T : IntentMessage {
-        return intent as T
-    }
 }
