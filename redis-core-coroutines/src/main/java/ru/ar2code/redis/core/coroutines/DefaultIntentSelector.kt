@@ -25,11 +25,15 @@ import kotlin.reflect.KClass
 class DefaultIntentSelector : IntentSelector {
     override fun findIntent(
         stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>,
-        state: State
+        state: State,
+        error: String?
     ): IntentMessage {
-        val builder = stateIntentMap.filter { it.key?.isInstance(state) == true }.values.firstOrNull()
-            ?: stateIntentMap.filter { it.key == null }.values.firstOrNull()
-            ?: throw IllegalArgumentException("Can not find IntentMessage for state: $state inside stateIntentMap")
+        val builder =
+            stateIntentMap.filter { it.key?.isInstance(state) == true }.values.firstOrNull()
+                ?: stateIntentMap.filter { it.key == null }.values.firstOrNull()
+                ?: throw IllegalArgumentException(
+                    error ?: "Can not find IntentMessage for state: $state inside stateIntentMap"
+                )
 
         return builder.build(state)
     }

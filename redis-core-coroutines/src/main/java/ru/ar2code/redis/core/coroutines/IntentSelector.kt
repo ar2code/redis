@@ -23,5 +23,9 @@ import ru.ar2code.redis.core.StateIntentMessageBuilder
 import kotlin.reflect.KClass
 
 interface IntentSelector {
-    fun findIntent(stateIntentMap : Map<KClass<out State>?, StateIntentMessageBuilder>, state : State) : IntentMessage
+    fun findIntent(
+        stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>,
+        state: State,
+        error: String? = null
+    ): IntentMessage
 }

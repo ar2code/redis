@@ -80,7 +80,8 @@ open class RedisCoroutineStateService(
 
                 val intent = listenedServicesIntentSelector.findIntent(
                     listenedService.stateIntentMap,
-                    newState
+                    newState,
+                    "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${listenedService.serviceRedis} for state: $newState"
                 )
 
                 dispatch(intent)
