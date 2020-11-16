@@ -76,7 +76,7 @@ open class RedisCoroutineStateService(
     override fun listen(listenedService: ListenedService) {
         val subscriber = object : ServiceSubscriber {
             override fun onReceive(newState: State) {
-                logger.info("$this@RedisCoroutineStateService receive state change for listening service: ${listenedService.serviceRedis}")
+                logger.info("${this@RedisCoroutineStateService} receive state change for listening service: ${listenedService.serviceRedis} newState=$newState")
 
                 val intent = listenedServicesIntentSelector.findIntent(
                     listenedService.stateIntentMap,
