@@ -235,7 +235,7 @@ open class RedisCoroutineStateService(
     }
 
     /**
-     * Call after service state got [initialState]
+     * Call after service state got first state after [State.Created]
      */
     protected open suspend fun onInitialized() {
 
@@ -302,7 +302,7 @@ open class RedisCoroutineStateService(
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
                 logger.info("[${this@RedisCoroutineStateService}] on initialized.")
-                broadcastNewState(initialState)
+                broadcastNewState(getInitialState())
                 onInitialized()
             }
         }
@@ -319,6 +319,13 @@ open class RedisCoroutineStateService(
                 return
             }
         }
+    }
+
+    /**
+     * Get initial state that service should get after creation. By default [initialState]
+     */
+    protected open suspend fun getInitialState(): State {
+        return initialState
     }
 
     private fun subscribeToIntentMessages() {

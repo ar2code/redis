@@ -48,6 +48,8 @@ open class RedisSavedStateService(
     logger
 ) {
 
+    private var lastRestoredStateIntent: RestoredStateIntent? = null
+
     override suspend fun onStateChanged(old: State, new: State) {
         super.onStateChanged(old, new)
         savedStateHandler?.storeState(new, savedStateStore)
@@ -56,15 +58,19 @@ open class RedisSavedStateService(
     override suspend fun onInitialized() {
         super.onInitialized()
 
-        restoreStateWithIntent()
+        dispatchIntentAfterInitializing()
+
+        lastRestoredStateIntent = null
     }
 
-    private suspend fun restoreStateWithIntent() {
-        val stateWithIntent = savedStateHandler?.restoreState(savedStateStore)
-        stateWithIntent?.state?.let {
-            broadcastNewState(it)
-        }
-        stateWithIntent?.intentMessage?.let {
+    override suspend fun getInitialState(): State {
+        lastRestoredStateIntent = savedStateHandler?.restoreState(savedStateStore)
+
+        return lastRestoredStateIntent?.state ?: super.getInitialState()
+    }
+
+    private fun dispatchIntentAfterInitializing() {
+        lastRestoredStateIntent?.intentMessage?.let {
             dispatch(it)
         }
     }
