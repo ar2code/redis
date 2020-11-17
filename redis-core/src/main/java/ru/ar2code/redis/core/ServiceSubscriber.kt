@@ -18,5 +18,5 @@
 package ru.ar2code.redis.core
 
 interface ServiceSubscriber {
-    fun onReceive(newState: State)
+    suspend fun onReceive(newState: State)
 }
