@@ -75,7 +75,7 @@ open class RedisCoroutineStateService(
     @Synchronized
     override fun listen(listenedService: ListenedService) {
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 logger.info("${this@RedisCoroutineStateService} receive state change for listening service: ${listenedService.serviceRedis} newState=$newState")
 
                 val intent = listenedServicesIntentSelector.findIntent(
@@ -84,7 +84,7 @@ open class RedisCoroutineStateService(
                     "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${listenedService.serviceRedis} for state: $newState"
                 )
 
-                dispatch(intent)
+                sendIntentMessage(intent)
             }
         }
 
@@ -112,12 +112,16 @@ open class RedisCoroutineStateService(
             return
 
         scope.launch(dispatcher) {
-            try {
-                awaitPassCreatedState()
-                intentMessagesChannel.send(msg)
-            } catch (e: ClosedSendChannelException) {
-                logger.info("Service [${this@RedisCoroutineStateService}] intent channel is closed.")
-            }
+            sendIntentMessage(msg)
+        }
+    }
+
+    private suspend fun sendIntentMessage(msg: IntentMessage) {
+        try {
+            awaitPassCreatedState()
+            intentMessagesChannel.send(msg)
+        } catch (e: ClosedSendChannelException) {
+            logger.info("Service [${this@RedisCoroutineStateService}] intent channel is closed.")
         }
     }
 

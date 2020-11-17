@@ -144,7 +144,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         logger.info("[$this] subscribe to internal service")
 
         viewModelService.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 val viewModelState = newState as? ViewModelStateWithEvent<ViewState, ViewEvent>
                 viewModelState?.let {
                     postResult(viewModelState)

@@ -90,7 +90,7 @@ class SavedRedisStateServiceTests {
         var isGotPreviousServiceResult = false
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     isGotInitResult = true
                 }
@@ -142,7 +142,7 @@ class SavedRedisStateServiceTests {
         var isGotFlowStateAfterRestoring = false
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     isGotInitResult = true
                 }

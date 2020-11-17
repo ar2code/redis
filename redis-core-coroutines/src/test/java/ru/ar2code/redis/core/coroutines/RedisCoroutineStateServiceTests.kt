@@ -42,7 +42,7 @@ class RedisCoroutineStateServiceTests {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                 }
             }
             service.subscribe(subscriber)
@@ -100,7 +100,7 @@ class RedisCoroutineStateServiceTests {
             var total = 0
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     total++
                 }
             }
@@ -161,7 +161,7 @@ class RedisCoroutineStateServiceTests {
                 println("start subscribe task 1")
                 repeat(500) {
                     val subscriber = object : ServiceSubscriber {
-                        override fun onReceive(newState: State) {
+                        override suspend fun onReceive(newState: State) {
 
                         }
                     }
@@ -178,7 +178,7 @@ class RedisCoroutineStateServiceTests {
                 println("start subscribe task 2")
                 repeat(500) {
                     val subscriber = object : ServiceSubscriber {
-                        override fun onReceive(newState: State) {
+                        override suspend fun onReceive(newState: State) {
 
                         }
                     }
@@ -200,7 +200,7 @@ class RedisCoroutineStateServiceTests {
                 println("start subscribe task 4")
                 repeat(500) {
                     val subscriber = object : ServiceSubscriber {
-                        override fun onReceive(newState: State) {
+                        override suspend fun onReceive(newState: State) {
 
                         }
                     }
@@ -236,7 +236,7 @@ class RedisCoroutineStateServiceTests {
         this.cancel()
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
 
             }
         }
@@ -281,7 +281,7 @@ class RedisCoroutineStateServiceTests {
             var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     lastStateFromIntent = newState
                 }
             }
@@ -306,7 +306,7 @@ class RedisCoroutineStateServiceTests {
             var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     lastStateFromIntent = newState
                 }
             }
@@ -335,7 +335,7 @@ class RedisCoroutineStateServiceTests {
             var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     lastStateFromIntent = newState
                 }
             }
@@ -373,7 +373,7 @@ class RedisCoroutineStateServiceTests {
             var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     lastStateFromIntent = newState
                 }
             }
@@ -399,7 +399,7 @@ class RedisCoroutineStateServiceTests {
             var result = ""
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     if (newState is FlowState) {
                         result += newState.name
                     }
@@ -425,7 +425,7 @@ class RedisCoroutineStateServiceTests {
         var emptyResultTwo = false
 
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     emptyResult = true
                 }
@@ -433,7 +433,7 @@ class RedisCoroutineStateServiceTests {
         })
 
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     emptyResultTwo = true
                 }
@@ -458,7 +458,7 @@ class RedisCoroutineStateServiceTests {
         var payloadResultTwo = false
 
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     emptyResultOne = true
                 } else if (newState is StateB) {
@@ -472,7 +472,7 @@ class RedisCoroutineStateServiceTests {
         delay(testDelayBeforeCheckingResult)
 
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is State.Initiated) {
                     emptyResultTwo = true
                 } else if (newState is StateB) {
@@ -499,7 +499,7 @@ class RedisCoroutineStateServiceTests {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
 
                 }
             }
@@ -519,7 +519,7 @@ class RedisCoroutineStateServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
 
             }
         }
@@ -539,7 +539,7 @@ class RedisCoroutineStateServiceTests {
         val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is CustomInitState) {
                     emptyResultOne = true
                 }
@@ -567,7 +567,7 @@ class RedisCoroutineStateServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is FlowState) {
                     resultData += newState.name
                 }
@@ -598,7 +598,7 @@ class RedisCoroutineStateServiceTests {
             var stateBCount = 0
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
                     }
@@ -631,7 +631,7 @@ class RedisCoroutineStateServiceTests {
             var stateBCount = 0
 
             val subscriber = object : ServiceSubscriber {
-                override fun onReceive(newState: State) {
+                override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
                     }
@@ -667,7 +667,7 @@ class RedisCoroutineStateServiceTests {
         var stateBCount = 0
 
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 if (newState is StateB) {
                     stateBCount++
                 }
@@ -693,7 +693,7 @@ class RedisCoroutineStateServiceTests {
         var result = ""
         val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
         val subscriber = object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 when (newState) {
                     is State.Initiated -> {
                         result += "I"

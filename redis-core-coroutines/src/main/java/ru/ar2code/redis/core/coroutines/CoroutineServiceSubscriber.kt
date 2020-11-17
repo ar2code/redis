@@ -25,7 +25,7 @@ internal class CoroutineServiceSubscriber(
     val scope: CoroutineScope,
     val originalSubscriber: ServiceSubscriber
 ) : ServiceSubscriber {
-    override fun onReceive(newState: State) = originalSubscriber.onReceive(newState)
+    override suspend fun onReceive(newState: State) = originalSubscriber.onReceive(newState)
 
     override fun toString(): String {
         return "[CoroutineServiceSubscriber].original = $originalSubscriber, scope=$scope"
