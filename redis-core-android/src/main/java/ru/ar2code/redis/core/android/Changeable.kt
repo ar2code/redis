@@ -25,4 +25,13 @@ data class Changeable<T>(
      * False means nothing was changed and you should ignore this state assume that UI is up-to-date with state
      */
     val isChangedSincePrevious: Boolean
-) where T : Any
+) where T : Any {
+
+    /**
+     * Return new Changeable instance with same [data] but with [isChangedSincePrevious] = false.
+     */
+    fun sameNotChanged(): Changeable<T> {
+        return Changeable(data, isChangedSincePrevious = false)
+    }
+
+}
