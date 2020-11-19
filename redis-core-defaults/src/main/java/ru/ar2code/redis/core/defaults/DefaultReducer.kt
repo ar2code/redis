@@ -15,11 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.coroutines
+package ru.ar2code.redis.core.defaults
 
-import ru.ar2code.utils.Logger
+import ru.ar2code.redis.core.coroutines.AnyReducer
 
-/**
- * Default reducer that can be applied to any state and any intent
- */
-abstract class DefaultReducer(logger: Logger) : StateReducer(null, null, logger)
+abstract class DefaultReducer : AnyReducer(DefaultLogger())
