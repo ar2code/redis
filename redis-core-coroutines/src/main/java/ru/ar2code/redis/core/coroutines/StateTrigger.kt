@@ -23,8 +23,8 @@ import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
 abstract class StateTrigger(
-    private val expectOldState: KClass<*>?,
-    private val expectNewState: KClass<*>?,
+    private val expectOldState: KClass<out State>?,
+    private val expectNewState: KClass<out State>?,
     protected val logger: Logger
 ) {
     open fun getTriggerIntent(oldState: State, newState: State): IntentMessage? = null

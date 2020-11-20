@@ -21,10 +21,10 @@ interface RedisListener {
     /**
      * Listening of state changing of another service.
      */
-    fun listen(listenedService: ListenedService)
+    fun listen(serviceStateListener: ServiceStateListener)
 
     /**
      * Stop listening of service state changing
      */
-    fun stopListening(listenedService: ListenedService)
+    fun stopListening(serviceStateListener: ServiceStateListener)
 }

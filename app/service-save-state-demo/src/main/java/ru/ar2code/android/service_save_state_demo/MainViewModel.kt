@@ -45,7 +45,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
 
     init {
         service.subscribe(object : ServiceSubscriber {
-            override fun onReceive(newState: State) {
+            override suspend fun onReceive(newState: State) {
                 val keep = newState as? MainServiceRedisCoroutine.KeepState
                 keep?.let {
                     viewState.postValue(it.timestamp)

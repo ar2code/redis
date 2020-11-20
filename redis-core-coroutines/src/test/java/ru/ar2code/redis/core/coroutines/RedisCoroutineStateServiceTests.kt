@@ -21,8 +21,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
 import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.ListenedService
+import ru.ar2code.redis.core.ServiceStateListener
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.coroutines.prepares.*
 
@@ -608,7 +607,7 @@ class RedisCoroutineStateServiceTests {
             service.subscribe(subscriber)
 
             service.listen(
-                ListenedService(listenedService, mapOf(null to IntentTypeBBuilder()))
+                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
             )
 
             listenedService.dispatch(IntentTypeA())
@@ -626,7 +625,7 @@ class RedisCoroutineStateServiceTests {
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedServiceInfo = ListenedService(listenedService, mapOf(null to IntentTypeBBuilder()))
+            val listenedServiceInfo = ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
 
             var stateBCount = 0
 
@@ -662,7 +661,7 @@ class RedisCoroutineStateServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val listenedServiceInfo = ListenedService(listenedService, mapOf(null to IntentTypeBBuilder()))
+        val listenedServiceInfo = ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
 
         var stateBCount = 0
 

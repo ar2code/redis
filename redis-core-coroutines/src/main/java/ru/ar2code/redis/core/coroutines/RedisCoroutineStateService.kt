@@ -57,7 +57,7 @@ open class RedisCoroutineStateService(
     private val subscribers = ConcurrentLinkedQueue<CoroutineServiceSubscriber>()
 
     private val listenedServicesSubscribers =
-        ConcurrentHashMap<ListenedService, ServiceSubscriber>()
+        ConcurrentHashMap<ServiceStateListener, ServiceSubscriber>()
 
     /**
      * You can subscribe to service's state flow with .collect method
@@ -73,34 +73,34 @@ open class RedisCoroutineStateService(
      * Listening of state changing of another service.
      */
     @Synchronized
-    override fun listen(listenedService: ListenedService) {
+    override fun listen(serviceStateListener: ServiceStateListener) {
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
-                logger.info("${this@RedisCoroutineStateService} receive state change for listening service: ${listenedService.serviceRedis} newState=$newState")
+                logger.info("${this@RedisCoroutineStateService} receive state change for listening service: ${serviceStateListener.listeningService} newState=$newState")
 
                 val intent = listenedServicesIntentSelector.findIntent(
-                    listenedService.stateIntentMap,
+                    serviceStateListener.stateIntentMap,
                     newState,
-                    "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${listenedService.serviceRedis} for state: $newState"
+                    "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${serviceStateListener.listeningService} for state: $newState"
                 )
 
                 sendIntentMessage(intent)
             }
         }
 
-        listenedService.serviceRedis.subscribe(subscriber)
-        listenedServicesSubscribers[listenedService] = subscriber
+        serviceStateListener.listeningService.subscribe(subscriber)
+        listenedServicesSubscribers[serviceStateListener] = subscriber
     }
 
     /**
      * Stop listening of service state changing
      */
     @Synchronized
-    override fun stopListening(listenedService: ListenedService) {
-        val subscriber = listenedServicesSubscribers[listenedService]
+    override fun stopListening(serviceStateListener: ServiceStateListener) {
+        val subscriber = listenedServicesSubscribers[serviceStateListener]
         subscriber?.let {
-            listenedService.serviceRedis.unsubscribe(subscriber)
-            listenedServicesSubscribers.remove(listenedService)
+            serviceStateListener.listeningService.unsubscribe(subscriber)
+            listenedServicesSubscribers.remove(serviceStateListener)
         }
     }
 
@@ -139,7 +139,7 @@ open class RedisCoroutineStateService(
 
         fun unsubscribeFromListenedServices() {
             listenedServicesSubscribers.forEach {
-                it.key.serviceRedis.unsubscribe(it.value)
+                it.key.listeningService.unsubscribe(it.value)
             }
             listenedServicesSubscribers.clear()
         }

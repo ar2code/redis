@@ -107,15 +107,15 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     /**
      * Listening of state changing of another service.
      */
-    override fun listen(listenedService: ListenedService) {
-        viewModelService.listen(listenedService)
+    override fun listen(serviceStateListener: ServiceStateListener) {
+        viewModelService.listen(serviceStateListener)
     }
 
     /**
      * Stop listening of service state changing
      */
-    override fun stopListening(listenedService: ListenedService) {
-        viewModelService.stopListening(listenedService)
+    override fun stopListening(serviceStateListener: ServiceStateListener) {
+        viewModelService.stopListening(serviceStateListener)
     }
 
     /**

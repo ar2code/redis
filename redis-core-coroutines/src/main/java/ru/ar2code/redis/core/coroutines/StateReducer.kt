@@ -24,8 +24,8 @@ import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
 abstract class StateReducer(
-    private val expectState: KClass<*>?,
-    private val expectIntentType: KClass<*>?,
+    private val expectState: KClass<out State>?,
+    private val expectIntentType: KClass<out IntentMessage>?,
     protected val logger: Logger
 ) {
     abstract fun reduce(
