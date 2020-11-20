@@ -20,6 +20,7 @@ package ru.ar2code.redis.core
 class DefaultStateStoreSelector : StateStoreSelector {
 
     override fun findStateStore(state: State, stateStores: List<StateStore>): StateStore? {
-        return stateStores.firstOrNull { it.isStateStoreApplicable(state) }
+        return stateStores.firstOrNull { !it.isAnyState() && it.isStateStoreApplicable(state) }
+            ?: stateStores.firstOrNull { it.isStateStoreApplicable(state) }
     }
 }
