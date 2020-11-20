@@ -20,6 +20,7 @@ package ru.ar2code.redis.core.defaults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import ru.ar2code.redis.core.DefaultStateStoreSelector
 import ru.ar2code.redis.core.SavedStateHandler
 import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.State
@@ -49,5 +50,6 @@ abstract class DefaultRedisSavedStateService(
         DefaultStateTriggerSelector(),
         DefaultLogger(),
         savedStateStore,
-        savedStateHandler
+        savedStateHandler,
+        DefaultStateStoreSelector()
     )

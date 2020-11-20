@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.defaults
 
-interface SavedStateHandler {
-    val stateStores: List<StateStore>
+import ru.ar2code.redis.core.StateStore
 
-    suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
-}
+abstract class DefaultStateStore : StateStore(null)

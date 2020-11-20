@@ -17,8 +17,9 @@
 
 package ru.ar2code.redis.core
 
-interface SavedStateHandler {
-    val stateStores: List<StateStore>
+class DefaultStateStoreSelector : StateStoreSelector {
 
-    suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
+    override fun findStateStore(state: State, stateStores: List<StateStore>): StateStore? {
+        return stateStores.firstOrNull { it.isStateStoreApplicable(state) }
+    }
 }

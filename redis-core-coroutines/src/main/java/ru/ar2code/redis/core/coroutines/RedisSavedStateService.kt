@@ -35,7 +35,8 @@ open class RedisSavedStateService(
     stateTriggerSelector: StateTriggerSelector?,
     logger: Logger,
     private val savedStateStore: SavedStateStore?,
-    private val savedStateHandler: SavedStateHandler?
+    private val savedStateHandler: SavedStateHandler?,
+    private val stateStoreSelector: StateStoreSelector?
 ) : RedisCoroutineStateService(
     scope,
     dispatcher,
@@ -52,7 +53,11 @@ open class RedisSavedStateService(
 
     override suspend fun onStateChanged(old: State, new: State) {
         super.onStateChanged(old, new)
-        savedStateHandler?.storeState(new, savedStateStore)
+
+        savedStateHandler?.let {
+            val stateStore = stateStoreSelector?.findStateStore(new, it.stateStores)
+            stateStore?.store(new, savedStateStore)
+        }
     }
 
     override suspend fun onInitialized() {

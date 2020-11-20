@@ -17,10 +17,7 @@
 
 package ru.ar2code.redis.core.coroutines.prepares
 
-import ru.ar2code.redis.core.RestoredStateIntent
-import ru.ar2code.redis.core.SavedStateHandler
-import ru.ar2code.redis.core.SavedStateStore
-import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.*
 
 class TestSavedStateHandler : SavedStateHandler {
 
@@ -28,11 +25,16 @@ class TestSavedStateHandler : SavedStateHandler {
         const val KEY = "KEY"
     }
 
-    override suspend fun storeState(state: State, store: SavedStateStore?) {
-        if(state is StateB){
-            store?.set(KEY, state.data)
+    class TestStateStore : StateStore(null) {
+        override suspend fun store(state: State, store: SavedStateStore?) {
+            if(state is StateB){
+                store?.set(KEY, state.data)
+            }
         }
     }
+
+    override val stateStores: List<StateStore>
+        get() = listOf(TestStateStore())
 
     override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
         val data = store?.get<Int>(KEY) ?: return null

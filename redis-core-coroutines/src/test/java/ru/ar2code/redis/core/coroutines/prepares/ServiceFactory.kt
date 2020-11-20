@@ -20,10 +20,7 @@ package ru.ar2code.redis.core.coroutines.prepares
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.SavedStateHandler
-import ru.ar2code.redis.core.SavedStateStore
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.StateIntentMessageBuilder
+import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.redis.core.test.TestLogger
 import kotlin.reflect.KClass
@@ -122,7 +119,8 @@ object ServiceFactory {
             DefaultStateTriggerSelector(),
             TestLogger(),
             stateStore,
-            stateHandler
+            stateHandler,
+            DefaultStateStoreSelector()
         )
     }
 

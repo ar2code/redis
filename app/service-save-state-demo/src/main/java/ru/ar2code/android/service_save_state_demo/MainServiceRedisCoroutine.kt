@@ -50,13 +50,19 @@ class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedSta
         }
     }
 
-    class SaveHandler : SavedStateHandler {
-        override suspend fun storeState(state: State, store: SavedStateStore?) {
+    class BaseStateStore : StateStore(null) {
+        override suspend fun store(state: State, store: SavedStateStore?) {
             val keep = state as? KeepState
             keep?.let {
                 store?.set(SAVE_KEY, it.timestamp)
             }
         }
+    }
+
+    class SaveHandler : SavedStateHandler {
+
+        override val stateStores: List<StateStore>
+            get() = listOf(BaseStateStore())
 
         override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
             val timestamp = store?.get<Long>(SAVE_KEY) ?: return null

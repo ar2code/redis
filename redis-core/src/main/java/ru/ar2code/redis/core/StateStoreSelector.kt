@@ -17,8 +17,8 @@
 
 package ru.ar2code.redis.core
 
-interface SavedStateHandler {
-    val stateStores: List<StateStore>
+interface StateStoreSelector {
 
-    suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
+    fun findStateStore(state: State, stateStores : List<StateStore>): StateStore?
+
 }

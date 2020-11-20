@@ -17,8 +17,17 @@
 
 package ru.ar2code.redis.core
 
-interface SavedStateHandler {
-    val stateStores: List<StateStore>
+import kotlin.reflect.KClass
 
-    suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
+abstract class StateStore(private val expectState: KClass<out State>?) {
+
+    abstract suspend fun store(state: State, store: SavedStateStore?)
+
+    fun isStateStoreApplicable(state: State): Boolean {
+        return isAnyState() || expectState?.isInstance(state) == true
+    }
+
+    fun isAnyState(): Boolean {
+        return expectState == null
+    }
 }
