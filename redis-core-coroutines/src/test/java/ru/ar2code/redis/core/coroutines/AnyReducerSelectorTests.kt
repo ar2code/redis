@@ -78,7 +78,7 @@ class AnyReducerSelectorTests {
         assertThat(reducer).isInstanceOf(AnyStateTypeCReducer::class.java)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = ReducerNotFoundException::class)
     fun defaultSelector_findReducerForStateCIntentTypeB_ThrowExceptionNotFound() {
 
         val reducerSelector = DefaultReducerSelector()

@@ -53,7 +53,7 @@ class DefaultIntentSelectorTests {
         Truth.assertThat(intent).isInstanceOf(IntentTypeC::class.java)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = IntentNotFoundException::class)
     fun `test throw exception if intent for specified state not found`() {
 
         val intentSelector = DefaultIntentSelector()

@@ -40,6 +40,6 @@ class DefaultReducerSelector : ReducerSelector {
         } ?: reducers.firstOrNull {
             it.isReducerApplicable(state, intentMessage)
         }
-        ?: throw IllegalArgumentException("Reducer for ($state,$intentMessage) did not found.")
+        ?: throw ReducerNotFoundException("Reducer for ($state,$intentMessage) did not found.")
     }
 }

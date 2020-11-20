@@ -326,7 +326,7 @@ class RedisCoroutineStateServiceTests {
             Unit
         }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = ReducerNotFoundException::class)
     fun serviceAnotherState_DispatchFloatIntentType_ThrowReducerNotFoundException() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
@@ -355,7 +355,7 @@ class RedisCoroutineStateServiceTests {
             Unit
         }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = ReducerNotFoundException::class)
     fun service_DispatchNoReducerIntent_ThrowReducerNotFoundException() =
         runBlocking {
 

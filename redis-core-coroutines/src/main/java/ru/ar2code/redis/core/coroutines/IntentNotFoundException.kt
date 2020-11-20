@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
 
-interface SavedStateHandler {
-    suspend fun storeState(state: State, store: SavedStateStore?)
-
-    suspend fun restoreState(store: SavedStateStore?) : RestoredStateIntent?
-}
+class IntentNotFoundException(msg: String, cause: Throwable? = null) : Exception(msg, cause)

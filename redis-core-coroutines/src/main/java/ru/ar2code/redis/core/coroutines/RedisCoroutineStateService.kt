@@ -85,8 +85,8 @@ open class RedisCoroutineStateService(
                     )
                     sendIntentMessage(intent)
 
-                } catch (e: IllegalArgumentException) {
-                    throw IllegalArgumentException(
+                } catch (e: IntentNotFoundException) {
+                    throw IntentNotFoundException(
                         "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${serviceStateListener.listeningService} for state: $newState",
                         e
                     )
@@ -366,8 +366,8 @@ open class RedisCoroutineStateService(
     ): StateReducer {
         try {
             return reducerSelector.findReducer(reducers, serviceState, intentMessage)
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("$this findReducer exception", e)
+        } catch (e: ReducerNotFoundException) {
+            throw ReducerNotFoundException("$this findReducer exception", e)
         }
     }
 
