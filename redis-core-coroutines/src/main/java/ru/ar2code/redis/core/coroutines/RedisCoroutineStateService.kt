@@ -78,13 +78,19 @@ open class RedisCoroutineStateService(
             override suspend fun onReceive(newState: State) {
                 logger.info("${this@RedisCoroutineStateService} receive state change for listening service: ${serviceStateListener.listeningService} newState=$newState")
 
-                val intent = listenedServicesIntentSelector.findIntent(
-                    serviceStateListener.stateIntentMap,
-                    newState,
-                    "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${serviceStateListener.listeningService} for state: $newState"
-                )
+                try {
+                    val intent = listenedServicesIntentSelector.findIntent(
+                        serviceStateListener.stateIntentMap,
+                        newState
+                    )
+                    sendIntentMessage(intent)
 
-                sendIntentMessage(intent)
+                } catch (e: IllegalArgumentException) {
+                    throw IllegalArgumentException(
+                        "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${serviceStateListener.listeningService} for state: $newState",
+                        e
+                    )
+                }
             }
         }
 
@@ -358,7 +364,11 @@ open class RedisCoroutineStateService(
     private fun findReducer(
         intentMessage: IntentMessage
     ): StateReducer {
-        return reducerSelector.findReducer(reducers, serviceState, intentMessage)
+        try {
+            return reducerSelector.findReducer(reducers, serviceState, intentMessage)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("$this findReducer exception", e)
+        }
     }
 
     private fun disposeIfScopeNotActive() {

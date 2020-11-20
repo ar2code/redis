@@ -25,7 +25,6 @@ import kotlin.reflect.KClass
 interface IntentSelector {
     fun findIntent(
         stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>,
-        state: State,
-        error: String? = null
+        state: State
     ): IntentMessage
 }
