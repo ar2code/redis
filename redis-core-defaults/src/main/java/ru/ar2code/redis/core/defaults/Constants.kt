@@ -17,6 +17,6 @@
 
 package ru.ar2code.redis.core.defaults
 
-import ru.ar2code.utils.impl.ConsoleLogger
-
-class DefaultLogger : ConsoleLogger(Constants.LOG_TAG)
+object Constants {
+    const val LOG_TAG = "Redis-core"
+}

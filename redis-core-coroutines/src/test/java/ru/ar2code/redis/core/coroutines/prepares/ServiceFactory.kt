@@ -107,8 +107,8 @@ object ServiceFactory {
         dispatcher: CoroutineDispatcher,
         stateStore: SavedStateStore,
         stateHandler: SavedStateHandler
-    ): RedisSavedStateService {
-        return RedisSavedStateService(
+    ): RedisCoroutineSavedStateService {
+        return RedisCoroutineSavedStateService(
             scope,
             dispatcher,
             State.Initiated(),

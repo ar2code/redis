@@ -23,10 +23,10 @@ import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.redis.core.defaults.DefaultLogger
-import ru.ar2code.redis.core.defaults.DefaultRedisSavedStateService
+import ru.ar2code.redis.core.defaults.DefaultRedisCoroutineSavedStateService
 
-class MainServiceRedisCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) :
-    DefaultRedisSavedStateService(
+class MainServiceRedisCoroutineCoroutine(scope: CoroutineScope, savedStateStore: SavedStateStore) :
+    DefaultRedisCoroutineSavedStateService(
         scope,
         listOf(MainReducer()),
         savedStateStore,

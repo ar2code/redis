@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 
 @ExperimentalCoroutinesApi
-open class RedisSavedStateService(
+open class RedisCoroutineSavedStateService(
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,
     initialState: State,

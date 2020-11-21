@@ -55,7 +55,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     protected open val logger: Logger = RedisCoreAndroidLogger()
 
     private val viewModelService by lazy {
-        RedisSavedStateService(
+        RedisCoroutineSavedStateService(
             viewModelScope,
             Dispatchers.Default,
             initialState,

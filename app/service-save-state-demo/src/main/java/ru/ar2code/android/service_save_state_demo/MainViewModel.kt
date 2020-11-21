@@ -38,7 +38,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
         }
     }
 
-    private val service = MainServiceRedisCoroutine(viewModelScope, serviceStateHandler)
+    private val service = MainServiceRedisCoroutineCoroutine(viewModelScope, serviceStateHandler)
 
     private val viewState = MutableLiveData<Long>()
     val viewStateLive = viewState as LiveData<Long>
@@ -46,7 +46,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
     init {
         service.subscribe(object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
-                val keep = newState as? MainServiceRedisCoroutine.KeepState
+                val keep = newState as? MainServiceRedisCoroutineCoroutine.KeepState
                 keep?.let {
                     viewState.postValue(it.timestamp)
                 }
@@ -55,7 +55,7 @@ class MainViewModel(private val state: SavedStateHandle) : ViewModel() {
     }
 
     fun onButtonClick() {
-        service.dispatch(MainServiceRedisCoroutine.MainIntent(System.currentTimeMillis()))
+        service.dispatch(MainServiceRedisCoroutineCoroutine.MainIntent(System.currentTimeMillis()))
     }
 
 }
