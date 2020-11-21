@@ -11,14 +11,17 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/architecture-core" />
-            <option value="$PROJECT_DIR$/architecture-core-android" />
-            <option value="$PROJECT_DIR$/architecture-core-defaults" />
-            <option value="$PROJECT_DIR$/ext" />
+            <option value="$PROJECT_DIR$/redis-clean-arch-coroutines" />
+            <option value="$PROJECT_DIR$/redis-core" />
+            <option value="$PROJECT_DIR$/redis-core-android" />
+            <option value="$PROJECT_DIR$/redis-core-coroutines" />
+            <option value="$PROJECT_DIR$/redis-core-defaults" />
+            <option value="$PROJECT_DIR$/redis-core-test" />
+            <option value="$PROJECT_DIR$/redis-utils" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
+        <option name="useQualifiedModuleNames" value="true" />
       </GradleProjectSettings>
     </option>
   </component>
