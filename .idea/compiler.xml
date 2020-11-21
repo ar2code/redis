@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.7">
+    <bytecodeTargetLevel target="1.8">
       <module name="Demo.app" target="1.8" />
       <module name="Demo.app.service-save-state-demo" target="1.8" />
-      <module name="Demo.redis-clean-arch-coroutines" target="1.8" />
-      <module name="Demo.redis-core" target="1.8" />
-      <module name="Demo.redis-core-android" target="1.8" />
-      <module name="Demo.redis-core-coroutines" target="1.8" />
-      <module name="Demo.redis-core-defaults" target="1.8" />
-      <module name="Demo.redis-core-test" target="1.8" />
       <module name="redis-clean-arch-coroutines" target="1.7" />
       <module name="redis-core" target="1.7" />
       <module name="redis-core-coroutines" target="1.7" />
