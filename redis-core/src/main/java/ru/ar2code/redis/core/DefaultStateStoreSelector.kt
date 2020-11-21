@@ -20,7 +20,25 @@ package ru.ar2code.redis.core
 class DefaultStateStoreSelector : StateStoreSelector {
 
     override fun findStateStore(state: State, stateStores: List<StateStore>): StateStore? {
-        return stateStores.firstOrNull { !it.isAnyState() && it.isStateStoreApplicable(state) }
-            ?: stateStores.firstOrNull { it.isStateStoreApplicable(state) }
+
+        var anyStateStore: StateStore? = null
+
+        stateStores.forEach {
+            val isConcreteStateStoreApplicable =
+                !it.isAnyState() && it.isStateStoreApplicable(state)
+
+            if (isConcreteStateStoreApplicable) {
+                return it
+            }
+
+            val isAnyStateStoreApplicable =
+                it.isAnyState() && it.isStateStoreApplicable(state)
+
+            if (anyStateStore == null && isAnyStateStoreApplicable) {
+                anyStateStore = it
+            }
+        }
+
+        return anyStateStore
     }
 }

@@ -22,10 +22,25 @@ import ru.ar2code.redis.core.State
 class DefaultStateTriggerSelector : StateTriggerSelector {
 
     override fun findTrigger(triggers: List<StateTrigger>?, old: State, new: State): StateTrigger? {
-        return triggers?.firstOrNull {
-            it.isStatesSpecified() && it.isTriggerApplicable(old, new)
-        } ?: triggers?.firstOrNull {
-            it.isTriggerApplicable(old, new)
+
+        var anyTrigger: StateTrigger? = null
+
+        triggers?.forEach {
+            val isConcreteTriggerApplicable =
+                it.isStatesSpecified() && it.isTriggerApplicable(old, new)
+
+            if (isConcreteTriggerApplicable) {
+                return it
+            }
+
+            val isAnyTriggerApplicable =
+                !it.isStatesSpecified() && it.isTriggerApplicable(old, new)
+
+            if (anyTrigger == null && isAnyTriggerApplicable) {
+                anyTrigger = it
+            }
         }
+
+        return anyTrigger
     }
 }

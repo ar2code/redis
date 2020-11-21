@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 
 @ExperimentalCoroutinesApi
-class AnyReducerSelectorTests {
+class DefaultReducerSelectorTests {
 
     @Test
     fun defaultSelector_findReducerForInitiatedStateIntentTypeA_FoundInitiatedStateTypeAReducer() {

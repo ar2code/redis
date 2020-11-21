@@ -29,7 +29,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 class RedisCoroutineStateServiceTests {
 
     private val testDelayBeforeCheckingResult = 100L
-    private val concurrentTestDelayBeforeCheckingResult = 500L
+    private val concurrentTestDelayBeforeCheckingResult = 1000L
     private val testDelayBeforeDispatchSecondIntent = 10L
 
     @Test

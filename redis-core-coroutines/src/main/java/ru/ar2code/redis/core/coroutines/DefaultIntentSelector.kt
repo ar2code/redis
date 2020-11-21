@@ -27,11 +27,19 @@ class DefaultIntentSelector : IntentSelector {
         stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>,
         state: State,
     ): IntentMessage {
-        val builder =
-            stateIntentMap.filter { it.key?.isInstance(state) == true }.values.firstOrNull()
-                ?: stateIntentMap.filter { it.key == null }.values.firstOrNull()
-                ?: throw IntentNotFoundException("Can not find IntentMessage for state: $state inside stateIntentMap")
 
-        return builder.build(state)
+        var anyStateIntentBuilder: StateIntentMessageBuilder? = null
+
+        stateIntentMap.forEach {
+            if (it.key?.isInstance(state) == true) {
+                return it.value.build(state)
+            }
+            if (anyStateIntentBuilder == null && it.key == null) {
+                anyStateIntentBuilder = it.value
+            }
+        }
+
+        return anyStateIntentBuilder?.build(state)
+            ?: throw IntentNotFoundException("Can not find IntentMessage for state: $state")
     }
 }

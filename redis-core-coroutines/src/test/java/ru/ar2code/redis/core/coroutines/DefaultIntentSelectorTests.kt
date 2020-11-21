@@ -28,7 +28,7 @@ class DefaultIntentSelectorTests {
 
         val intentSelector = DefaultIntentSelector()
 
-        val intent = intentSelector.findIntent(ServiceFactory.defaultStateIntents, StateA())
+        val intent = intentSelector.findIntent(ServiceFactory.defaultStateIntentsWithAny, StateA())
 
         Truth.assertThat(intent).isInstanceOf(IntentTypeA::class.java)
     }
@@ -38,7 +38,7 @@ class DefaultIntentSelectorTests {
 
         val intentSelector = DefaultIntentSelector()
 
-        val intent = intentSelector.findIntent(ServiceFactory.defaultStateIntents, StateB())
+        val intent = intentSelector.findIntent(ServiceFactory.defaultStateIntentsWithAny, StateB())
 
         Truth.assertThat(intent).isInstanceOf(IntentTypeB::class.java)
     }
@@ -48,7 +48,7 @@ class DefaultIntentSelectorTests {
 
         val intentSelector = DefaultIntentSelector()
 
-        val intent = intentSelector.findIntent(ServiceFactory.defaultStateIntents, StateC())
+        val intent = intentSelector.findIntent(ServiceFactory.defaultStateIntentsWithAny, StateC())
 
         Truth.assertThat(intent).isInstanceOf(IntentTypeC::class.java)
     }

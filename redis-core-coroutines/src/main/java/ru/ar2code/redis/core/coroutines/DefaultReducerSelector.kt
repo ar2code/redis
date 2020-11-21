@@ -32,14 +32,26 @@ class DefaultReducerSelector : ReducerSelector {
         state: State,
         intentMessage: IntentMessage
     ): StateReducer {
-        return reducers.firstOrNull {
-            it.isStateWithIntentSpecified() && it.isReducerApplicable(
-                state,
-                intentMessage
-            )
-        } ?: reducers.firstOrNull {
-            it.isReducerApplicable(state, intentMessage)
+
+        var anyReducer: StateReducer? = null
+
+        reducers.forEach {
+            val isConcreteReducerApplicable =
+                it.isStateWithIntentSpecified() && it.isReducerApplicable(state, intentMessage)
+
+            if (isConcreteReducerApplicable) {
+                return it
+            }
+
+            val isAnyReducerApplicable =
+                !it.isStateWithIntentSpecified() && it.isReducerApplicable(state, intentMessage)
+
+            if (anyReducer == null && isAnyReducerApplicable) {
+                anyReducer = it
+            }
         }
-        ?: throw ReducerNotFoundException("Reducer for ($state,$intentMessage) did not found.")
+
+        return anyReducer
+            ?: throw ReducerNotFoundException("Reducer for ($state,$intentMessage) did not found.")
     }
 }
