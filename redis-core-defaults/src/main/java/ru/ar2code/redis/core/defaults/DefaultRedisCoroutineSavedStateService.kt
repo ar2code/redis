@@ -31,7 +31,7 @@ import ru.ar2code.redis.core.coroutines.*
  * [dispatcher] = [Dispatchers.Default], [logger] = [DefaultLogger],
  * [reducerSelector] = [DefaultReducerSelector], [stateTriggerSelector] = [DefaultStateTriggerSelector]
  */
-@ExperimentalCoroutinesApi
+
 abstract class DefaultRedisCoroutineSavedStateService(
     scope: CoroutineScope,
     reducers: List<StateReducer>,

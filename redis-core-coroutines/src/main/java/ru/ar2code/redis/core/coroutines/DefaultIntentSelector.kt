@@ -22,6 +22,12 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.StateIntentMessageBuilder
 import kotlin.reflect.KClass
 
+/**
+ * Default selector that first searches StateIntentMessageBuilder for concrete [State].
+ * Concrete state means [stateIntentMap] key contains not null State KClass.
+ * If nothing found, selector returns default StateIntentMessageBuilder or throw [IntentNotFoundException]
+ * To set default StateIntentMessageBuilder add pair to map with null state as a key (null, StateIntentMessageBuilder)
+ */
 class DefaultIntentSelector : IntentSelector {
     override fun findIntent(
         stateIntentMap: Map<KClass<out State>?, StateIntentMessageBuilder>,

@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * @param awaitConfig synchronization parameters
  */
-@ExperimentalCoroutinesApi
+
 abstract class SynchronizedUseCase<TParams, TResult>(
     protected open val awaitConfig: SynchronizedUseCaseAwaitConfig,
     protected open val logger : Logger

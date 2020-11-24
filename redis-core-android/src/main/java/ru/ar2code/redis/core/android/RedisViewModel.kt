@@ -29,7 +29,6 @@ import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
-@ExperimentalCoroutinesApi
 abstract class RedisViewModel<ViewState, ViewEvent>(
     protected val savedState: SavedStateHandle?
 ) :

@@ -23,6 +23,11 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
+/**
+ * This is a reducer - a function (wrapped to class) that takes a current state value and an
+ * action object describing "what happened", and returns a new state value as flow.
+ * A reducer's function signature is: (state, action) => Flow<newState>
+ */
 abstract class StateReducer(
     private val expectState: KClass<out State>?,
     private val expectIntentType: KClass<out IntentMessage>?,

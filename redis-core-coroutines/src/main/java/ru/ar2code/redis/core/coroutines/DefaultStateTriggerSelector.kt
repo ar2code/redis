@@ -19,6 +19,11 @@ package ru.ar2code.redis.core.coroutines
 
 import ru.ar2code.redis.core.State
 
+/**
+ * Default trigger selector that searches specified trigger.
+ * If specified trigger was not found try to find any applicable trigger.
+ * If nothing found returns null.
+ */
 class DefaultStateTriggerSelector : StateTriggerSelector {
 
     override fun findTrigger(triggers: List<StateTrigger>?, old: State, new: State): StateTrigger? {

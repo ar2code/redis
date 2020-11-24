@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.android.ViewStateReducer
 import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger
 
-@ExperimentalCoroutinesApi
+
 class TestViewModelWithEventOnly : RedisViewModel<TestViewModelState, TestViewModelEvent>(
     null
 ) {

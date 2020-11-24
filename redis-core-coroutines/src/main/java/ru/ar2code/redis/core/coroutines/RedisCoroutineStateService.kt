@@ -26,7 +26,18 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
-@ExperimentalCoroutinesApi
+/**
+ * Redis service based on kotlin coroutines and works line an Actor.
+ * @param scope service scope. You can cancel scope to dispose service.
+ * @param dispatcher service dispatcher
+ * @param initialState the state that the service receives after creation
+ * @param reducers list of reducers used to change service` state
+ * @param reducerSelector algorithm how to find reducer for pair state-intent
+ * @param listenedServicesIntentSelector algorithm how to find reaction for service state changing that current service listens
+ * @param stateTriggers list of triggers that can be called when service change its state
+ * @param stateTriggerSelector  algorithm how to find triggers when service change state
+ * @param logger logging object
+ */
 open class RedisCoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,

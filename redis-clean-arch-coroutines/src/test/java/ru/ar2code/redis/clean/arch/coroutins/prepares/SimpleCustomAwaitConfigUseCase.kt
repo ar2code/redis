@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
 import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCaseAwaitConfig
 
-@ExperimentalCoroutinesApi
+
 class SimpleCustomAwaitConfigUseCase(private val timeoutMs :Long = 60_000L) : SynchronizedUseCase<String, String>(
     DefaultSynchronizedUseCaseAwaitConfig(),
     SimpleTestLogger()
