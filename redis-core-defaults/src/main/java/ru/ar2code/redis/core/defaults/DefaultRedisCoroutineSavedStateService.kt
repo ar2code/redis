@@ -49,6 +49,7 @@ abstract class DefaultRedisCoroutineSavedStateService(
         stateTriggers,
         DefaultStateTriggerSelector(),
         DefaultLogger(),
+        null,
         savedStateStore,
         savedStateHandler,
         DefaultStateStoreSelector()

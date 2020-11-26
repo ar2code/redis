@@ -18,8 +18,12 @@
 package ru.ar2code.redis.core.coroutines
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
 import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
@@ -47,7 +51,8 @@ open class RedisCoroutineStateService(
     private val listenedServicesIntentSelector: IntentSelector,
     private val stateTriggers: List<StateTrigger>?,
     private val stateTriggerSelector: StateTriggerSelector?,
-    protected val logger: Logger
+    protected val logger: Logger,
+    private val serviceLogName: String? = null
 ) : RedisStateService {
 
     companion object {
@@ -58,6 +63,10 @@ open class RedisCoroutineStateService(
         get() {
             return field.clone()
         }
+
+    override fun objectLogName(): String? {
+        return serviceLogName ?: super.objectLogName()
+    }
 
     private val isDisposing = AtomicBoolean(false)
 
@@ -87,7 +96,7 @@ open class RedisCoroutineStateService(
     override fun listen(serviceStateListener: ServiceStateListener) {
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
-                logger.info("${this@RedisCoroutineStateService} receive state change for listening service: ${serviceStateListener.listeningService} newState=$newState")
+                logger.info("${objectLogName()} receive state change for listening service: ${serviceStateListener.listeningService.objectLogName()} newState=${newState.objectLogName()}")
 
                 try {
                     val intent = listenedServicesIntentSelector.findIntent(
@@ -98,7 +107,7 @@ open class RedisCoroutineStateService(
 
                 } catch (e: IntentNotFoundException) {
                     throw IntentNotFoundException(
-                        "[${this@RedisCoroutineStateService}] Can not find IntentMessage for listened service ${serviceStateListener.listeningService} for state: $newState",
+                        "[${objectLogName()}] Can not find IntentMessage for listened service ${serviceStateListener.listeningService.objectLogName()} for state: ${newState.objectLogName()}",
                         e
                     )
                 }
@@ -138,7 +147,7 @@ open class RedisCoroutineStateService(
             awaitPassCreatedState()
             intentMessagesChannel.send(msg)
         } catch (e: ClosedSendChannelException) {
-            logger.info("Service [${this@RedisCoroutineStateService}] intent channel is closed.")
+            logger.info("Service [${objectLogName()}] intent channel is closed.")
         }
     }
 
@@ -163,7 +172,7 @@ open class RedisCoroutineStateService(
 
         isDisposing.set(true)
 
-        logger.info("Service $this is going to be disposed.")
+        logger.info("Service ${objectLogName()} is going to be disposed.")
 
         unsubscribeListeners()
         unsubscribeFromListenedServices()
@@ -269,11 +278,11 @@ open class RedisCoroutineStateService(
         try {
 
             if (isDisposed()) {
-                logger.info("[$this] isDisposed. Can not broadcastNewState and change state to $newServiceState.")
+                logger.info("[${objectLogName()}] isDisposed. Can not broadcastNewState and change state to ${newServiceState.objectLogName()}.")
                 return
             }
 
-            logger.info("[$this] change state from $serviceState to $newServiceState")
+            logger.info("[${objectLogName()}] change state from ${serviceState.objectLogName()} to ${newServiceState.objectLogName()}")
 
             val oldState = serviceState
 
@@ -286,18 +295,18 @@ open class RedisCoroutineStateService(
             onStateChanged(oldState, newServiceState)
 
         } catch (e: ClosedSendChannelException) {
-            logger.info("[$this] result channel is closed.")
+            logger.info("[${objectLogName()}] result channel is closed.")
         }
     }
 
     private suspend fun dispatchTriggerByState(old: State, new: State) {
         val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
 
-        logger.info("[$this] try to find trigger for changing state from $old to $new. Trigger is found = ${trigger != null}")
+        logger.info("[${objectLogName()}] try to find trigger for changing state from ${old.objectLogName()} to ${new.objectLogName()}. Trigger is found = ${trigger != null}")
 
         trigger?.let {
 
-            logger.info("[$this] fire trigger $it.")
+            logger.info("[${objectLogName()}] fire trigger ${it.objectLogName()}.")
 
             it.invokeAction(old, new)
 
@@ -318,7 +327,7 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("[${this@RedisCoroutineStateService}] on initialized.")
+                logger.info("[${objectLogName()}] on initialized.")
                 broadcastNewState(getInitialState())
                 onInitialized()
             }
@@ -330,7 +339,7 @@ open class RedisCoroutineStateService(
                 provideInitializedResult()
             }
             is State.Disposed -> {
-                throw IllegalStateException("$this is disposed. Cannot initialize again.")
+                throw IllegalStateException("${objectLogName()} is disposed. Cannot initialize again.")
             }
             else -> {
                 return
@@ -353,7 +362,7 @@ open class RedisCoroutineStateService(
 
                     val reducer = findReducer(msg)
 
-                    logger.info("[${this@RedisCoroutineStateService}] Received intent $msg. Reducer: $reducer.")
+                    logger.info("[${objectLogName()}] Received intent ${msg.objectLogName()}. Found reducer: ${reducer.objectLogName()}.")
 
                     val newStateFlow =
                         reducer.reduce(serviceState, msg)
@@ -364,7 +373,7 @@ open class RedisCoroutineStateService(
                         }
                     }
                 } catch (e: ClosedReceiveChannelException) {
-                    logger.info("[${this@RedisCoroutineStateService}] intent channel is closed.")
+                    logger.info("[${objectLogName()}] intent channel is closed.")
                 }
             }
 
@@ -378,13 +387,13 @@ open class RedisCoroutineStateService(
         try {
             return reducerSelector.findReducer(reducers, serviceState, intentMessage)
         } catch (e: ReducerNotFoundException) {
-            throw ReducerNotFoundException("$this findReducer exception", e)
+            throw ReducerNotFoundException("${objectLogName()} findReducer exception", e)
         }
     }
 
     private fun disposeIfScopeNotActive() {
         if (!scope.isActive) {
-            logger.info("[$this] scope is not active anymore. Dispose service.")
+            logger.info("[${objectLogName()}] scope is not active anymore. Dispose service.")
             dispose()
         }
     }
@@ -395,7 +404,7 @@ open class RedisCoroutineStateService(
     ): Boolean {
         if (!scope.isActive) {
             val msg =
-                "[$this] scope is not active anymore. Service is disposed and cannot [$errorPostfixMsgIfNotActive]."
+                "[${objectLogName()}] scope is not active anymore. Service is disposed and cannot [$errorPostfixMsgIfNotActive]."
 
             logger.info(msg)
 
@@ -411,7 +420,7 @@ open class RedisCoroutineStateService(
     private suspend fun awaitPassCreatedState() {
         while (serviceState is State.Created) {
             delay(AWAIT_INIT_DELAY_MS)
-            logger.info("[$this] await passing initial state. Current state = $serviceState")
+            logger.info("[${objectLogName()}] await passing initial state. Current state = ${serviceState.objectLogName()}")
         }
     }
 }

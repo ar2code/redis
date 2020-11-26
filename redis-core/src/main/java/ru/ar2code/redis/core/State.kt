@@ -17,7 +17,11 @@
 
 package ru.ar2code.redis.core
 
-abstract class State {
+import ru.ar2code.utils.LoggableObject
+
+abstract class State : LoggableObject {
+
+    abstract fun clone(): State
 
     class Created : State() {
         override fun clone(): State {
@@ -37,5 +41,4 @@ abstract class State {
         }
     }
 
-    abstract fun clone(): State
 }

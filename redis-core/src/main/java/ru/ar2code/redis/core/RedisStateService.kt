@@ -17,7 +17,9 @@
 
 package ru.ar2code.redis.core
 
-interface RedisStateService : RedisDispatcher, RedisListener {
+import ru.ar2code.utils.LoggableObject
+
+interface RedisStateService : RedisDispatcher, RedisListener, LoggableObject {
 
     val serviceState: State
 

@@ -39,6 +39,7 @@ open class RedisCoroutineSavedStateService(
     stateTriggers: List<StateTrigger>?,
     stateTriggerSelector: StateTriggerSelector?,
     logger: Logger,
+    serviceLogName: String?,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?,
     private val stateStoreSelector: StateStoreSelector?
@@ -51,7 +52,8 @@ open class RedisCoroutineSavedStateService(
     listenedServicesIntentSelector,
     stateTriggers,
     stateTriggerSelector,
-    logger
+    logger,
+    serviceLogName
 ) {
 
     private var lastRestoredStateIntent: RestoredStateIntent? = null

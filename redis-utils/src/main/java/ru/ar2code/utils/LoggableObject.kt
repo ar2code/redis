@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.utils
 
-import ru.ar2code.utils.LoggableObject
-
-abstract class IntentMessage : LoggableObject
+interface LoggableObject {
+    fun objectLogName(): String? = this::class.simpleName
+}

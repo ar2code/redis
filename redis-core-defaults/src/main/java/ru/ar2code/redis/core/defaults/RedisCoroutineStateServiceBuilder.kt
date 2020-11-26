@@ -38,6 +38,7 @@ open class RedisCoroutineStateServiceBuilder(
     private var savedStateStore: SavedStateStore? = null
     private var savedStateHandler: SavedStateHandler? = null
     private var stateStoreSelector: StateStoreSelector? = null
+    private var serviceLogName: String? = null
 
     fun setInitialState(initialState: State): RedisCoroutineStateServiceBuilder {
         this.initialState = initialState
@@ -89,6 +90,11 @@ open class RedisCoroutineStateServiceBuilder(
         return this
     }
 
+    fun setServiceLogName(serviceLogName: String?): RedisCoroutineStateServiceBuilder {
+        this.serviceLogName = serviceLogName
+        return this
+    }
+
     fun build(): RedisCoroutineStateService {
         return RedisCoroutineSavedStateService(
             scope,
@@ -104,6 +110,7 @@ open class RedisCoroutineStateServiceBuilder(
                 ?: DefaultStateTriggerSelector(),
             logger
                 ?: DefaultLogger(),
+            serviceLogName,
             savedStateStore,
             savedStateHandler,
             stateStoreSelector ?: DefaultStateStoreSelector()
