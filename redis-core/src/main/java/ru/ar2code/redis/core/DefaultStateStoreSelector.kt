@@ -17,6 +17,11 @@
 
 package ru.ar2code.redis.core
 
+/**
+ * Default state store selector that searches item for concrete state.
+ * If concrete StateStore was not found selector tries to find any applicable StateStore.
+ * If nothing found returns null.
+ */
 class DefaultStateStoreSelector : StateStoreSelector {
 
     override fun findStateStore(state: State, stateStores: List<StateStore>): StateStore? {

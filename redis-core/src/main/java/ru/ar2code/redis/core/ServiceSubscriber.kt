@@ -17,6 +17,9 @@
 
 package ru.ar2code.redis.core
 
+/**
+ * You can subscribe to service state changing with this interface
+ */
 interface ServiceSubscriber {
     suspend fun onReceive(newState: State)
 }

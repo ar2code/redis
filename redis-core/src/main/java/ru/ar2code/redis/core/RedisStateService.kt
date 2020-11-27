@@ -24,28 +24,28 @@ interface RedisStateService : RedisDispatcher, RedisListener, LoggableObject {
     val serviceState: State
 
     /**
-     * After disposing service can not get intents and send results.
+     * After disposing service can not get intents and emit state changing.
      */
     fun dispose()
 
     /**
-     * @return if true service can not get intents and send results.
+     * @return if true service is disposed.
      */
     fun isDisposed(): Boolean
 
     /**
-     * Subscribe to service's results.
+     * Subscribe to service's state changing.
      * Subscribing is alive while service is not disposed [isDisposed]
      */
     fun subscribe(subscriber: ServiceSubscriber)
 
     /**
-     * Stop listening service`s result by this [subscriber]
+     * Stop to listen service`s state changing
      */
     fun unsubscribe(subscriber: ServiceSubscriber)
 
     /**
-     * @return count of active subscribers
+     * @return amount of an active subscribers
      */
     fun getSubscribersCount(): Int
 }

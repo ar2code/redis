@@ -17,7 +17,6 @@
 
 package ru.ar2code.redis.core.defaults
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
 
 

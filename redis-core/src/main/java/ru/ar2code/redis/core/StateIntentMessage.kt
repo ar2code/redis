@@ -17,6 +17,9 @@
 
 package ru.ar2code.redis.core
 
+/**
+ * Describes what [IntentMessage] should be dispatched for specified state.
+ */
 interface StateIntentMessageBuilder {
     fun build(state: State) : IntentMessage
 }

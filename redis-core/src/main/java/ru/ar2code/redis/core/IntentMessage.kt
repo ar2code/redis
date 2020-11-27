@@ -19,4 +19,8 @@ package ru.ar2code.redis.core
 
 import ru.ar2code.utils.LoggableObject
 
+/**
+ * Abstract class that describes some intent (action).
+ * A plain object describing the change that makes sense for your service.
+ */
 abstract class IntentMessage : LoggableObject

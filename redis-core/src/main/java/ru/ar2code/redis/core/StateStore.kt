@@ -19,6 +19,12 @@ package ru.ar2code.redis.core
 
 import kotlin.reflect.KClass
 
+/**
+ * Describes mechanism og storing specified state [expectState]
+ *
+ * You should create a list of StateStore items to provide a mechanism of storing for each service state.
+ * But you can set only single StateStore that handles all service states. For it just create [StateStore] with [StateStore.expectState] is null.
+ */
 abstract class StateStore(private val expectState: KClass<out State>?) {
 
     abstract suspend fun store(state: State, store: SavedStateStore?)
@@ -27,6 +33,9 @@ abstract class StateStore(private val expectState: KClass<out State>?) {
         return isAnyState() || expectState?.isInstance(state) == true
     }
 
+    /**
+     * Is universal StateStore for any states?
+     */
     fun isAnyState(): Boolean {
         return expectState == null
     }
