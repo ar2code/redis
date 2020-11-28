@@ -39,7 +39,9 @@ object ServiceFactory {
             FlowStateTypeDelayFlowReducer(),
             StateBTypeBReducer(),
             InitiatedStateConcurrentTypeReducer(),
-            StateAConcurrentTypeReducer()
+            StateAConcurrentTypeReducer(),
+            AnyStateFinishIntentReducer(),
+            FinishStateAnyIntentReducer()
         )
 
     val defaultTriggers = listOf(

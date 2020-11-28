@@ -40,8 +40,20 @@ class RedisCoroutineStateServiceTests {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+            var finishStateCount = 0
+            var isFinished = false
+
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
+
+                    if (newState is FinishState) {
+                        finishStateCount++
+                        isFinished = finishStateCount == 4
+
+                        if (isFinished) {
+                            service.dispose()
+                        }
+                    }
                 }
             }
             service.subscribe(subscriber)
@@ -51,6 +63,7 @@ class RedisCoroutineStateServiceTests {
                 repeat(1000) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
+                service.dispatch(FinishIntent())
                 println("end dispatch task 1")
             }
 
@@ -61,6 +74,7 @@ class RedisCoroutineStateServiceTests {
                 repeat(1000) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
+                service.dispatch(FinishIntent())
                 println("end dispatch task 2")
 
             }
@@ -69,6 +83,7 @@ class RedisCoroutineStateServiceTests {
                 repeat(1000) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
+                service.dispatch(FinishIntent())
                 println("end dispatch task 3")
             }
             val d4 = async {
@@ -76,14 +91,11 @@ class RedisCoroutineStateServiceTests {
                 repeat(1000) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
+                service.dispatch(FinishIntent())
                 println("end dispatch task 4")
             }
 
             awaitAll(d2, d3, d4)
-
-            delay(concurrentTestDelayBeforeCheckingResult)
-
-            service.dispose()
 
             Unit
         }
@@ -625,7 +637,8 @@ class RedisCoroutineStateServiceTests {
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedServiceInfo = ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
+            val listenedServiceInfo =
+                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
 
             var stateBCount = 0
 
@@ -661,7 +674,8 @@ class RedisCoroutineStateServiceTests {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
         val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val listenedServiceInfo = ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
+        val listenedServiceInfo =
+            ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
 
         var stateBCount = 0
 
