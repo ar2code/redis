@@ -19,4 +19,7 @@ package ru.ar2code.redis.core.defaults
 
 import ru.ar2code.utils.impl.ConsoleLogger
 
+/**
+ * Console logger with default redis tag [Constants.LOG_TAG].
+ */
 class DefaultLogger : ConsoleLogger(Constants.LOG_TAG)

@@ -26,9 +26,10 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
 /**
- * Service with defaults:
+ * Service that can store/restore state with defaults parameters:
  * [dispatcher] = [Dispatchers.Default], [logger] = [DefaultLogger],
  * [reducerSelector] = [DefaultReducerSelector], [stateTriggerSelector] = [DefaultStateTriggerSelector]
+ * [stateStoreSelector] = [DefaultStateStoreSelector]
  */
 
 abstract class DefaultRedisCoroutineSavedStateService(

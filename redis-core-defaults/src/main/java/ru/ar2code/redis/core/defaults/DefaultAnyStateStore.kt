@@ -19,4 +19,7 @@ package ru.ar2code.redis.core.defaults
 
 import ru.ar2code.redis.core.StateStore
 
-abstract class DefaultStateStore : StateStore(null)
+/**
+ * StateStore that can be applied to any state with [DefaultLogger]
+ */
+abstract class DefaultAnyStateStore : StateStore(null, DefaultLogger())

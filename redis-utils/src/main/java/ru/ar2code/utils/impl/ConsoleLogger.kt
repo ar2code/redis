@@ -20,6 +20,9 @@ package ru.ar2code.utils.impl
 import ru.ar2code.utils.Logger
 import java.util.logging.Level
 
+/**
+ * Simple logger for Redis framework based on [java.util.logging.Logger]
+ */
 open class ConsoleLogger(tag: String) : Logger(tag) {
 
     open val javaLogger = java.util.logging.Logger.getLogger(tag).apply {

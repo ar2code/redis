@@ -22,6 +22,9 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
 import kotlin.reflect.KClass
 
+/**
+ * Abstract state reducer with [DefaultLogger]
+ */
 abstract class DefaultReducer(
     expectState: KClass<out State>?,
     expectIntentType: KClass<out IntentMessage>?

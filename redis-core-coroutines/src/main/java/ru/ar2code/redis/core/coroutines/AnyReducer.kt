@@ -20,6 +20,6 @@ package ru.ar2code.redis.core.coroutines
 import ru.ar2code.utils.Logger
 
 /**
- * Default reducer that can be applied to any state and any intent
+ * Any reducer that can be applied to any state and any intent
  */
 abstract class AnyReducer(logger: Logger) : StateReducer(null, null, logger)

@@ -19,6 +19,9 @@ package ru.ar2code.redis.core.test
 
 import ru.ar2code.utils.Logger
 
+/**
+ * Test logger that uses [println] method for logging
+ */
 class TestLogger : Logger("TestLogger") {
     override fun info(msg: String) {
         println(msg)

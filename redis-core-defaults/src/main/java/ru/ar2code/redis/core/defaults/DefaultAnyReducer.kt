@@ -19,4 +19,9 @@ package ru.ar2code.redis.core.defaults
 
 import ru.ar2code.redis.core.coroutines.AnyReducer
 
+/**
+ * Abstract any reducer with [DefaultLogger]
+ *
+ * Any reducer that can be applied to any state and any intent
+ */
 abstract class DefaultAnyReducer : AnyReducer(DefaultLogger())

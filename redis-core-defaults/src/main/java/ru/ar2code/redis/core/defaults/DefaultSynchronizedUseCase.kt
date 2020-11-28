@@ -19,6 +19,11 @@ package ru.ar2code.redis.core.defaults
 
 import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
 
-
+/**
+ * SynchronizedUseCase with default logger [DefaultLogger] and default awaiting parameters [DefaultSynchronizedUseCaseAwaitConfig]
+ */
 abstract class DefaultSynchronizedUseCase<TParams, TResult> :
-    SynchronizedUseCase<TParams, TResult>(DefaultSynchronizedUseCaseAwaitConfig(), DefaultLogger()) where TResult : Any
+    SynchronizedUseCase<TParams, TResult>(
+        DefaultSynchronizedUseCaseAwaitConfig(),
+        DefaultLogger()
+    ) where TResult : Any
