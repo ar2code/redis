@@ -21,12 +21,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
 import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
+import ru.ar2code.redis.core.coroutines.DefaultStateStoreSelector
 import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 

@@ -17,12 +17,6 @@
 
 package ru.ar2code.redis.core.defaults
 
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.coroutines.StateReducer
-import kotlin.reflect.KClass
+import ru.ar2code.redis.core.coroutines.AnyReducer
 
-abstract class DefaultReducer(
-    expectState: KClass<out State>?,
-    expectIntentType: KClass<out IntentMessage>?
-) : StateReducer(expectState, expectIntentType, DefaultLogger())
+abstract class DefaultAnyReducer : AnyReducer(DefaultLogger())

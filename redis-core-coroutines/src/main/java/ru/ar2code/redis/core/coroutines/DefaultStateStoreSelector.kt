@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
+
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateStore
+import ru.ar2code.redis.core.StateStoreSelector
 
 /**
  * Default state store selector that searches item for concrete state.
