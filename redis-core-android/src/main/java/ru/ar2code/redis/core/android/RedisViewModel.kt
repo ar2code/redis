@@ -30,6 +30,20 @@ import ru.ar2code.redis.core.coroutines.DefaultStateStoreSelector
 import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 
+/**
+ * Android ViewModel with Actor behaviour.
+ *
+ * To change ViewModel state you should dispatch some IntentMessage.
+ *
+ * ViewModel State consists from viewStateLive and viewEventLive.
+ * viewStateLive is a live data with UI model. Any observer will receive this state immediately after starting observing.
+ *
+ * viewEventLive is a live data with UI event. Only active observers will receive new state.
+ * If you start observe event after it occurred you will not receive it (miss an event).
+ * viewEventLive should use for events that occurred sometimes, like showing some toasts.
+ *
+ * You can read more about LiveEvent here https://github.com/ar2code/MutableLiveEvent
+ */
 abstract class RedisViewModel<ViewState, ViewEvent>(
     protected val savedState: SavedStateHandle?
 ) :

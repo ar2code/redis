@@ -17,6 +17,9 @@
 
 package ru.ar2code.redis.core.android
 
+/**
+ * Data class that contains some data with flag that indicates is data was changed or not.
+ */
 data class Changeable<T>(
     val data: T?,
 

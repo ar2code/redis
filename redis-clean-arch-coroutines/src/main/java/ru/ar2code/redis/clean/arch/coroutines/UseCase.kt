@@ -21,12 +21,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 
 /**
- * Basic use case with in params, single public method run and out result.
+ * Basic use case with input parameters, single public method run and out result.
  */
 abstract class UseCase<TParams, TResult> where TResult : Any {
 
     /**
-     * Determine is use case was cancelled.
+     * Determines is use case was cancelled.
      */
     protected var isCancelled: Boolean = false
         private set

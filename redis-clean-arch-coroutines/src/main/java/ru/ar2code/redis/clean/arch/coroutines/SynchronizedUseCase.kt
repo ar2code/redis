@@ -26,7 +26,7 @@ import ru.ar2code.utils.Logger
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Use case that run execution in sync mode.
+ * Use case that runs execution in sync mode.
  * If you run use case flow several times execution will go sequentially.
  * All next flows will await when previous flow finishes.
  * This allow you to consider Use case state as Local State.

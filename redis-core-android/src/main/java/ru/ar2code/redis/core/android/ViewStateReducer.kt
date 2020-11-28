@@ -22,6 +22,9 @@ import ru.ar2code.redis.core.coroutines.StateReducer
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
+/**
+ * ViewStateReducer is a [RedisViewModel] special [StateReducer] that works only with [ViewModelStateWithEvent]
+ */
 abstract class ViewStateReducer<ViewState, ViewEvent>(
     expectState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
     expectIntentType: KClass<out IntentMessage>?,
