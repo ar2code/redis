@@ -17,6 +17,9 @@
 
 package ru.ar2code.utils
 
+/**
+ * Logger for Redis framework.
+ */
 abstract class Logger(private val tag: String?) {
     abstract fun info(msg: String)
     abstract fun error(msg: String, t: Throwable)

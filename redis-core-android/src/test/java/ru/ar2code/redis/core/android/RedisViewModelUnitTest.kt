@@ -26,7 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import ru.ar2code.redis.core.android.prepares.*
 
-@ExperimentalCoroutinesApi
+
 class RedisViewModelUnitTest {
 
     private val delayBeforeAssertMs = 100L

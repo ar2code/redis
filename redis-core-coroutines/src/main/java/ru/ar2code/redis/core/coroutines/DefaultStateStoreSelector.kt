@@ -15,8 +15,17 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.coroutines
 
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateStore
+import ru.ar2code.redis.core.StateStoreSelector
+
+/**
+ * Default state store selector that searches item for concrete state.
+ * If concrete StateStore was not found selector tries to find any applicable StateStore.
+ * If nothing found returns null.
+ */
 class DefaultStateStoreSelector : StateStoreSelector {
 
     override fun findStateStore(state: State, stateStores: List<StateStore>): StateStore? {

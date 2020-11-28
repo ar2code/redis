@@ -18,6 +18,7 @@
 package ru.ar2code.redis.core.coroutines.prepares
 
 import ru.ar2code.redis.core.*
+import ru.ar2code.redis.core.test.TestLogger
 
 class TestSavedStateHandler : SavedStateHandler {
 
@@ -25,7 +26,7 @@ class TestSavedStateHandler : SavedStateHandler {
         const val KEY = "KEY"
     }
 
-    class TestStateStore : StateStore(null) {
+    class TestStateStore : StateStore(null, TestLogger()) {
         override suspend fun store(state: State, store: SavedStateStore?) {
             if(state is StateB){
                 store?.set(KEY, state.data)

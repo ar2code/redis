@@ -27,7 +27,7 @@ import ru.ar2code.redis.clean.arch.coroutins.prepares.SimpleExceptionUseCase
 import ru.ar2code.redis.clean.arch.coroutins.prepares.SimpleCustomAwaitConfigUseCase
 import ru.ar2code.redis.clean.arch.coroutines.UseCaseCancelledException
 
-@ExperimentalCoroutinesApi
+
 class SynchronizedUseCaseTests {
 
     @Test

@@ -19,6 +19,9 @@ package ru.ar2code.redis.core.test
 
 import ru.ar2code.redis.core.SavedStateStore
 
+/**
+ * Redis SavedStateStore that stores data in Memory.
+ */
 class TestMemorySavedStateStore : SavedStateStore {
 
     private val dictionary = HashMap<String, Any>()

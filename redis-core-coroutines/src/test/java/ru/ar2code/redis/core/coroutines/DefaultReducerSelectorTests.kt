@@ -23,7 +23,7 @@ import org.junit.Test
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 
-@ExperimentalCoroutinesApi
+
 class DefaultReducerSelectorTests {
 
     @Test

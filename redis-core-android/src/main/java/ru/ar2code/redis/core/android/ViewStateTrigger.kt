@@ -17,11 +17,13 @@
 
 package ru.ar2code.redis.core.android
 
-import ru.ar2code.redis.core.coroutines.StateReducer
 import ru.ar2code.redis.core.coroutines.StateTrigger
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
+/**
+ * ViewStateTrigger is a [RedisViewModel] special [StateTrigger] that works only with [ViewModelStateWithEvent]
+ */
 abstract class ViewStateTrigger<ViewState, ViewEvent>(
     expectOldState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
     expectNewState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,

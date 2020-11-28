@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core
+package ru.ar2code.redis.core.defaults
 
-interface StateIntentMessageBuilder {
-    fun build(state: State) : IntentMessage
-}
+import ru.ar2code.redis.core.StateStore
+
+/**
+ * StateStore that can be applied to any state with [DefaultLogger]
+ */
+abstract class DefaultAnyStateStore : StateStore(null, DefaultLogger())

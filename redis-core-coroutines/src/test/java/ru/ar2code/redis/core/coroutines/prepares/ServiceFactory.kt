@@ -19,13 +19,12 @@ package ru.ar2code.redis.core.coroutines.prepares
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.redis.core.test.TestLogger
 import kotlin.reflect.KClass
 
-@ExperimentalCoroutinesApi
+
 object ServiceFactory {
 
     val defaultReducers =
@@ -118,6 +117,7 @@ object ServiceFactory {
             emptyList(),
             DefaultStateTriggerSelector(),
             TestLogger(),
+            null,
             stateStore,
             stateHandler,
             DefaultStateStoreSelector()

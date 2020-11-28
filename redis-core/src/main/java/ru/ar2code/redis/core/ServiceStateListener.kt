@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 /**
  * Each [RedisStateService] can listen another services and dispatch intent to itself if state of listened service was changed
  * @param listeningService listened service
- * @param stateIntentMap lambda that returns special [IntentMessage] for newState from listened service.
+ * @param stateIntentMap Map that contains accordance between service's state that current service (listener) is listening and intent that should be dispatched to listener (service).
  */
 class ServiceStateListener(
     val listeningService: RedisStateService,

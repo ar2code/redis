@@ -15,21 +15,13 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.android
+package ru.ar2code.redis.core.defaults
 
-import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.coroutines.StateReducer
-import ru.ar2code.utils.Logger
-import kotlin.reflect.KClass
+import ru.ar2code.redis.core.coroutines.AnyReducer
 
 /**
- * ViewStateReducer is a [RedisViewModel] special [StateReducer] that works only with [ViewModelStateWithEvent]
+ * Abstract any reducer with [DefaultLogger]
+ *
+ * Any reducer that can be applied to any state and any intent
  */
-abstract class ViewStateReducer<ViewState, ViewEvent>(
-    expectState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
-    expectIntentType: KClass<out IntentMessage>?,
-    logger: Logger
-) : StateReducer(
-    expectState,
-    expectIntentType, logger
-) where ViewState : BaseViewState, ViewEvent : BaseViewEvent
+abstract class DefaultAnyReducer : AnyReducer(DefaultLogger())

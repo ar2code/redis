@@ -21,20 +21,34 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.mutableliveevent.EventArgs
 import ru.ar2code.mutableliveevent.MutableLiveEvent
 import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
+import ru.ar2code.redis.core.coroutines.DefaultStateStoreSelector
+import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 
-@ExperimentalCoroutinesApi
+/**
+ * Android ViewModel with Actor behaviour.
+ *
+ * To change ViewModel state you should dispatch some IntentMessage.
+ *
+ * ViewModel State consists from viewStateLive and viewEventLive.
+ * viewStateLive is a live data with UI model. Any observer will receive this state immediately after starting observing.
+ *
+ * viewEventLive is a live data with UI event. Only active observers will receive new state.
+ * If you start observe event after it occurred you will not receive it (miss an event).
+ * viewEventLive should use for events that occurred sometimes, like showing some toasts.
+ *
+ * You can read more about LiveEvent here https://github.com/ar2code/MutableLiveEvent
+ */
 abstract class RedisViewModel<ViewState, ViewEvent>(
     protected val savedState: SavedStateHandle?
 ) :
-    ViewModel(), RedisDispatcher,
-    RedisListener where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
+    ViewModel(), RedisDispatcher, LoggableObject, RedisListener
+        where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
     protected abstract val initialState: ViewModelStateWithEvent<ViewState, ViewEvent>
 
@@ -65,9 +79,11 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
             triggers,
             triggerSelector,
             logger,
+            "${objectLogName()}.service",
             savedState?.toRedisSavedStateStore(),
             savedStateHandler,
             stateStoreSelector
+
         )
     }
 
@@ -102,7 +118,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * UI uses this method for communicating with internal services and use cases.
      */
     override fun dispatch(msg: IntentMessage) {
-        logger.info("[$this] dispatch intent $msg")
+        logger.info("[${objectLogName()}] dispatch intent ${msg.objectLogName()}")
 
         viewModelService.dispatch(msg)
     }
@@ -127,24 +143,24 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * If [newState.viewEvent] is not null set to [viewEventLive]
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
-        logger.info("[$this] is changing state to $newState")
+        logger.info("[${objectLogName()}] is changing state to ${newState.objectLogName()}")
 
         newState.viewState?.let {
             viewStateLiveMutable.postValue(it)
         } ?: kotlin.run {
-            logger.info("[$this] viewState is null. No post value to live data {viewEventLive}.")
+            logger.info("[${objectLogName()}] viewState is null. No post value to live data {viewStateLive}.")
         }
 
         newState.viewEvent?.let {
             viewEventLiveMutable.postValue(EventArgs(it))
         } ?: kotlin.run {
-            logger.info("[$this] viewEvent is null. No post value to live event {viewEventLive}.")
+            logger.info("[${objectLogName()}] viewEvent is null. No post value to live event {viewEventLive}.")
         }
     }
 
     private fun subscribeToServiceResults() {
 
-        logger.info("[$this] subscribe to internal service")
+        logger.info("[${objectLogName()}] subscribe to internal service")
 
         viewModelService.subscribe(object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {

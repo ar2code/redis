@@ -17,6 +17,9 @@
 
 package ru.ar2code.redis.core
 
+/**
+ * Interface that describes simple key-value store, where service should store its state.
+ */
 interface SavedStateStore {
 
     fun <T> get(key: String): T?

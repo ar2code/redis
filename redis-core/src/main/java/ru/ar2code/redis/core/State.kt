@@ -17,7 +17,17 @@
 
 package ru.ar2code.redis.core
 
-abstract class State {
+import ru.ar2code.utils.LoggableObject
+
+/**
+ * Plain object that describes service's state.
+ */
+abstract class State : LoggableObject {
+
+    /**
+     * To protect from state data changing from outside, service emits a clone from current state.
+     */
+    abstract fun clone(): State
 
     class Created : State() {
         override fun clone(): State {
@@ -37,5 +47,4 @@ abstract class State {
         }
     }
 
-    abstract fun clone(): State
 }

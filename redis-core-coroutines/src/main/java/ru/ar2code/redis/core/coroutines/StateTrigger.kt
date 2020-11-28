@@ -19,14 +19,19 @@ package ru.ar2code.redis.core.coroutines
 
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
+import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
+/**
+ * You can specify some triggers that should fire when service change state from A to B
+ * Trigger can do some simple action or dispatch an intent to its service.
+ */
 abstract class StateTrigger(
     private val expectOldState: KClass<out State>?,
     private val expectNewState: KClass<out State>?,
     protected val logger: Logger
-) {
+) : LoggableObject {
     open fun getTriggerIntent(oldState: State, newState: State): IntentMessage? = null
 
     open suspend fun invokeAction(oldState: State, newState: State) {}

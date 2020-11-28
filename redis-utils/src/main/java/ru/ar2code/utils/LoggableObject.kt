@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-package ru.ar2code.redis.core.defaults
+package ru.ar2code.utils
 
-import ru.ar2code.redis.core.StateStore
-
-abstract class DefaultStateStore : StateStore(null)
+/**
+ * Describes an object with special name for logging
+ */
+interface LoggableObject {
+    fun objectLogName(): String? = this::class.simpleName
+}

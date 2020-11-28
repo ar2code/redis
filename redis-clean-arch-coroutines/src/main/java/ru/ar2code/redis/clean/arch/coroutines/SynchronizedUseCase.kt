@@ -17,22 +17,23 @@
 
 package ru.ar2code.redis.clean.arch.coroutines
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withTimeout
 import ru.ar2code.utils.Logger
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Use case that run execution in sync mode.
+ * Use case that runs execution in sync mode.
  * If you run use case flow several times execution will go sequentially.
  * All next flows will await when previous flow finishes.
  * This allow you to consider Use case state as Local State.
  *
  * @param awaitConfig synchronization parameters
  */
-@ExperimentalCoroutinesApi
+
 abstract class SynchronizedUseCase<TParams, TResult>(
     protected open val awaitConfig: SynchronizedUseCaseAwaitConfig,
     protected open val logger : Logger

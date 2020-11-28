@@ -23,7 +23,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
 
-@ExperimentalCoroutinesApi
+/**
+ * Redis actor service based on kotlin coroutines and can store/restore its state.
+ * @param savedStateStore state store implementation
+ * @param savedStateHandler object that handle storing/restoring state
+ * @param stateStoreSelector algorithm how to find storing logic for current state
+ */
 open class RedisCoroutineSavedStateService(
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,
@@ -34,6 +39,7 @@ open class RedisCoroutineSavedStateService(
     stateTriggers: List<StateTrigger>?,
     stateTriggerSelector: StateTriggerSelector?,
     logger: Logger,
+    serviceLogName: String?,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?,
     private val stateStoreSelector: StateStoreSelector?
@@ -46,7 +52,8 @@ open class RedisCoroutineSavedStateService(
     listenedServicesIntentSelector,
     stateTriggers,
     stateTriggerSelector,
-    logger
+    logger,
+    serviceLogName
 ) {
 
     private var lastRestoredStateIntent: RestoredStateIntent? = null

@@ -21,8 +21,8 @@ import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 
 /**
- * Default reducer that search specified reducer for state and intentMessageType [StateReducer.isStateWithIntentSpecified] returns true.
- * If specified reducer was not found try to find and applicable reducer (any state or any intent)
+ * Default reducer selector that searches concrete reducer for state and intentMessageType.
+ * If specified reducer was not found try to find any applicable reducer (any state or any intent)
  * If nothing found throws IllegalArgumentException
  */
 class DefaultReducerSelector : ReducerSelector {

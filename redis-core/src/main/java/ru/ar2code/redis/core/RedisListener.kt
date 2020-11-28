@@ -19,12 +19,12 @@ package ru.ar2code.redis.core
 
 interface RedisListener {
     /**
-     * Listening of state changing of another service.
+     * Start listen of state changing of another service.
      */
     fun listen(serviceStateListener: ServiceStateListener)
 
     /**
-     * Stop listening of service state changing
+     * Stop listen of state changing of another service.
      */
     fun stopListening(serviceStateListener: ServiceStateListener)
 }

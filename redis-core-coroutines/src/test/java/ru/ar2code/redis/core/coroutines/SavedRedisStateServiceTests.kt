@@ -29,7 +29,7 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 import ru.ar2code.redis.core.test.TestMemorySavedStateStore
 
-@ExperimentalCoroutinesApi
+
 class SavedRedisStateServiceTests {
 
     private val testDelayBeforeCheckingResult = 50L

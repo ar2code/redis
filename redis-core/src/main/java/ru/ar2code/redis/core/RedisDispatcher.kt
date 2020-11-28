@@ -19,7 +19,7 @@ package ru.ar2code.redis.core
 
 interface RedisDispatcher {
     /**
-     * Dispatch intent to service for doing some action
+     * Dispatches intent to service for doing some action. This is the only way to trigger a state change.
      */
     fun dispatch(msg: IntentMessage)
 }

@@ -19,19 +19,19 @@ package ru.ar2code.redis.core.defaults
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import ru.ar2code.redis.core.DefaultStateStoreSelector
+import ru.ar2code.redis.core.coroutines.DefaultStateStoreSelector
 import ru.ar2code.redis.core.SavedStateHandler
 import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
 /**
- * Service with defaults:
+ * Service that can store/restore state with defaults parameters:
  * [dispatcher] = [Dispatchers.Default], [logger] = [DefaultLogger],
  * [reducerSelector] = [DefaultReducerSelector], [stateTriggerSelector] = [DefaultStateTriggerSelector]
+ * [stateStoreSelector] = [DefaultStateStoreSelector]
  */
-@ExperimentalCoroutinesApi
+
 abstract class DefaultRedisCoroutineSavedStateService(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
@@ -49,6 +49,7 @@ abstract class DefaultRedisCoroutineSavedStateService(
         stateTriggers,
         DefaultStateTriggerSelector(),
         DefaultLogger(),
+        null,
         savedStateStore,
         savedStateHandler,
         DefaultStateStoreSelector()

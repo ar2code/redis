@@ -18,9 +18,11 @@
 package ru.ar2code.redis.core
 
 /**
- * You can restore previous service's state.
+ * Object describes how to restore service state.
  * @param state if is not null service get this state after initialization
  * @param intentMessage if is not null service will send this intent to itself after initialization
+ *
+ * If both parameters are not null service get [state] first and then send [intentMessage] to itself.
  */
 class RestoredStateIntent(
     val state: State?,
