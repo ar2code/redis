@@ -27,7 +27,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 class DefaultStateTriggerSelectorTests {
 
     @Test
-    fun defaultTriggers_findTriggerForInitiatedStateToStateA_FoundInitiatedToAStateTrigger() {
+    fun `find trigger - Initiated to StateA returns InitiatedToAStateTrigger`() {
 
         val triggerSelector = DefaultStateTriggerSelector()
 
@@ -38,7 +38,7 @@ class DefaultStateTriggerSelectorTests {
     }
 
     @Test
-    fun defaultTriggers_findTriggerForInitiatedStateToStateB_FoundInitiatedToBStateTrigger() {
+    fun `find trigger - Initiated to StateB returns InitiatedToBStateTrigger`() {
 
         val triggerSelector = DefaultStateTriggerSelector()
 
@@ -49,7 +49,7 @@ class DefaultStateTriggerSelectorTests {
     }
 
     @Test
-    fun defaultTriggers_findTriggerForStateAToStateB_notFoundReturnsNull() {
+    fun `trigger not found returns null`() {
 
         val triggerSelector = DefaultStateTriggerSelector()
 
@@ -60,7 +60,7 @@ class DefaultStateTriggerSelectorTests {
     }
 
     @Test
-    fun defaultTriggers_findTriggerForStateAToStateC_foundAnyToCTrigger() {
+    fun `find any trigger - StateA to StateC returns AnyToCStateTrigger`() {
 
         val triggerSelector = DefaultStateTriggerSelector()
 
@@ -71,7 +71,7 @@ class DefaultStateTriggerSelectorTests {
     }
 
     @Test
-    fun defaultTriggers_findTriggerForInitiatedToStateC_foundAnyToDTrigger() {
+    fun `find any trigger - StateA to FlowStateD returns InitiatedToAnyStateTrigger`() {
 
         val triggerSelector = DefaultStateTriggerSelector()
 

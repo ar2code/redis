@@ -41,7 +41,8 @@ object ServiceFactory {
             InitiatedStateConcurrentTypeReducer(),
             StateAConcurrentTypeReducer(),
             AnyStateFinishIntentReducer(),
-            FinishStateAnyIntentReducer()
+            FinishStateAnyIntentReducer(),
+            DisposedStateAnyIntentReducer()
         )
 
     val defaultTriggers = listOf(

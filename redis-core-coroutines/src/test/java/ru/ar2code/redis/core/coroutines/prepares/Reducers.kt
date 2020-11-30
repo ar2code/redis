@@ -248,3 +248,9 @@ class FinishStateAnyIntentReducer : StateReducer(FinishState::class, null, TestL
         return null
     }
 }
+
+class DisposedStateAnyIntentReducer : StateReducer(State.Disposed::class, null, TestLogger()) {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+        return null
+    }
+}

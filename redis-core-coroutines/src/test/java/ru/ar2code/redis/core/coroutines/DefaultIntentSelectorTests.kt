@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 class DefaultIntentSelectorTests {
 
     @Test
-    fun `test find correct intent for state - StateA to IntentA`() {
+    fun `find correct intent for state - StateA returns IntentTypeA`() {
 
         val intentSelector = DefaultIntentSelector()
 
@@ -34,7 +34,7 @@ class DefaultIntentSelectorTests {
     }
 
     @Test
-    fun `test find correct intent for state - StateB to IntentB`() {
+    fun ` find correct intent for state - StateB returns IntentTypeB`() {
 
         val intentSelector = DefaultIntentSelector()
 
@@ -44,7 +44,7 @@ class DefaultIntentSelectorTests {
     }
 
     @Test
-    fun `test find correct intent for state - StateC to IntentC`() {
+    fun `find correct intent for state - StateC returns IntentTypeC`() {
 
         val intentSelector = DefaultIntentSelector()
 
@@ -54,7 +54,7 @@ class DefaultIntentSelectorTests {
     }
 
     @Test(expected = IntentNotFoundException::class)
-    fun `test throw exception if intent for specified state not found`() {
+    fun `throw exception if intent for specified state not found`() {
 
         val intentSelector = DefaultIntentSelector()
 
@@ -62,7 +62,7 @@ class DefaultIntentSelectorTests {
     }
 
     @Test
-    fun `test found default intent if there is no specified intent for state`() {
+    fun `found default intent if there is no specified intent for state`() {
 
         val intentSelector = DefaultIntentSelector()
 
