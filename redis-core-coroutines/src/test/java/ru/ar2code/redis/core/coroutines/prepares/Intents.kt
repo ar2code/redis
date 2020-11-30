@@ -39,6 +39,8 @@ class IntentTypeDelayFlow(val payload: Int? = null) :
 class IntentTypeConcurrentTest(val payload: Int? = null) :
     IntentMessage()
 
+class FinishIntent() : IntentMessage()
+
 class IntentTypeABuilder : StateIntentMessageBuilder {
     override fun build(state: State): IntentMessage {
         return IntentTypeA()

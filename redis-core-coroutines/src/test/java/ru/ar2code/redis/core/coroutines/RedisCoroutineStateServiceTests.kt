@@ -20,35 +20,38 @@ package ru.ar2code.redis.core.coroutines
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
-import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.ServiceStateListener
 import ru.ar2code.redis.core.ServiceSubscriber
+import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 
 
 class RedisCoroutineStateServiceTests {
 
-    private val testDelayBeforeCheckingResult = 100L
-    private val concurrentTestDelayBeforeCheckingResult = 1000L
-    private val testDelayBeforeDispatchSecondIntent = 10L
+    private val testDelayBeforeCheckingResult = 10L
 
     @Test
-    fun service_ConcurrentDispatch_NoAnyConcurrentExceptions() =
+    fun `dispatch 4000 intents concurrently works normally without any exceptions`() =
         runBlocking(Dispatchers.Default) {
 
             println("Start concurrent dispatch test")
+
+            val repeatCount = 1000
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
+                    if (newState is FinishState) {
+                        service.dispose()
+                    }
                 }
             }
             service.subscribe(subscriber)
 
             val d1 = async {
                 println("start dispatch task 1")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 1")
@@ -58,7 +61,7 @@ class RedisCoroutineStateServiceTests {
 
             val d2 = async {
                 println("start dispatch task 2")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 2")
@@ -66,14 +69,14 @@ class RedisCoroutineStateServiceTests {
             }
             val d3 = async {
                 println("start dispatch task 3")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 3")
             }
             val d4 = async {
                 println("start dispatch task 4")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 4")
@@ -81,33 +84,38 @@ class RedisCoroutineStateServiceTests {
 
             awaitAll(d2, d3, d4)
 
-            delay(concurrentTestDelayBeforeCheckingResult)
+            delay(testDelayBeforeCheckingResult)
 
-            service.dispose()
-
-            Unit
+            service.dispatch(FinishIntent())
         }
 
     @Test
-    fun service_ConcurrentDispatch_ReceiveAllStateChanges() =
+    fun `service receives all state changing events after dispatching 4000 intents concurrently`() =
         runBlocking(Dispatchers.Default) {
-
-            println("Start concurrent dispatch test")
-
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+            val repeatCount = 1000
             var total = 0
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
                     total++
+
+                    if (total > 4000) {
+                        delay(testDelayBeforeCheckingResult)
+                        service.dispatch(FinishIntent())
+                    }
+
+                    if (newState is FinishState) {
+                        service.dispose()
+                    }
                 }
             }
             service.subscribe(subscriber)
 
             val d1 = async {
                 println("start dispatch task 1")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 1")
@@ -115,7 +123,7 @@ class RedisCoroutineStateServiceTests {
 
             val d2 = async {
                 println("start dispatch task 2")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 2")
@@ -123,14 +131,14 @@ class RedisCoroutineStateServiceTests {
             }
             val d3 = async {
                 println("start dispatch task 3")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 3")
             }
             val d4 = async {
                 println("start dispatch task 4")
-                repeat(1000) {
+                repeat(repeatCount) {
                     service.dispatch(IntentTypeConcurrentTest(it))
                 }
                 println("end dispatch task 4")
@@ -138,17 +146,16 @@ class RedisCoroutineStateServiceTests {
 
             awaitAll(d1, d2, d3, d4)
 
-            delay(concurrentTestDelayBeforeCheckingResult)
+            while (!service.isDisposed()) {
+                //await disposing
+            }
 
-            service.dispose()
+            assertThat(total).isEqualTo(4002) //4000 dispatch + 1 initiated + 1 finish state
 
-            assertThat(total).isEqualTo(4001) //4000 dispatch + 1 initiated
-
-            Unit
         }
 
     @Test
-    fun service_ConcurrentSubscribeUnsubscribe_NoAnyConcurrentExceptions() =
+    fun `concurrent 2000 subscribe unsubscribe operations works normally without any exceptions`() =
         runBlocking(Dispatchers.Default) {
 
             println("Start concurrent subscribe test")
@@ -214,7 +221,7 @@ class RedisCoroutineStateServiceTests {
         }
 
     @Test
-    fun service_ScopeCancelled_ServiceDisposed() = runBlocking {
+    fun `isDisposed returns true after cancelling service scope`() = runBlocking {
 
         val scope = this + Job()
 
@@ -228,51 +235,54 @@ class RedisCoroutineStateServiceTests {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun serviceScopeCancelled_SubscribeToService_throwException() = runBlocking {
+    fun `service scope was cancelled and try to subscribe throws IllegalStateException`() =
+        runBlocking {
 
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        this.cancel()
+            this.cancel()
 
-        val subscriber = object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
+            val subscriber = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
 
+                }
             }
+            service.subscribe(subscriber)
+
+            assertThat(service.isDisposed())
+
+            Unit
         }
-        service.subscribe(subscriber)
-
-        assertThat(service.isDisposed())
-
-        Unit
-    }
 
     @Test(expected = IllegalStateException::class)
-    fun serviceScopeCancelled_dispatch_throwException() = runBlocking {
+    fun `service scope was cancelled and try to dispatch an intent throws IllegalStateException`() =
+        runBlocking {
 
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        this.cancel()
+            this.cancel()
 
-        service.dispatch(IntentTypeA())
+            service.dispatch(IntentTypeA())
 
-        assertThat(service.isDisposed())
+            assertThat(service.isDisposed())
 
-        Unit
-    }
+            Unit
+        }
 
     @Test(expected = TestException::class)
-    fun service_ExceptionInsideReducer_throwException() = runBlocking {
-        val service = ServiceFactory.buildServiceWithReducerException(this, Dispatchers.Default)
+    fun `found reducer that contains error and reducer throws exception then service propagate same exception`() =
+        runBlocking {
+            val service = ServiceFactory.buildServiceWithReducerException(this, Dispatchers.Default)
 
-        service.dispatch(IntentTypeA())
+            service.dispatch(IntentTypeA())
 
-        delay(testDelayBeforeCheckingResult)
+            delay(testDelayBeforeCheckingResult)
 
-        service.dispose()
-    }
+            service.dispose()
+        }
 
     @Test
-    fun serviceInitializedState_DispatchSimpleIntentType_SelectSimpleStateReducer() =
+    fun `service is in initiated state and dispatch IntentTypeA then found SimpleStateReducer`() =
         runBlocking {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
@@ -281,7 +291,11 @@ class RedisCoroutineStateServiceTests {
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
-                    lastStateFromIntent = newState
+                    if (newState is FinishState) {
+                        service.dispose()
+                    } else {
+                        lastStateFromIntent = newState
+                    }
                 }
             }
             service.subscribe(subscriber)
@@ -290,15 +304,17 @@ class RedisCoroutineStateServiceTests {
 
             delay(testDelayBeforeCheckingResult)
 
-            service.dispose()
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                //await disposing
+            }
 
             assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
-
-            Unit
         }
 
     @Test
-    fun serviceInitializedState_DispatchFloatIntentType_SelectFloatStateReducer() =
+    fun `service is in initiated state and dispatch FloatIntentType then found FloatStateReducer`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -306,7 +322,11 @@ class RedisCoroutineStateServiceTests {
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
-                    lastStateFromIntent = newState
+                    if (newState is FinishState) {
+                        service.dispose()
+                    } else {
+                        lastStateFromIntent = newState
+                    }
                 }
             }
             service.subscribe(subscriber)
@@ -319,15 +339,17 @@ class RedisCoroutineStateServiceTests {
 
             delay(testDelayBeforeCheckingResult)
 
-            service.dispose()
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                //await disposing
+            }
 
             assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
-
-            Unit
         }
 
     @Test(expected = ReducerNotFoundException::class)
-    fun serviceAnotherState_DispatchFloatIntentType_ThrowReducerNotFoundException() =
+    fun `service is in AnotherState and dispatch FloatIntentType then ThrowReducerNotFoundException`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -349,14 +371,10 @@ class RedisCoroutineStateServiceTests {
             delay(testDelayBeforeCheckingResult)
 
             service.dispose()
-
-            assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
-
-            Unit
         }
 
     @Test(expected = ReducerNotFoundException::class)
-    fun service_DispatchNoReducerIntent_ThrowReducerNotFoundException() =
+    fun `service is in Initiated state and dispatch IntentTypeC then ThrowReducerNotFoundException`() =
         runBlocking {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
@@ -365,32 +383,7 @@ class RedisCoroutineStateServiceTests {
         }
 
     @Test
-    fun serviceInitializedState_DispatchAnotherIntentType_AnotherStateReducer() =
-        runBlocking {
-            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-
-            var lastStateFromIntent: State? = null
-
-            val subscriber = object : ServiceSubscriber {
-                override suspend fun onReceive(newState: State) {
-                    lastStateFromIntent = newState
-                }
-            }
-            service.subscribe(subscriber)
-
-            service.dispatch(IntentTypeB())
-
-            delay(testDelayBeforeCheckingResult)
-
-            service.dispose()
-
-            assertThat(lastStateFromIntent).isInstanceOf(StateB::class.java)
-
-            Unit
-        }
-
-    @Test
-    fun service_DispatchIntentForReducerWithFlow_ChangeStateSeveralTimes() =
+    fun `reducer contains a flow with 2 states then service changes state 2 times after single intent`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -401,6 +394,8 @@ class RedisCoroutineStateServiceTests {
                 override suspend fun onReceive(newState: State) {
                     if (newState is FlowState) {
                         result += newState.name
+                    } else if (newState is FinishState) {
+                        service.dispose()
                     }
                 }
             }
@@ -410,6 +405,12 @@ class RedisCoroutineStateServiceTests {
 
             delay(testDelayBeforeCheckingResult)
 
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                //await disposing
+            }
+
             assertThat(result).isEqualTo(expected)
 
             service.dispose()
@@ -417,37 +418,38 @@ class RedisCoroutineStateServiceTests {
 
 
     @Test
-    fun service_NewSubscribersAdded_ReceiveInitStateToAll() = runBlocking {
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+    fun `service is in initiated state and two subscribers added then subscribers receive initial state`() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        var emptyResult = false
-        var emptyResultTwo = false
+            var initialState = false
+            var initialStateTwo = false
 
-        service.subscribe(object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
-                if (newState is State.Initiated) {
-                    emptyResult = true
+            service.subscribe(object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (newState is State.Initiated) {
+                        initialState = true
+                    }
                 }
-            }
-        })
+            })
 
-        service.subscribe(object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
-                if (newState is State.Initiated) {
-                    emptyResultTwo = true
+            service.subscribe(object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (newState is State.Initiated) {
+                        initialStateTwo = true
+                    }
                 }
-            }
-        })
+            })
 
-        delay(testDelayBeforeCheckingResult)
+            delay(testDelayBeforeCheckingResult)
 
-        assertThat(emptyResult && emptyResultTwo)
+            assertThat(initialState && initialStateTwo)
 
-        service.dispose()
-    }
+            service.dispose()
+        }
 
     @Test
-    fun service_NewSubscriberAdded_ReceiveLastState() = runBlocking {
+    fun `new subscriber receive current service state`() = runBlocking {
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
         var emptyResultOne = false
@@ -492,7 +494,7 @@ class RedisCoroutineStateServiceTests {
     }
 
     @Test
-    fun service_AddSameSubscriberTwoTimes_SubscriberDidNotAddedIfExists() =
+    fun `service has a subscriber and same subscriber try to subscribe again then does not subscribe again`() =
         runBlocking {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
@@ -513,7 +515,7 @@ class RedisCoroutineStateServiceTests {
         }
 
     @Test
-    fun service_Dispose_NoActiveSubscribers() = runBlocking {
+    fun `service is disposed then all subscribers are removed`() = runBlocking {
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
@@ -531,31 +533,32 @@ class RedisCoroutineStateServiceTests {
     }
 
     @Test
-    fun service_SpecifyInitialState_SubscriberReceiveCustomInitState() = runBlocking {
-        var emptyResultOne = false
+    fun `service with CustomInit state then all subscribers receive CustomInit state`() =
+        runBlocking {
+            var emptyResultOne = false
 
 
-        val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
+            val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
 
-        val subscriber = object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
-                if (newState is CustomInitState) {
-                    emptyResultOne = true
+            val subscriber = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (newState is CustomInitState) {
+                        emptyResultOne = true
+                    }
                 }
             }
+
+            service.subscribe(subscriber)
+
+            delay(testDelayBeforeCheckingResult)
+
+            assertThat(emptyResultOne)
+
+            service.dispose()
         }
 
-        service.subscribe(subscriber)
-
-        delay(testDelayBeforeCheckingResult)
-
-        assertThat(emptyResultOne)
-
-        service.dispose()
-    }
-
     @Test
-    fun service_DispatchTwoIntents_CallReducersConsistently() = runBlocking {
+    fun `dispatch two intents call appropriate reducers consistently`() = runBlocking {
 
         //First intent invoke InitiatedStateTypeDelayFlowReducer G->H and after InitiatedStateTypeFlowReducer D->F
         val expectedFlow =
@@ -569,6 +572,8 @@ class RedisCoroutineStateServiceTests {
             override suspend fun onReceive(newState: State) {
                 if (newState is FlowState) {
                     resultData += newState.name
+                } else if (newState is FinishState) {
+                    service.dispose()
                 }
             }
         }
@@ -577,19 +582,24 @@ class RedisCoroutineStateServiceTests {
 
         service.dispatch(IntentTypeDelayFlow())
 
-        delay(testDelayBeforeDispatchSecondIntent)
+        delay(testDelayBeforeCheckingResult)
 
         service.dispatch(IntentTypeFlow())
 
         delay(testDelayBeforeCheckingResult)
 
+        service.dispatch(FinishIntent())
+
+        while (!service.isDisposed()) {
+            //await
+        }
+
         assertThat(resultData).isEqualTo(expectedFlow)
 
-        service.dispose()
     }
 
     @Test
-    fun service_AddListenedService_GotSpecifiedIntentWhenListenedServiceStateChanged() =
+    fun `service A listen another service B then service A receive specified intent when service B state changed`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
@@ -600,6 +610,9 @@ class RedisCoroutineStateServiceTests {
                 override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
+                    } else if (newState is FinishState) {
+                        service.dispose()
+                        listenedService.dispose()
                     }
                 }
             }
@@ -614,18 +627,23 @@ class RedisCoroutineStateServiceTests {
 
             delay(testDelayBeforeCheckingResult)
 
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                //await
+            }
+
             assertThat(stateBCount).isEqualTo(2) //First time when listenedService initiated and second time when dispatch intent
 
-            service.dispose()
-            listenedService.dispose()
         }
 
     @Test
-    fun service_StopListeningService_DoNotDispatchIntentWhenListenedServiceStateChanged() =
+    fun `service A stopped listen service B then service A will not receive specified intent when service B state changed`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedServiceInfo = ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
+            val listenedServiceInfo =
+                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
 
             var stateBCount = 0
 
@@ -633,6 +651,9 @@ class RedisCoroutineStateServiceTests {
                 override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
+                    } else if (newState is FinishState) {
+                        service.dispose()
+                        listenedService.dispose()
                     }
                 }
             }
@@ -647,48 +668,57 @@ class RedisCoroutineStateServiceTests {
 
             listenedService.dispatch(IntentTypeA())
 
-            delay(testDelayBeforeCheckingResult)
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                //await
+            }
 
             assertThat(stateBCount).isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
-
-            service.dispose()
-            listenedService.dispose()
         }
 
     @Test
-    fun service_RemoveUnknownServiceForListening_DoNothing() = runBlocking {
+    fun `service A does not listen any services then stop listening unknown service does nothing`() =
+        runBlocking {
 
-        val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-        val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-        val listenedServiceInfo = ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
+            val listenedServiceInfo =
+                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
 
-        var stateBCount = 0
+            var stateBCount = 0
 
-        val subscriber = object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
-                if (newState is StateB) {
-                    stateBCount++
+            val subscriber = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (newState is StateB) {
+                        stateBCount++
+                    } else if (newState is FinishState) {
+                        service.dispose()
+                        listenedService.dispose()
+                    }
                 }
             }
+
+            service.subscribe(subscriber)
+            service.stopListening(listenedServiceInfo)
+
+            listenedService.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                //await
+            }
+
+            assertThat(stateBCount).isEqualTo(0)
+
         }
 
-        service.subscribe(subscriber)
-        service.stopListening(listenedServiceInfo)
-
-        listenedService.dispatch(IntentTypeA())
-
-        delay(testDelayBeforeCheckingResult)
-
-        assertThat(stateBCount).isEqualTo(0)
-
-        service.dispose()
-
-        listenedService.dispose()
-    }
-
     @Test
-    fun serviceWithTriggers_DispatchIntentA_ChangeStateToC() = runBlocking {
+    fun `test service trigger`() = runBlocking {
         var result = ""
         val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
         val subscriber = object : ServiceSubscriber {
@@ -703,6 +733,9 @@ class RedisCoroutineStateServiceTests {
                     is StateC -> {
                         result += "C"
                     }
+                    is FinishState -> {
+                        service.dispose()
+                    }
                 }
             }
         }
@@ -713,8 +746,13 @@ class RedisCoroutineStateServiceTests {
 
         delay(testDelayBeforeCheckingResult)
 
+        service.dispatch(FinishIntent())
+
+        while (!service.isDisposed()) {
+            //await
+        }
+
         assertThat(result).isEqualTo("IAC") //Initiated -> State A (Intent) -> trigger -> State C
 
-        service.dispose()
     }
 }
