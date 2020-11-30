@@ -85,3 +85,9 @@ class FlowStateH(name: String) : FlowState(name) {
         return FlowStateH(name)
     }
 }
+
+class FinishState() : State() {
+    override fun clone(): State {
+        return FinishState()
+    }
+}

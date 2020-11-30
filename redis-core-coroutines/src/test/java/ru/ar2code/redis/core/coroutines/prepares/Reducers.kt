@@ -234,3 +234,23 @@ class StateCAnyTypeReducer :
         }
     }
 }
+
+class AnyStateFinishIntentReducer : StateReducer(null, FinishIntent::class, TestLogger()) {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+        return flow {
+            emit(FinishState())
+        }
+    }
+}
+
+class FinishStateAnyIntentReducer : StateReducer(FinishState::class, null, TestLogger()) {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+        return null
+    }
+}
+
+class DisposedStateAnyIntentReducer : StateReducer(State.Disposed::class, null, TestLogger()) {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+        return null
+    }
+}
