@@ -35,7 +35,7 @@ class RedisViewModelUnitTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun viewModel_instantiated_stateIsInitiated() = runBlocking {
+    fun `view model was created then view model get initiated state`() = runBlocking {
         val viewModel = TestViewModel()
 
         delay(delayBeforeAssertMs)
@@ -44,7 +44,7 @@ class RedisViewModelUnitTest {
     }
 
     @Test
-    fun viewModel_dispatchIntentUiTypeA_stateSetToViewModelTypeAState() = runBlocking {
+    fun `view model with initiated state and dispatch intent A then view model change state to State A`() = runBlocking {
         val viewModel = TestViewModel()
 
         viewModel.dispatch(IntentUiTypeA())
@@ -55,7 +55,7 @@ class RedisViewModelUnitTest {
     }
 
     @Test
-    fun viewModel_dispatchIntentUiTypeB_stateSetToViewModelTypeBState() = runBlocking {
+    fun `view model with initiated state and dispatch intent B then view model change state to State B`() = runBlocking {
         val viewModel = TestViewModel()
 
         viewModel.dispatch(IntentUiTypeB())
@@ -66,7 +66,7 @@ class RedisViewModelUnitTest {
     }
 
     @Test
-    fun viewModel_dispatchIntentUiViewOnly_viewStateLiveIsNotNullViewEventLiveIsNull() = runBlocking {
+    fun `view model receive state model only then viewStateLive is not null and viewEventLive is null`() = runBlocking {
         val viewModel = TestViewModelWithRedisOnly()
 
         viewModel.viewStateLive.observeForever {}
@@ -85,7 +85,7 @@ class RedisViewModelUnitTest {
     }
 
     @Test
-    fun viewModel_dispatchIntentUiEventOnly_viewStateLiveIsNullViewEventLiveIsNotNull() = runBlocking {
+    fun `view model receive event model only then viewStateLive is null and viewEventLive is not null`() = runBlocking {
         val viewModel = TestViewModelWithRedisOnly()
 
         viewModel.viewStateLive.observeForever {}
@@ -103,9 +103,8 @@ class RedisViewModelUnitTest {
         assertThat(state.viewEvent).isNotNull()
     }
 
-
     @Test
-    fun viewModel_dispatchIntentUiViewStateWithEvent_viewStateLiveIsNotNullViewEventLiveIsNotNull() = runBlocking {
+    fun `view model receive state and event models then viewStateLive is not null and viewEventLive is not null`() = runBlocking {
         val viewModel = TestViewModelWithRedisOnly()
 
         viewModel.viewStateLive.observeForever {}
