@@ -28,7 +28,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 
 class RedisCoroutineStateServiceTests {
 
-    private val testDelayBeforeCheckingResult = 10L
+    private val testDelayBeforeCheckingResult = 25L
 
     @Test
     fun `dispatch 4000 intents concurrently works normally without any exceptions`() =

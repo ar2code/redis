@@ -140,7 +140,7 @@ open class RedisCoroutineStateService(
      * Send intent to service for doing some action
      */
     override fun dispatch(msg: IntentMessage) {
-        if (!assertScopeActive("send intent $msg"))
+        if (!assertScopeActive("send intent ${msg.objectLogName()}"))
             return
 
         scope.launch(dispatcher) {
@@ -150,6 +150,8 @@ open class RedisCoroutineStateService(
 
     private suspend fun sendIntentMessage(msg: IntentMessage) {
         try {
+            logger.info("Service [${objectLogName()}] is going to dispatch intent ${msg.objectLogName()}")
+
             awaitPassCreatedState()
             intentMessagesChannel.send(msg)
         } catch (e: ClosedSendChannelException) {
@@ -263,7 +265,7 @@ open class RedisCoroutineStateService(
      * Call when state changed from [old] to [new]
      */
     protected open suspend fun onStateChanged(old: State, new: State) {
-        logger.info("${this.objectLogName()} onStateChanged $old to $new")
+        logger.info("${this.objectLogName()} onStateChanged ${old.objectLogName()} to ${new.objectLogName()}")
     }
 
     /**
