@@ -262,21 +262,21 @@ open class RedisCoroutineStateService(
      * Call when state changed from [old] to [new]
      */
     protected open suspend fun onStateChanged(old: State, new: State) {
-
+        logger.info("${this.objectLogName()} onStateChanged $old to $new")
     }
 
     /**
      * Call after service state got first state after [State.Created]
      */
     protected open suspend fun onInitialized() {
-
+        logger.info("${this.objectLogName()} onInitialized")
     }
 
     /**
      * Call after service completely disposed
      */
     protected open fun onDisposed() {
-
+        logger.info("${this.objectLogName()} onDisposed")
     }
 
     internal suspend fun broadcastNewState(newServiceState: State) {
