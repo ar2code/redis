@@ -18,7 +18,6 @@
 package ru.ar2code.redis.core.coroutines
 
 import com.google.common.truth.Truth
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*

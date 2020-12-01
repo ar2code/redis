@@ -19,7 +19,6 @@ package ru.ar2code.redis.core.defaults
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 

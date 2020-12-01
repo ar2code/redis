@@ -29,6 +29,7 @@ import ru.ar2code.utils.Logger
  * @param savedStateHandler object that handle storing/restoring state
  * @param stateStoreSelector algorithm how to find storing logic for current state
  */
+@ExperimentalCoroutinesApi
 open class RedisCoroutineSavedStateService(
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,

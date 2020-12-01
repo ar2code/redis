@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateTriggerSelector  algorithm how to find triggers when service change state
  * @param logger logging object
  */
+@ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
@@ -332,7 +333,6 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("[${objectLogName()}] on initialized.")
                 broadcastNewState(getInitialState())
                 onInitialized()
             }
