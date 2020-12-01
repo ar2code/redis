@@ -21,4 +21,4 @@ include ':redis-core-defaults'
 include ':redis-utils'
 include ':redis-core'
 include ':redis-core-coroutines'
-rootProject.name = "Demo"
+rootProject.name = "Redis framework"
