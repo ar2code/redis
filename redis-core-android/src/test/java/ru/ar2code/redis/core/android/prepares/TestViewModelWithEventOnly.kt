@@ -17,7 +17,6 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import ru.ar2code.redis.core.android.RedisViewModel
 import ru.ar2code.redis.core.android.ViewModelStateWithEvent
 import ru.ar2code.redis.core.android.ViewStateReducer

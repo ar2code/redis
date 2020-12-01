@@ -17,7 +17,6 @@
 
 package ru.ar2code.redis.clean.arch.coroutins.prepares
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -43,7 +42,7 @@ class SimpleCustomAwaitConfigUseCase(private val timeoutMs :Long = 60_000L) : Sy
         return flow {
             emit(params!!)
             delay(1000)
-            emit(params!!)
+            emit(params)
         }
     }
 }

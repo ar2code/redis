@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateTriggerSelector  algorithm how to find triggers when service change state
  * @param logger logging object
  */
+@ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
@@ -59,9 +60,14 @@ open class RedisCoroutineStateService(
         private const val AWAIT_INIT_DELAY_MS = 1L
     }
 
-    override var serviceState: State = State.Created()
+    private var serviceStateInternal: State = State.Created()
+
+    override var serviceState: State
         get() {
-            return field.clone()
+            return serviceStateInternal.clone()
+        }
+        set(value) {
+            serviceStateInternal = value
         }
 
     override fun objectLogName(): String? {
@@ -134,7 +140,7 @@ open class RedisCoroutineStateService(
      * Send intent to service for doing some action
      */
     override fun dispatch(msg: IntentMessage) {
-        if (!assertScopeActive("send intent $msg"))
+        if (!assertScopeActive("send intent ${msg.objectLogName()}"))
             return
 
         scope.launch(dispatcher) {
@@ -144,6 +150,8 @@ open class RedisCoroutineStateService(
 
     private suspend fun sendIntentMessage(msg: IntentMessage) {
         try {
+            logger.info("Service [${objectLogName()}] is going to dispatch intent ${msg.objectLogName()}")
+
             awaitPassCreatedState()
             intentMessagesChannel.send(msg)
         } catch (e: ClosedSendChannelException) {
@@ -189,7 +197,7 @@ open class RedisCoroutineStateService(
      */
     override fun isDisposed(): Boolean {
         disposeIfScopeNotActive()
-        return isDisposing.get() || serviceState is State.Disposed
+        return isDisposing.get() || serviceStateInternal is State.Disposed
     }
 
     /**
@@ -257,21 +265,21 @@ open class RedisCoroutineStateService(
      * Call when state changed from [old] to [new]
      */
     protected open suspend fun onStateChanged(old: State, new: State) {
-
+        logger.info("${this.objectLogName()} onStateChanged ${old.objectLogName()} to ${new.objectLogName()}")
     }
 
     /**
      * Call after service state got first state after [State.Created]
      */
     protected open suspend fun onInitialized() {
-
+        logger.info("${this.objectLogName()} onInitialized")
     }
 
     /**
      * Call after service completely disposed
      */
     protected open fun onDisposed() {
-
+        logger.info("${this.objectLogName()} onDisposed")
     }
 
     internal suspend fun broadcastNewState(newServiceState: State) {
@@ -282,9 +290,9 @@ open class RedisCoroutineStateService(
                 return
             }
 
-            logger.info("[${objectLogName()}] change state from ${serviceState.objectLogName()} to ${newServiceState.objectLogName()}")
+            logger.info("[${objectLogName()}] change state from ${serviceStateInternal.objectLogName()} to ${newServiceState.objectLogName()}")
 
-            val oldState = serviceState
+            val oldState = serviceStateInternal
 
             serviceState = newServiceState
 
@@ -327,13 +335,12 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                logger.info("[${objectLogName()}] on initialized.")
                 broadcastNewState(getInitialState())
                 onInitialized()
             }
         }
 
-        when (serviceState) {
+        when (serviceStateInternal) {
             is State.Created -> {
                 initService()
                 provideInitializedResult()
@@ -365,7 +372,7 @@ open class RedisCoroutineStateService(
                     logger.info("[${objectLogName()}] Received intent ${msg.objectLogName()}. Found reducer: ${reducer.objectLogName()}.")
 
                     val newStateFlow =
-                        reducer.reduce(serviceState, msg)
+                        reducer.reduce(serviceStateInternal, msg)
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow.collect {
@@ -385,7 +392,7 @@ open class RedisCoroutineStateService(
         intentMessage: IntentMessage
     ): StateReducer {
         try {
-            return reducerSelector.findReducer(reducers, serviceState, intentMessage)
+            return reducerSelector.findReducer(reducers, serviceStateInternal, intentMessage)
         } catch (e: ReducerNotFoundException) {
             throw ReducerNotFoundException("${objectLogName()} findReducer exception", e)
         }
@@ -418,9 +425,9 @@ open class RedisCoroutineStateService(
     }
 
     private suspend fun awaitPassCreatedState() {
-        while (serviceState is State.Created) {
+        while (serviceStateInternal is State.Created) {
             delay(AWAIT_INIT_DELAY_MS)
-            logger.info("[${objectLogName()}] await passing initial state. Current state = ${serviceState.objectLogName()}")
+            logger.info("[${objectLogName()}] await passing initial state. Current state = ${serviceStateInternal.objectLogName()}")
         }
     }
 }

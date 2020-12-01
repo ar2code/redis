@@ -22,6 +22,3 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
-
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"

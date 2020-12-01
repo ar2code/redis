@@ -28,7 +28,7 @@ import ru.ar2code.redis.core.coroutines.prepares.*
 
 class RedisCoroutineStateServiceTests {
 
-    private val testDelayBeforeCheckingResult = 10L
+    private val testDelayBeforeCheckingResult = 25L
 
     @Test
     fun `dispatch 4000 intents concurrently works normally without any exceptions`() =
@@ -300,6 +300,8 @@ class RedisCoroutineStateServiceTests {
             }
             service.subscribe(subscriber)
 
+            delay(testDelayBeforeCheckingResult)
+
             service.dispatch(IntentTypeA())
 
             delay(testDelayBeforeCheckingResult)
@@ -331,6 +333,8 @@ class RedisCoroutineStateServiceTests {
             }
             service.subscribe(subscriber)
 
+            delay(testDelayBeforeCheckingResult)
+
             service.dispatch(IntentTypeA())
 
             delay(testDelayBeforeCheckingResult)
@@ -361,6 +365,8 @@ class RedisCoroutineStateServiceTests {
                 }
             }
             service.subscribe(subscriber)
+
+            delay(testDelayBeforeCheckingResult)
 
             service.dispatch(IntentTypeB())
 
@@ -400,6 +406,8 @@ class RedisCoroutineStateServiceTests {
                 }
             }
             service.subscribe(subscriber)
+
+            delay(testDelayBeforeCheckingResult)
 
             service.dispatch(IntentTypeFlow())
 
@@ -527,6 +535,8 @@ class RedisCoroutineStateServiceTests {
 
         service.subscribe(subscriber)
 
+        assertThat(service.getSubscribersCount()).isEqualTo(1)
+
         service.dispose()
 
         assertThat(service.getSubscribersCount()).isEqualTo(0)
@@ -579,6 +589,8 @@ class RedisCoroutineStateServiceTests {
         }
 
         service.subscribe(subscriber)
+
+        delay(testDelayBeforeCheckingResult)
 
         service.dispatch(IntentTypeDelayFlow())
 
@@ -741,6 +753,8 @@ class RedisCoroutineStateServiceTests {
         }
 
         service.subscribe(subscriber)
+
+        delay(testDelayBeforeCheckingResult)
 
         service.dispatch(IntentTypeA())
 

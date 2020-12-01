@@ -139,8 +139,8 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
     /**
      * Set result from IntentMessage if reducer return [ViewModelStateWithEvent] state
-     * If [newState.viewState] is not null set to [viewStateLive]
-     * If [newState.viewEvent] is not null set to [viewEventLive]
+     * If viewState is not null set to [viewStateLive]
+     * If viewEvent is not null set to [viewEventLive]
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
         logger.info("[${objectLogName()}] is changing state to ${newState.objectLogName()}")

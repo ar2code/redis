@@ -19,11 +19,9 @@ package ru.ar2code.redis.core.coroutines
 
 import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
