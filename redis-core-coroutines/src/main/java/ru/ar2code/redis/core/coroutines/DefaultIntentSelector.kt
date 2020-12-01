@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
 
 /**
  * Default selector that first searches StateIntentMessageBuilder for concrete [State].
- * Concrete state means [stateIntentMap] key contains not null State KClass.
+ * Concrete state means stateIntentMap key contains not null State KClass.
  * If nothing found, selector returns default StateIntentMessageBuilder or throw [IntentNotFoundException]
  * To set default StateIntentMessageBuilder add pair to map with null state as a key (null, StateIntentMessageBuilder)
  */
