@@ -42,7 +42,8 @@ object ServiceFactory {
             StateAConcurrentTypeReducer(),
             AnyStateFinishIntentReducer(),
             FinishStateAnyIntentReducer(),
-            DisposedStateAnyIntentReducer()
+            DisposedStateAnyIntentReducer(),
+            AnyStateCircleIntentReducer()
         )
 
     val defaultTriggers = listOf(
@@ -72,7 +73,8 @@ object ServiceFactory {
 
     fun buildSimpleService(
         scope: CoroutineScope,
-        dispatcher: CoroutineDispatcher
+        dispatcher: CoroutineDispatcher,
+        logObjectName : String? = null
     ): RedisCoroutineStateService {
         return RedisCoroutineStateService(
             scope,
@@ -83,7 +85,8 @@ object ServiceFactory {
             DefaultIntentSelector(),
             emptyList(),
             DefaultStateTriggerSelector(),
-            TestLogger()
+            TestLogger(),
+            logObjectName
         )
     }
 

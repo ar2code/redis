@@ -95,6 +95,10 @@ open class RedisCoroutineStateService(
         initialize()
     }
 
+    override fun getListenServiceCount(): Int {
+        return listenedServicesSubscribers.count()
+    }
+
     /**
      * Listening of state changing of another service.
      */
@@ -109,6 +113,12 @@ open class RedisCoroutineStateService(
                         serviceStateListener.stateIntentMap,
                         newState
                     )
+
+                    if(isDisposing.get() || isDisposed()){
+                        logger.info( "[${objectLogName()}] is disposed. Ignore listen service state changing.")
+                        return
+                    }
+
                     sendIntentMessage(intent)
 
                 } catch (e: IntentNotFoundException) {

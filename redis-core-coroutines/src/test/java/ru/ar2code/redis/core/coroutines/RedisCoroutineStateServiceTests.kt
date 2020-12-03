@@ -24,11 +24,10 @@ import ru.ar2code.redis.core.ServiceStateListener
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
+import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
 
 
 class RedisCoroutineStateServiceTests {
-
-    private val testDelayBeforeCheckingResult = 25L
 
     @Test
     fun `dispatch 4000 intents concurrently works normally without any exceptions`() =
@@ -609,125 +608,6 @@ class RedisCoroutineStateServiceTests {
         assertThat(resultData).isEqualTo(expectedFlow)
 
     }
-
-    @Test
-    fun `service A listen another service B then service A receive specified intent when service B state changed`() =
-        runBlocking {
-            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-
-            var stateBCount = 0
-
-            val subscriber = object : ServiceSubscriber {
-                override suspend fun onReceive(newState: State) {
-                    if (newState is StateB) {
-                        stateBCount++
-                    } else if (newState is FinishState) {
-                        service.dispose()
-                        listenedService.dispose()
-                    }
-                }
-            }
-
-            service.subscribe(subscriber)
-
-            service.listen(
-                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
-            )
-
-            listenedService.dispatch(IntentTypeA())
-
-            delay(testDelayBeforeCheckingResult)
-
-            service.dispatch(FinishIntent())
-
-            while (!service.isDisposed()) {
-                //await
-            }
-
-            assertThat(stateBCount).isEqualTo(2) //First time when listenedService initiated and second time when dispatch intent
-
-        }
-
-    @Test
-    fun `service A stopped listen service B then service A will not receive specified intent when service B state changed`() =
-        runBlocking {
-            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedServiceInfo =
-                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
-
-            var stateBCount = 0
-
-            val subscriber = object : ServiceSubscriber {
-                override suspend fun onReceive(newState: State) {
-                    if (newState is StateB) {
-                        stateBCount++
-                    } else if (newState is FinishState) {
-                        service.dispose()
-                        listenedService.dispose()
-                    }
-                }
-            }
-
-            service.subscribe(subscriber)
-
-            service.listen(listenedServiceInfo)
-
-            delay(testDelayBeforeCheckingResult)
-
-            service.stopListening(listenedServiceInfo)
-
-            listenedService.dispatch(IntentTypeA())
-
-            service.dispatch(FinishIntent())
-
-            while (!service.isDisposed()) {
-                //await
-            }
-
-            assertThat(stateBCount).isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
-        }
-
-    @Test
-    fun `service A does not listen any services then stop listening unknown service does nothing`() =
-        runBlocking {
-
-            val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
-
-            val listenedServiceInfo =
-                ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
-
-            var stateBCount = 0
-
-            val subscriber = object : ServiceSubscriber {
-                override suspend fun onReceive(newState: State) {
-                    if (newState is StateB) {
-                        stateBCount++
-                    } else if (newState is FinishState) {
-                        service.dispose()
-                        listenedService.dispose()
-                    }
-                }
-            }
-
-            service.subscribe(subscriber)
-            service.stopListening(listenedServiceInfo)
-
-            listenedService.dispatch(IntentTypeA())
-
-            delay(testDelayBeforeCheckingResult)
-
-            service.dispatch(FinishIntent())
-
-            while (!service.isDisposed()) {
-                //await
-            }
-
-            assertThat(stateBCount).isEqualTo(0)
-
-        }
 
     @Test
     fun `test service trigger`() = runBlocking {

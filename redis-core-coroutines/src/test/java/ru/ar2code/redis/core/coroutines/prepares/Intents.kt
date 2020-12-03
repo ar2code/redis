@@ -41,6 +41,8 @@ class IntentTypeConcurrentTest(val payload: Int? = null) :
 
 class FinishIntent() : IntentMessage()
 
+class CircleIntent : IntentMessage()
+
 class IntentTypeABuilder : StateIntentMessageBuilder {
     override fun build(state: State): IntentMessage {
         return IntentTypeA()

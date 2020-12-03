@@ -15,16 +15,8 @@
  * limitations under the License.
  */
 
-apply plugin: 'kotlin'
+package ru.ar2code.redis.core.coroutines.prepares
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1'
-    implementation project(path: ':redis-core-test')
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1'
-    testImplementation 'junit:junit:4.12'
-    testImplementation "com.google.truth:truth:1.0.1"
-    implementation project(path: ':redis-core')
-    implementation project(path: ':redis-utils')
+object Constants {
+    internal const val testDelayBeforeCheckingResult = 25L
 }

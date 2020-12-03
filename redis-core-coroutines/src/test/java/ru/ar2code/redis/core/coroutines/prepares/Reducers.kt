@@ -254,3 +254,11 @@ class DisposedStateAnyIntentReducer : StateReducer(State.Disposed::class, null, 
         return null
     }
 }
+
+class AnyStateCircleIntentReducer : StateReducer(null, CircleIntent::class, TestLogger()) {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+        return flow {
+            emit(StateA())
+        }
+    }
+}
