@@ -59,7 +59,7 @@ class ListenServiceTest {
             service.dispatch(FinishIntent())
 
             while (!service.isDisposed()) {
-                //await
+                delay(1)
             }
 
             Truth.assertThat(stateBCount)
@@ -101,7 +101,7 @@ class ListenServiceTest {
             service.dispatch(FinishIntent())
 
             while (!service.isDisposed()) {
-                //await
+                delay(1)
             }
 
             Truth.assertThat(stateBCount)
@@ -141,7 +141,7 @@ class ListenServiceTest {
             service.dispatch(FinishIntent())
 
             while (!service.isDisposed()) {
-                //await
+                delay(1)
             }
 
             Truth.assertThat(stateBCount).isEqualTo(0)
@@ -152,10 +152,12 @@ class ListenServiceTest {
     fun `service A listen another service B and service A is disposed then service A stop listen service B no any exceptions`() =
         runBlocking {
 
-            val serviceAScope = CoroutineScope( Dispatchers.Default + Job())
+            val serviceAScope = CoroutineScope(Dispatchers.Default + Job())
 
-            val service = ServiceFactory.buildSimpleService(serviceAScope, Dispatchers.Default, "Service A")
-            val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default, "Service B")
+            val service =
+                ServiceFactory.buildSimpleService(serviceAScope, Dispatchers.Default, "Service A")
+            val listenedService =
+                ServiceFactory.buildSimpleService(this, Dispatchers.Default, "Service B")
 
             val serviceBDispatchCount = 1000
             var serviceAReceiveCount = 0
@@ -173,7 +175,7 @@ class ListenServiceTest {
                         listenedService.dispose()
                     } else {
                         serviceBReceiveCount++
-                        if(serviceBReceiveCount > serviceBDispatchCount / 2) {
+                        if (serviceBReceiveCount > serviceBDispatchCount / 2) {
                             service.dispose()
                         }
                     }
