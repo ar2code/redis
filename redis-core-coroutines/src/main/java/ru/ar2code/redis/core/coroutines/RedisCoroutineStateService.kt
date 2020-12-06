@@ -235,7 +235,6 @@ open class RedisCoroutineStateService(
                     .collect {
                         coroutineServiceSubscriber.onReceive(it)
                     }
-
             }
         }
 

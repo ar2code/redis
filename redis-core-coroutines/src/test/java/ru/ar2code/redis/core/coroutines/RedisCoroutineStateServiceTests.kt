@@ -20,11 +20,11 @@ package ru.ar2code.redis.core.coroutines
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
-import ru.ar2code.redis.core.ServiceStateListener
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
+import kotlin.math.exp
 
 
 class RedisCoroutineStateServiceTests {
@@ -146,7 +146,7 @@ class RedisCoroutineStateServiceTests {
             awaitAll(d1, d2, d3, d4)
 
             while (!service.isDisposed()) {
-                //await disposing
+                delay(1)
             }
 
             assertThat(total).isEqualTo(4002) //4000 dispatch + 1 initiated + 1 finish state
@@ -308,7 +308,7 @@ class RedisCoroutineStateServiceTests {
             service.dispatch(FinishIntent())
 
             while (!service.isDisposed()) {
-                //await disposing
+                delay(1)
             }
 
             assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
@@ -345,7 +345,7 @@ class RedisCoroutineStateServiceTests {
             service.dispatch(FinishIntent())
 
             while (!service.isDisposed()) {
-                //await disposing
+                delay(1)
             }
 
             assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
@@ -415,7 +415,7 @@ class RedisCoroutineStateServiceTests {
             service.dispatch(FinishIntent())
 
             while (!service.isDisposed()) {
-                //await disposing
+                delay(1)
             }
 
             assertThat(result).isEqualTo(expected)
@@ -602,7 +602,7 @@ class RedisCoroutineStateServiceTests {
         service.dispatch(FinishIntent())
 
         while (!service.isDisposed()) {
-            //await
+            delay(1)
         }
 
         assertThat(resultData).isEqualTo(expectedFlow)
@@ -611,6 +611,7 @@ class RedisCoroutineStateServiceTests {
 
     @Test
     fun `test service trigger`() = runBlocking {
+        val expectResult = "IAC"  //Initiated -> State A (Intent) -> trigger -> State C
         var result = ""
         val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
         val subscriber = object : ServiceSubscriber {
@@ -643,10 +644,123 @@ class RedisCoroutineStateServiceTests {
         service.dispatch(FinishIntent())
 
         while (!service.isDisposed()) {
-            //await
+            delay(1)
         }
 
-        assertThat(result).isEqualTo("IAC") //Initiated -> State A (Intent) -> trigger -> State C
-
+        assertThat(result).isEqualTo(expectResult)
     }
+
+    @Test
+    fun `service has quick and slow subscribers and dispatch intents then quick receives all states and do not wait slow`() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
+
+            var receiveSlow = false
+            var receiveSlowAfterDelay = false
+            var receiveQuick = false
+
+            val subscriberLong = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    receiveSlow = true
+
+                    delay(1000)
+
+                    receiveSlowAfterDelay = true
+                }
+            }
+            val subscriberQuick = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (newState is FinishState) {
+                        receiveQuick = true
+                    }
+                }
+            }
+
+            service.subscribe(subscriberLong)
+            service.subscribe(subscriberQuick)
+
+            service.dispatch(FinishIntent())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(receiveSlow).isTrue()
+            assertThat(receiveQuick).isTrue()
+            assertThat(receiveSlowAfterDelay).isFalse()
+        }
+
+    @Test
+    fun `service has quick and slow subscribers and dispatch intents then all subscribers receive all states`() =
+        runBlocking {
+            val expectResult = "IAC"  //Initiated -> State A (Intent) -> trigger -> State C
+            var resultQuick = ""
+            var resultSlow = ""
+            var slowResultOnMomentWhenQuickFinished = ""
+
+            val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
+
+            val subscriberQuick = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    when (newState) {
+                        is State.Initiated -> {
+                            resultQuick += "I"
+                        }
+                        is StateA -> {
+                            resultQuick += "A"
+                        }
+                        is StateC -> {
+                            resultQuick += "C"
+                        }
+                    }
+
+                    if (resultQuick == expectResult && slowResultOnMomentWhenQuickFinished.isNullOrEmpty()) {
+                        slowResultOnMomentWhenQuickFinished = resultSlow
+                    }
+                }
+            }
+
+            val subscriberSlow = object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    when (newState) {
+                        is State.Initiated -> {
+                            resultSlow += "I"
+                        }
+                        is StateA -> {
+                            resultSlow += "A"
+                        }
+                        is StateC -> {
+                            resultSlow += "C"
+                        }
+                        is FinishState -> {
+                            service.dispose()
+                        }
+                    }
+                    delay(testDelayBeforeCheckingResult)
+                }
+            }
+
+            service.subscribe(subscriberQuick)
+
+            service.subscribe(subscriberSlow)
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispatch(FinishIntent())
+
+            while (!service.isDisposed()) {
+                delay(1)
+            }
+
+            assertThat(resultSlow).isEqualTo(expectResult)
+            assertThat(resultQuick).isEqualTo(expectResult)
+
+            assertThat(slowResultOnMomentWhenQuickFinished).isNotEqualTo(expectResult)
+            assertThat(slowResultOnMomentWhenQuickFinished).isNotEmpty()
+            assertThat(slowResultOnMomentWhenQuickFinished.length).isLessThan(expectResult.length)
+        }
 }
