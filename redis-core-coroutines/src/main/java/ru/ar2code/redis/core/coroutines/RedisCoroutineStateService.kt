@@ -95,6 +95,9 @@ open class RedisCoroutineStateService(
         initialize()
     }
 
+    /**
+     * Get count of active services that current service is listening
+     */
     override fun getListenServiceCount(): Int {
         return listenedServicesSubscribers.count()
     }

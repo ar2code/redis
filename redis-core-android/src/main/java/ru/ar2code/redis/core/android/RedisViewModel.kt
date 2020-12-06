@@ -113,6 +113,10 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         subscribeToServiceResults()
     }
 
+    override fun getListenServiceCount(): Int {
+        return viewModelService.getListenServiceCount()
+    }
+
     /**
      * Send some intent for changing view model state.
      * UI uses this method for communicating with internal services and use cases.
