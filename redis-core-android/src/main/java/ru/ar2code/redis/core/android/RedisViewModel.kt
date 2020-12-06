@@ -113,6 +113,9 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         subscribeToServiceResults()
     }
 
+    /**
+     * Get count of active services that current service is listening
+     */
     override fun getListenServiceCount(): Int {
         return viewModelService.getListenServiceCount()
     }
