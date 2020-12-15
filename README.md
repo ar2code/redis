@@ -79,6 +79,9 @@ counterService.subscribe(object : ServiceSubscriber {
 counterService.dispatch(Increment())
 ```      
 
+## Sample app
+[Fake tv-player](https://github.com/ar2code/redis-sample)
+
 ## Triggers
 
 When a service transitions from one state to another, a trigger can be fired. A trigger allows you to perform some action or send an intent to your own service.
