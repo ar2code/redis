@@ -105,4 +105,4 @@ You can use an arbitrary key-value store to save and restore service state. This
 Based on the Redis service, we made a simple ViewModel for the MVI pattern. To change the state of the ViewModel, an intent must be dispatched. And at the output, the ViewModel has two LiveData: viewStateLive and viewEventLive. ViewStateLive is used for constant rendering of the UI. In fact, it is a screen model. And viewEventLive is used for all sorts of events that need to be processed only once. For example, SnackBar, Toast, Dialog.
 
 ## License
-  [MIT](LICENSE)
+  [Apache License 2.0](LICENSE)
