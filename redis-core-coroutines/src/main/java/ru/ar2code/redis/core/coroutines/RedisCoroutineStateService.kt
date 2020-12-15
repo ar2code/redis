@@ -31,8 +31,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Redis service based on kotlin coroutines and works line an Actor.
- * @param scope service scope. You can cancel scope to dispose service.
+ * Redis service based on kotlin coroutines and works line an Actor
+ * @param scope service scope. You can cancel scope to dispose service
  * @param dispatcher service dispatcher
  * @param initialState the state that the service receives after creation
  * @param reducers list of reducers used to change service` state
@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateTriggers list of triggers that can be called when service change its state
  * @param stateTriggerSelector  algorithm how to find triggers when service change state
  * @param logger logging object
+ * @param serviceLogName object name that is used for logging
  */
 @ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
@@ -96,6 +97,13 @@ open class RedisCoroutineStateService(
     }
 
     /**
+     * Get count of active services that current service is listening
+     */
+    override fun getListenServiceCount(): Int {
+        return listenedServicesSubscribers.count()
+    }
+
+    /**
      * Listening of state changing of another service.
      */
     @Synchronized
@@ -109,6 +117,12 @@ open class RedisCoroutineStateService(
                         serviceStateListener.stateIntentMap,
                         newState
                     )
+
+                    if(isDisposing.get() || isDisposed()){
+                        logger.info( "[${objectLogName()}] is disposed. Ignore listen service state changing.")
+                        return
+                    }
+
                     sendIntentMessage(intent)
 
                 } catch (e: IntentNotFoundException) {
@@ -225,7 +239,6 @@ open class RedisCoroutineStateService(
                     .collect {
                         coroutineServiceSubscriber.onReceive(it)
                     }
-
             }
         }
 

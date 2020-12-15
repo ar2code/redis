@@ -27,4 +27,9 @@ interface RedisListener {
      * Stop listen of state changing of another service.
      */
     fun stopListening(serviceStateListener: ServiceStateListener)
+
+    /**
+     * Get count of active services that current service is listening
+     */
+    fun getListenServiceCount() : Int
 }

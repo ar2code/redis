@@ -20,10 +20,17 @@ package ru.ar2code.redis.core.defaults
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import ru.ar2code.redis.core.*
+import ru.ar2code.redis.core.SavedStateHandler
+import ru.ar2code.redis.core.SavedStateStore
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateStoreSelector
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
+/**
+ * @param scope service scope. You can cancel scope to dispose service.
+ * @param reducers list of reducers used to change service` state
+ */
 open class RedisCoroutineStateServiceBuilder(
     private val scope: CoroutineScope,
     private val reducers: List<StateReducer>
@@ -40,61 +47,103 @@ open class RedisCoroutineStateServiceBuilder(
     private var stateStoreSelector: StateStoreSelector? = null
     private var serviceLogName: String? = null
 
+    /**
+     * Set state that the service receives after creation
+     * Service receives [State.Initiated] by default
+     */
     fun setInitialState(initialState: State): RedisCoroutineStateServiceBuilder {
         this.initialState = initialState
         return this
     }
 
+    /**
+     * Set service coroutine dispatcher
+     */
     fun setCoroutineDispatcher(dispatcher: CoroutineDispatcher): RedisCoroutineStateServiceBuilder {
         this.dispatcher = dispatcher
         return this
     }
 
+    /**
+     * Set algorithm how to find reducer for pair state-intent
+     * [DefaultReducerSelector] is used by default
+     */
     fun setReducerSelector(reducerSelector: ReducerSelector): RedisCoroutineStateServiceBuilder {
         this.reducerSelector = reducerSelector
         return this
     }
 
+    /**
+     * Set algorithm how to find reaction for service state changing that current service listens
+     * [DefaultIntentSelector] is used by default
+     */
     fun setListenedServicesIntentSelector(intentSelector: IntentSelector): RedisCoroutineStateServiceBuilder {
         this.listenedServicesIntentSelector = intentSelector
         return this
     }
 
+    /**
+     * Set list of triggers that can be called when service change its state
+     */
     fun setTriggers(triggers: List<StateTrigger>): RedisCoroutineStateServiceBuilder {
         this.stateTriggers = triggers
         return this
     }
 
+    /**
+     * Set algorithm how to find triggers when service change state
+     * [DefaultStateTriggerSelector] is used by default
+     */
     fun setTriggerSelector(triggerSelector: StateTriggerSelector): RedisCoroutineStateServiceBuilder {
         this.stateTriggerSelector = triggerSelector
         return this
     }
 
+    /**
+     * Set logger for tracing
+     */
     fun setLogger(logger: Logger): RedisCoroutineStateServiceBuilder {
         this.logger = logger
         return this
     }
 
+    /**
+     * Set state store implementation
+     */
     fun setSavedStateStore(savedStateStore: SavedStateStore): RedisCoroutineStateServiceBuilder {
         this.savedStateStore = savedStateStore
         return this
     }
 
+    /**
+     * Set object that handle storing/restoring state process
+     *
+     */
     fun setSavedStateHandler(savedStateHandler: SavedStateHandler): RedisCoroutineStateServiceBuilder {
         this.savedStateHandler = savedStateHandler
         return this
     }
 
+    /**
+     * Set algorithm how to find storing logic for current state
+     * [DefaultStateStoreSelector] is used by default
+     */
     fun setStateStoreSelector(stateStoreSelector: StateStoreSelector): RedisCoroutineStateServiceBuilder {
         this.stateStoreSelector = stateStoreSelector
         return this
     }
 
+    /**
+     * Set object name that is used for logging
+     */
     fun setServiceLogName(serviceLogName: String?): RedisCoroutineStateServiceBuilder {
         this.serviceLogName = serviceLogName
         return this
     }
 
+    /**
+     * Build service
+     */
     fun build(): RedisCoroutineStateService {
         return RedisCoroutineSavedStateService(
             scope,

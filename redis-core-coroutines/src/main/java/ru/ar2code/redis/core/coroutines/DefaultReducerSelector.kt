@@ -52,6 +52,6 @@ class DefaultReducerSelector : ReducerSelector {
         }
 
         return anyReducer
-            ?: throw ReducerNotFoundException("Reducer for ($state,$intentMessage) did not found.")
+            ?: throw ReducerNotFoundException("Reducer for (${state.objectLogName()},${intentMessage.objectLogName()}) did not found.")
     }
 }
