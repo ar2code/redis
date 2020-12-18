@@ -21,5 +21,6 @@ package ru.ar2code.utils
  * Describes an object with special name for logging
  */
 interface LoggableObject {
-    fun objectLogName(): String? = this::class.simpleName
+    val objectLogName: String?
+        get() = this::class.simpleName
 }

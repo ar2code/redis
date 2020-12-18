@@ -79,7 +79,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
             triggers,
             triggerSelector,
             logger,
-            "${objectLogName()}.service",
+            "${objectLogName}.service",
             savedState?.toRedisSavedStateStore(),
             savedStateHandler,
             stateStoreSelector
@@ -125,7 +125,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * UI uses this method for communicating with internal services and use cases.
      */
     override fun dispatch(msg: IntentMessage) {
-        logger.info("[${objectLogName()}] dispatch intent ${msg.objectLogName()}")
+        logger.info("[$objectLogName] dispatch intent ${msg.objectLogName}")
 
         viewModelService.dispatch(msg)
     }
@@ -150,24 +150,24 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * If viewEvent is not null set to [viewEventLive]
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
-        logger.info("[${objectLogName()}] is changing state to ${newState.objectLogName()}")
+        logger.info("[$objectLogName] is changing state to ${newState.objectLogName}")
 
         newState.viewState?.let {
             viewStateLiveMutable.postValue(it)
         } ?: kotlin.run {
-            logger.info("[${objectLogName()}] viewState is null. No post value to live data {viewStateLive}.")
+            logger.info("[$objectLogName] viewState is null. No post value to live data {viewStateLive}.")
         }
 
         newState.viewEvent?.let {
             viewEventLiveMutable.postValue(EventArgs(it))
         } ?: kotlin.run {
-            logger.info("[${objectLogName()}] viewEvent is null. No post value to live event {viewEventLive}.")
+            logger.info("[$objectLogName] viewEvent is null. No post value to live event {viewEventLive}.")
         }
     }
 
     private fun subscribeToServiceResults() {
 
-        logger.info("[${objectLogName()}] subscribe to internal service")
+        logger.info("[$objectLogName] subscribe to internal service")
 
         viewModelService.subscribe(object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
