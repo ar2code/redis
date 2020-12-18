@@ -72,7 +72,7 @@ open class RedisCoroutineStateService(
         }
 
     override val objectLogName: String?
-        get() = serviceLogName ?: super.objectLogName
+        get() = serviceLogName ?: "${super.objectLogName}#${hashCode()}"
     
     private val isDisposing = AtomicBoolean(false)
 
