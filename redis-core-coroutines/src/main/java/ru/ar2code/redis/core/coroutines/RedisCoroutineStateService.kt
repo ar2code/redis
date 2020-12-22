@@ -73,7 +73,7 @@ open class RedisCoroutineStateService(
 
     override val objectLogName: String?
         get() = serviceLogName ?: "${super.objectLogName}#${hashCode()}"
-    
+
     private val isDisposing = AtomicBoolean(false)
 
     private var resultsChannel = MutableSharedFlow<State>(1)
@@ -117,8 +117,8 @@ open class RedisCoroutineStateService(
                         newState
                     )
 
-                    if(isDisposing.get() || isDisposed()){
-                        logger.info( "[$objectLogName] is disposed. Ignore listen service state changing.")
+                    if (isDisposing.get() || isDisposed()) {
+                        logger.info("[$objectLogName] is disposed. Ignore listen service state changing.")
                         return
                     }
 
@@ -177,9 +177,21 @@ open class RedisCoroutineStateService(
      */
     override fun dispose() {
 
+        fun broadcastSubscribersWithDisposedState(
+            subscriber: CoroutineServiceSubscriber,
+            afterBroadcastAction: () -> Unit
+        ) {
+            subscriber.scope.launch {
+                subscriber.onReceive(State.Disposed())
+                afterBroadcastAction()
+            }
+        }
+
         fun unsubscribeListeners() {
             subscribers.forEach {
-                unsubscribe(it)
+                broadcastSubscribersWithDisposedState(it) {
+                    unsubscribe(it)
+                }
             }
             subscribers.clear()
         }
