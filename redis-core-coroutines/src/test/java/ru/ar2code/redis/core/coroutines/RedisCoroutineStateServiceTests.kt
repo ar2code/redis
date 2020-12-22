@@ -149,7 +149,7 @@ class RedisCoroutineStateServiceTests {
                 delay(1)
             }
 
-            assertThat(total).isEqualTo(4002) //4000 dispatch + 1 initiated + 1 finish state
+            assertThat(total).isEqualTo(4003) //4000 dispatch + 1 initiated + 1 finish state + disposed
 
         }
 
@@ -292,7 +292,7 @@ class RedisCoroutineStateServiceTests {
                 override suspend fun onReceive(newState: State) {
                     if (newState is FinishState) {
                         service.dispose()
-                    } else {
+                    } else if (newState !is State.Disposed) {
                         lastStateFromIntent = newState
                     }
                 }
@@ -325,7 +325,7 @@ class RedisCoroutineStateServiceTests {
                 override suspend fun onReceive(newState: State) {
                     if (newState is FinishState) {
                         service.dispose()
-                    } else {
+                    } else if (newState !is State.Disposed) {
                         lastStateFromIntent = newState
                     }
                 }
@@ -763,4 +763,6 @@ class RedisCoroutineStateServiceTests {
             assertThat(slowResultOnMomentWhenQuickFinished).isNotEmpty()
             assertThat(slowResultOnMomentWhenQuickFinished.length).isLessThan(expectResult.length)
         }
+
+
 }

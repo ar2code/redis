@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 
-package ru.ar2code.utils
+package ru.ar2code.redis.core.coroutines
 
-/**
- * Describes an object with special name for logging
- */
-interface LoggableObject {
-    val objectLogName: String?
-        get() = this::class.simpleName
-}
+class AwaitStateTimeoutException(msg : String? = null) : Exception(msg)
