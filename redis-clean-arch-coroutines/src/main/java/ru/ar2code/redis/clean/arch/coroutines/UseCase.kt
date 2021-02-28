@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.onEach
 /**
  * Basic use case with input parameters, single public method run and out result.
  */
-abstract class UseCase<TParams, TResult> where TResult : Any {
+abstract class UseCase<TParams, TResult> : IUseCase<TParams, TResult> {
 
     /**
      * Determines is use case was cancelled.
@@ -31,7 +31,7 @@ abstract class UseCase<TParams, TResult> where TResult : Any {
     protected var isCancelled: Boolean = false
         private set
 
-    open fun run(params: TParams?): Flow<TResult> {
+    override fun run(params: TParams?): Flow<TResult> {
         isCancelled = false
 
         return execute(params)
@@ -45,7 +45,7 @@ abstract class UseCase<TParams, TResult> where TResult : Any {
     /**
      * Cancel use case execution and throw [UseCaseCancelledException] from flow
      */
-    fun cancel() {
+    override fun cancel() {
         isCancelled = true
         onExecutionCancelled()
     }
