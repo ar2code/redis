@@ -475,6 +475,8 @@ class RedisCoroutineStateServiceTests {
             }
         })
 
+        delay(testDelayBeforeCheckingResult)
+
         service.dispatch(IntentTypeB())
 
         delay(testDelayBeforeCheckingResult)
