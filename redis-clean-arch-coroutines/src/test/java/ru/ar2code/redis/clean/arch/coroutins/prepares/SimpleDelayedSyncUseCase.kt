@@ -29,7 +29,7 @@ class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
 
     private var flowParam: String? = null
 
-    override fun execute(params: String?): Flow<String> {
+    override fun execute(params: String): Flow<String> {
         flowParam = params
 
         return flow {

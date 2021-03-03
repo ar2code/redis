@@ -31,7 +31,7 @@ abstract class UseCase<TParams, TResult> : IUseCase<TParams, TResult> {
     protected var isCancelled: Boolean = false
         private set
 
-    override fun run(params: TParams?): Flow<TResult> {
+    override fun run(params: TParams): Flow<TResult> {
         isCancelled = false
 
         return execute(params)
@@ -50,7 +50,7 @@ abstract class UseCase<TParams, TResult> : IUseCase<TParams, TResult> {
         onExecutionCancelled()
     }
 
-    protected abstract fun execute(params: TParams? = null): Flow<TResult>
+    protected abstract fun execute(params: TParams): Flow<TResult>
 
     /**
      * Method invokes after use case was cancelled.

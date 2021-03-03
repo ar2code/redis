@@ -23,7 +23,7 @@ import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
 
 class SimpleExceptionUseCase :
     SynchronizedUseCase<String, Int>(DefaultSynchronizedUseCaseAwaitConfig(), SimpleTestLogger()) {
-    override fun execute(params: String?): Flow<Int> {
+    override fun execute(params: String): Flow<Int> {
         return flow {
             throw Exception(params)
         }

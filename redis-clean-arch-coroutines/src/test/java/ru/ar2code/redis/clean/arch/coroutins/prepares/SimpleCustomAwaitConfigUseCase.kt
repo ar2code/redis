@@ -38,9 +38,9 @@ class SimpleCustomAwaitConfigUseCase(private val timeoutMs :Long = 60_000L) : Sy
 
         }
 
-    override fun execute(params: String?): Flow<String> {
+    override fun execute(params: String): Flow<String> {
         return flow {
-            emit(params!!)
+            emit(params)
             delay(1000)
             emit(params)
         }

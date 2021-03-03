@@ -42,7 +42,7 @@ abstract class SynchronizedUseCase<TParams, TResult>(
 
     private val isExecuting = AtomicBoolean(false)
 
-    override fun run(params: TParams?): Flow<TResult> {
+    override fun run(params: TParams): Flow<TResult> {
         return super.run(params)
             .onStart {
                 awaitPreviousFlow()
