@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.onEach
 /**
  * Basic use case with input parameters, single public method run and out result.
  */
-abstract class UseCase<TParams, TResult> : IUseCase<TParams, TResult> {
+abstract class UseCase<TParams, TResult> : FlowUseCase<TParams, TResult> {
 
     /**
      * Determines is use case was cancelled.
