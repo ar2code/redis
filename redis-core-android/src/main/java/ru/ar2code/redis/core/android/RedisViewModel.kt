@@ -146,23 +146,12 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
     /**
      * Set result from IntentMessage if reducer return [ViewModelStateWithEvent] state
-     * If viewState is not null set to [viewStateLive]
-     * If viewEvent is not null set to [viewEventLive]
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
         logger.info("[$objectLogName] is changing state to ${newState.objectLogName}")
 
-        newState.viewState?.let {
-            viewStateLiveMutable.postValue(it)
-        } ?: kotlin.run {
-            logger.info("[$objectLogName] viewState is null. No post value to live data {viewStateLive}.")
-        }
-
-        newState.viewEvent?.let {
-            viewEventLiveMutable.postValue(EventArgs(it))
-        } ?: kotlin.run {
-            logger.info("[$objectLogName] viewEvent is null. No post value to live event {viewEventLive}.")
-        }
+        viewStateLiveMutable.postValue(newState.viewState)
+        viewEventLiveMutable.postValue(EventArgs( newState.viewEvent))
     }
 
     private fun subscribeToServiceResults() {
