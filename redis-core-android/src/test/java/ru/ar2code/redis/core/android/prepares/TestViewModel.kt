@@ -25,17 +25,8 @@ import ru.ar2code.utils.Logger
 
 
 class TestViewModel() : RedisViewModel<TestViewModelState, TestViewModelEvent>(
-    null
-) {
-
-    override val logger: Logger
-        get() = TestLogger()
-
-    override val initialState: ViewModelStateWithEvent<TestViewModelState, TestViewModelEvent>
-        get() = ViewModelInitiatedState()
-
-    override val reducers: List<ViewStateReducer<TestViewModelState, TestViewModelEvent>>
-        get() = defaultReducers
-
-
-}
+    null,
+    initialState = ViewModelInitiatedState(),
+    reducers = defaultReducers,
+    logger = TestLogger()
+)

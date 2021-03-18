@@ -45,28 +45,19 @@ import ru.ar2code.utils.Logger
  * You can read more about LiveEvent here https://github.com/ar2code/MutableLiveEvent
  */
 abstract class RedisViewModel<ViewState, ViewEvent>(
-    protected val savedState: SavedStateHandle?
+    protected val savedState: SavedStateHandle?,
+    protected val initialState: ViewModelStateWithEvent<ViewState, ViewEvent>,
+    protected val reducers: List<ViewStateReducer<ViewState, ViewEvent>>,
+    protected val triggers: List<ViewStateTrigger<ViewState, ViewEvent>>? = null,
+    protected val reducerSelector: ReducerSelector = DefaultReducerSelector(),
+    protected val triggerSelector: StateTriggerSelector = DefaultStateTriggerSelector(),
+    protected val listenedServiceIntentSelector: IntentSelector = DefaultIntentSelector(),
+    protected val stateStoreSelector: StateStoreSelector = DefaultStateStoreSelector(),
+    protected val savedStateHandler: SavedStateHandler? = null,
+    protected val logger: Logger = RedisCoreAndroidLogger(),
 ) :
     ViewModel(), RedisDispatcher, LoggableObject, RedisListener
         where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
-
-    protected abstract val initialState: ViewModelStateWithEvent<ViewState, ViewEvent>
-
-    protected abstract val reducers: List<ViewStateReducer<ViewState, ViewEvent>>
-
-    protected open val triggers: List<ViewStateTrigger<ViewState, ViewEvent>>? = null
-
-    protected open val reducerSelector: ReducerSelector = DefaultReducerSelector()
-
-    protected open val triggerSelector: StateTriggerSelector = DefaultStateTriggerSelector()
-
-    protected open val listenedServiceIntentSelector: IntentSelector = DefaultIntentSelector()
-
-    protected open val stateStoreSelector: StateStoreSelector = DefaultStateStoreSelector()
-
-    protected open val savedStateHandler: SavedStateHandler? = null
-
-    protected open val logger: Logger = RedisCoreAndroidLogger()
 
     private val viewModelService by lazy {
         RedisCoroutineSavedStateService(
@@ -151,7 +142,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         logger.info("[$objectLogName] is changing state to ${newState.objectLogName}")
 
         viewStateLiveMutable.postValue(newState.viewState)
-        viewEventLiveMutable.postValue(EventArgs( newState.viewEvent))
+        viewEventLiveMutable.postValue(EventArgs(newState.viewEvent))
     }
 
     private fun subscribeToServiceResults() {
