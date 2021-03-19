@@ -139,7 +139,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
      * Set result from IntentMessage if reducer return [ViewModelStateWithEvent] state
      */
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
-        logger.info("[$objectLogName] is changing state to ${newState.objectLogName}")
+        logger.info("[$objectLogName] is post result to ${newState.objectLogName}")
 
         viewStateLiveMutable.postValue(newState.viewState)
         viewEventLiveMutable.postValue(EventArgs(newState.viewEvent))
@@ -147,7 +147,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
 
     private fun subscribeToServiceResults() {
 
-        logger.info("[$objectLogName] subscribe to internal service")
+        logger.info("[$objectLogName] subscribe to it internal service")
 
         viewModelService.subscribe(object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
