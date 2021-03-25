@@ -51,6 +51,7 @@ class RedisViewModelUnitTest {
         delay(delayBeforeAssertMs)
 
         assertThat(viewModel.state).isInstanceOf(ViewModelTypeAState::class.java)
+        assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeAState::class.java)
     }
 
     @Test
@@ -62,6 +63,7 @@ class RedisViewModelUnitTest {
         delay(delayBeforeAssertMs)
 
         assertThat(viewModel.state).isInstanceOf(ViewModelTypeBState::class.java)
+        assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeBState::class.java)
     }
 
     @Test

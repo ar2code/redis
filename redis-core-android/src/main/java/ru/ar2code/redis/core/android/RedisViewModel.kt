@@ -96,9 +96,15 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     /**
      * Current state of the view model
      */
-    @VisibleForTesting(otherwise = PROTECTED)
     val state: State
         get() = viewModelService.serviceState
+
+    private val stateLiveMutable = MutableLiveData<ViewModelStateWithEvent<ViewState, ViewEvent>>()
+
+    /**
+     * Current state [state] of the view model as liveData
+     */
+    val stateLive: LiveData<ViewModelStateWithEvent<ViewState, ViewEvent>> = stateLiveMutable
 
     init {
         subscribeToServiceResults()
@@ -141,6 +147,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     protected open fun postResult(newState: ViewModelStateWithEvent<ViewState, ViewEvent>) {
         logger.info("[$objectLogName] is post result to ${newState.objectLogName}")
 
+        stateLiveMutable.postValue(newState)
         viewStateLiveMutable.postValue(newState.viewState)
         viewEventLiveMutable.postValue(EventArgs(newState.viewEvent))
     }
