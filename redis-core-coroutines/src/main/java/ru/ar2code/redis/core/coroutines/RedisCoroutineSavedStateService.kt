@@ -65,7 +65,7 @@ open class RedisCoroutineSavedStateService(
         savedStateHandler?.let {
             val stateStore = stateStoreSelector?.findStateStore(new, it.stateStores)
             stateStore?.let { store ->
-                logger.info("$objectLogName store state with ${store.objectLogName}")
+                logger.info("[$objectLogName] store state with ${store.objectLogName}")
 
                 store.store(new, savedStateStore)
             }
@@ -87,7 +87,7 @@ open class RedisCoroutineSavedStateService(
             storedStateName?.let {
                 val stateRestore = stateStoreSelector?.findStateRestore(it, handler.stateRestores)
                 stateRestore?.let { restore ->
-                    logger.info("$objectLogName restore state with ${restore.objectLogName}")
+                    logger.info("[$objectLogName] restore state with ${restore.objectLogName}")
                     lastRestoredStateIntent = restore.restoreState(savedStateStore)
                 }
             }

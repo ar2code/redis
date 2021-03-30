@@ -109,7 +109,7 @@ open class RedisCoroutineStateService(
     override fun listen(serviceStateListener: ServiceStateListener) {
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
-                logger.info("$objectLogName receive state change for listening service: ${serviceStateListener.listeningService.objectLogName} newState=${newState.objectLogName}")
+                logger.info("[$objectLogName] receive state change for listening service: ${serviceStateListener.listeningService.objectLogName} newState=${newState.objectLogName}")
 
                 try {
                     val intent = listenedServicesIntentSelector.findIntent(
@@ -163,12 +163,12 @@ open class RedisCoroutineStateService(
 
     private suspend fun sendIntentMessage(msg: IntentMessage) {
         try {
-            logger.info("Service [$objectLogName] is going to dispatch intent ${msg.objectLogName}")
+            logger.info("[$objectLogName] is going to dispatch intent ${msg.objectLogName}")
 
             awaitPassCreatedState()
             intentMessagesChannel.send(msg)
         } catch (e: ClosedSendChannelException) {
-            logger.info("Service [$objectLogName] intent channel is closed.")
+            logger.info("[$objectLogName] intent channel is closed.")
         }
     }
 
@@ -205,7 +205,7 @@ open class RedisCoroutineStateService(
 
         isDisposing.set(true)
 
-        logger.info("Service $objectLogName is going to be disposed.")
+        logger.info("[$objectLogName] is going to be disposed.")
 
         unsubscribeListeners()
         unsubscribeFromListenedServices()
@@ -289,21 +289,21 @@ open class RedisCoroutineStateService(
      * Call when state changed from [old] to [new]
      */
     protected open suspend fun onStateChanged(old: State, new: State) {
-        logger.info("${this.objectLogName} onStateChanged ${old.objectLogName} to ${new.objectLogName}")
+        logger.info("[${this.objectLogName}] onStateChanged ${old.objectLogName} to ${new.objectLogName}")
     }
 
     /**
      * Call after service state got first state after [State.Created]
      */
     protected open suspend fun onInitialized() {
-        logger.info("${this.objectLogName} onInitialized")
+        logger.info("[${this.objectLogName}] onInitialized")
     }
 
     /**
      * Call after service completely disposed
      */
     protected open fun onDisposed() {
-        logger.info("${this.objectLogName} onDisposed")
+        logger.info("[${this.objectLogName}] onDisposed")
     }
 
     internal suspend fun broadcastNewState(newServiceState: State) {
