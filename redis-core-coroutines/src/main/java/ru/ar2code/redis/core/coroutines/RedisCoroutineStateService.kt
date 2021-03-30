@@ -314,7 +314,7 @@ open class RedisCoroutineStateService(
                 return
             }
 
-            logger.info("[$objectLogName] change state from ${serviceStateInternal.objectLogName} to ${newServiceState.objectLogName}")
+            logger.info("[$objectLogName] changing state from ${serviceStateInternal.objectLogName} to ${newServiceState.objectLogName}")
 
             val oldState = serviceStateInternal
 

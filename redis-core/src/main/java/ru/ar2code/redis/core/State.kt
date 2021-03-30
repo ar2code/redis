@@ -24,8 +24,6 @@ import ru.ar2code.utils.LoggableObject
  */
 abstract class State : LoggableObject {
 
-    open val stateName : String = this::class.simpleName!!
-
     /**
      * To protect from state data changing from outside, service emits a clone from current state.
      */

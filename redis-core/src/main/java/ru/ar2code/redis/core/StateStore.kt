@@ -17,6 +17,7 @@
 
 package ru.ar2code.redis.core
 
+import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
@@ -29,7 +30,7 @@ import kotlin.reflect.KClass
 abstract class StateStore(
     private val expectState: KClass<out State>?,
     protected val logger: Logger
-) {
+) : LoggableObject {
 
     abstract suspend fun store(state: State, store: SavedStateStore?)
 
