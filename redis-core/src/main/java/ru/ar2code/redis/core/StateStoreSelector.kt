@@ -18,10 +18,11 @@
 package ru.ar2code.redis.core
 
 /**
- * Interface that describes how to find store mechanism for specified state.
+ * Interface that describes how to find store or restore mechanism for specified state.
  */
 interface StateStoreSelector {
 
     fun findStateStore(state: State, stateStores : List<StateStore>): StateStore?
 
+    fun findStateRestore(stateName: String, stateStores : List<StateRestore>): StateRestore?
 }

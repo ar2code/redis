@@ -77,7 +77,14 @@ open class RedisCoroutineSavedStateService(
     }
 
     override suspend fun getInitialState(): State {
-        lastRestoredStateIntent = savedStateHandler?.restoreState(savedStateStore)
+        savedStateHandler?.let { handler ->
+            val storedStateName = savedStateStore?.get<String>(handler.stateStoreKeyName)
+
+            storedStateName?.let {
+                val stateRestore = stateStoreSelector?.findStateRestore(it, handler.stateRestores)
+                lastRestoredStateIntent = stateRestore?.restoreState(savedStateStore)
+            }
+        }
 
         return lastRestoredStateIntent?.state ?: super.getInitialState()
     }

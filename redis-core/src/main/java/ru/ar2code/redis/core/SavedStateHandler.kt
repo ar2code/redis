@@ -25,11 +25,15 @@ package ru.ar2code.redis.core
  * So you should create a list of StateStore items to provide a mechanism of storing for each service state.
  * But you can set only single StateStore that handles all service states. For it just create [StateStore] with [StateStore.expectState] is null.
  *
- * After service was created it invoke [restoreState] to give you a possibility restore state or dispatch an intent to service itself.
+ * After service was created it searches a [StateRestore] inside [stateRestores] and invoke [StateRestore.restoreState] to give you a possibility restore state or dispatch an intent to service itself.
+ *
+ * @property stateStoreKeyName - is used for storing state name in [SavedStateStore]
  */
 interface SavedStateHandler {
 
     val stateStores: List<StateStore>
 
-    suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
+    val stateRestores: List<StateRestore>
+
+    val stateStoreKeyName: String
 }

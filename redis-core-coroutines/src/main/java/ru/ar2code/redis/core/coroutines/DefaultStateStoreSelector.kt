@@ -18,6 +18,7 @@
 package ru.ar2code.redis.core.coroutines
 
 import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.StateRestore
 import ru.ar2code.redis.core.StateStore
 import ru.ar2code.redis.core.StateStoreSelector
 
@@ -49,5 +50,31 @@ class DefaultStateStoreSelector : StateStoreSelector {
         }
 
         return anyStateStore
+    }
+
+    override fun findStateRestore(
+        stateName: String,
+        stateStores: List<StateRestore>
+    ): StateRestore? {
+
+        var anyStateRestore: StateRestore? = null
+
+        stateStores.forEach {
+            val isConcreteStateRestoreApplicable =
+                !it.isAnyState() && it.isStateRestoreApplicable(stateName)
+
+            if (isConcreteStateRestoreApplicable) {
+                return it
+            }
+
+            val isAnyStateRestoreApplicable =
+                it.isAnyState() && it.isStateRestoreApplicable(stateName)
+
+            if (anyStateRestore == null && isAnyStateRestoreApplicable) {
+                anyStateRestore = it
+            }
+        }
+
+        return anyStateRestore
     }
 }

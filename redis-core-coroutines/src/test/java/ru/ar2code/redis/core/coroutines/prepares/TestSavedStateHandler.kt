@@ -23,23 +23,30 @@ import ru.ar2code.redis.core.test.TestLogger
 class TestSavedStateHandler : SavedStateHandler {
 
     companion object {
-        const val KEY = "KEY"
+        const val STATE_DATA_KEY = "KEY"
     }
 
     class TestStateStore : StateStore(null, TestLogger()) {
         override suspend fun store(state: State, store: SavedStateStore?) {
-            if(state is StateB){
-                store?.set(KEY, state.data)
+            if (state is StateB) {
+                store?.set(STATE_DATA_KEY, state.data)
             }
+        }
+    }
+
+    class TestStateRestore : StateRestore(StateB().stateName, TestLogger()) {
+        override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
+            val data = store?.get<Int>(STATE_DATA_KEY) ?: return null
+            return RestoredStateIntent(StateB(data), IntentTypeFlow())
         }
     }
 
     override val stateStores: List<StateStore>
         get() = listOf(TestStateStore())
 
-    override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
-        val data = store?.get<Int>(KEY) ?: return null
-        return RestoredStateIntent(StateB(data), IntentTypeFlow())
-    }
+    override val stateRestores: List<StateRestore>
+        get() = listOf(TestStateRestore())
 
+    override val stateStoreKeyName: String
+        get() = "TEST_STATE_KEY"
 }

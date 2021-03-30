@@ -50,7 +50,7 @@ class SavedRedisStateServiceTests {
 
         delay(testDelayBeforeCheckingResult)
 
-        val storedData = stateHandler.get<Int>(TestSavedStateHandler.KEY)
+        val storedData = stateHandler.get<Int>(TestSavedStateHandler.STATE_DATA_KEY)
 
         Truth.assertThat(storedData).isEqualTo(savedId)
 
