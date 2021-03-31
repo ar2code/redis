@@ -34,7 +34,7 @@ class TestSavedStateHandler : SavedStateHandler {
         }
     }
 
-    class TestStateRestore : StateRestore(StateB().stateName, TestLogger()) {
+    class TestStateRestore : StateRestore("StateB", TestLogger()) {
         override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
             val data = store?.get<Int>(STATE_DATA_KEY) ?: return null
             return RestoredStateIntent(StateB(data), IntentTypeFlow())
