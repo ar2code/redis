@@ -547,12 +547,15 @@ class RedisCoroutineStateServiceTests {
     fun `service with CustomInit state then all subscribers receive CustomInit state`() =
         runBlocking {
             var emptyResultOne = false
-
+            var createdResult = false
 
             val service = ServiceFactory.buildServiceWithCustomInit(this, Dispatchers.Default)
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
+                    if(newState is State.Created) {
+                        createdResult = true
+                    }
                     if (newState is CustomInitState) {
                         emptyResultOne = true
                     }
@@ -563,7 +566,8 @@ class RedisCoroutineStateServiceTests {
 
             delay(testDelayBeforeCheckingResult)
 
-            assertThat(emptyResultOne)
+            assertThat(emptyResultOne).isTrue()
+            assertThat(createdResult).isFalse()
 
             service.dispose()
         }
