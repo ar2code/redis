@@ -9,7 +9,17 @@ import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
 
 /**
- * todo comments
+ * Helper class for testing variant from state machine table.
+ * Variant means: given initial state then dispatch an intent then receive a new state or keep previous state.
+ *
+ * @param service - service to be tested
+ * @param initialStateIntents - list of intents that should be dispatched to the service for move it state to needed initial state.
+ * @param initialState - start state for testing variant
+ * @param initialIntentDispatchDelayMs - delay before each init intent dispatch
+ * @param checkStateIntent - intent that should be checked as state table variant
+ * @param timeoutMs - time for awaiting expected state after dispatching [checkStateIntent]
+ * @param expectState - state that service should receive after dispatching [checkStateIntent]. If null - service should keep previous state.
+ * @param logger - log object.
  */
 class RedisServiceStateTableVariantCheckHelper(
     private val service: RedisStateService,
