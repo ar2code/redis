@@ -81,7 +81,7 @@ suspend fun RedisStateService.awaitStateWithTimeout(
 ): State {
     val awaitedState = withTimeoutOrNull(timeoutMs) {
         awaitStateAsFlow(expectState).firstOrNull()
-    } ?: throw AwaitStateTimeoutException("$timeoutMs timeout")
+    } ?: throw AwaitStateTimeoutException("await state $expectState finished with $timeoutMs ms timeout.")
 
     SubscriberExtensionsUtil.throwErrorIfStateDisposedNotExpected(this, awaitedState, expectState)
 
