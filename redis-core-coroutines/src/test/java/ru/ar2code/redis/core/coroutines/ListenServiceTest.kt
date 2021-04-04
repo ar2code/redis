@@ -25,12 +25,19 @@ import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
+import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposed
+import ru.ar2code.redis.core.coroutines.test.disposeServiceWhenIntentDispatched
 
 class ListenServiceTest {
     @Test
     fun `service A listen another service B then service A receive specified intent when service B state changed`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
+
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
             var stateBCount = 0
@@ -39,9 +46,6 @@ class ListenServiceTest {
                 override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
-                    } else if (newState is FinishState) {
-                        service.dispose()
-                        listenedService.dispose()
                     }
                 }
             }
@@ -58,9 +62,9 @@ class ListenServiceTest {
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
+
+            listenedService.dispose()
 
             Truth.assertThat(stateBCount)
                 .isEqualTo(2) //First time when listenedService initiated and second time when dispatch intent
@@ -71,6 +75,11 @@ class ListenServiceTest {
     fun `service A stopped listen service B then service A will not receive specified intent when service B state changed`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
+
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
             val listenedServiceInfo =
                 ServiceStateListener(listenedService, mapOf(null to IntentTypeBBuilder()))
@@ -81,9 +90,6 @@ class ListenServiceTest {
                 override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
-                    } else if (newState is FinishState) {
-                        service.dispose()
-                        listenedService.dispose()
                     }
                 }
             }
@@ -100,9 +106,9 @@ class ListenServiceTest {
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
+
+            listenedService.dispose()
 
             Truth.assertThat(stateBCount)
                 .isEqualTo(1) //First time when listenedService initiated. And ignore second time when dispatch intent.
@@ -113,6 +119,11 @@ class ListenServiceTest {
         runBlocking {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
+
             val listenedService = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
             val listenedServiceInfo =
@@ -124,9 +135,6 @@ class ListenServiceTest {
                 override suspend fun onReceive(newState: State) {
                     if (newState is StateB) {
                         stateBCount++
-                    } else if (newState is FinishState) {
-                        service.dispose()
-                        listenedService.dispose()
                     }
                 }
             }
@@ -140,9 +148,9 @@ class ListenServiceTest {
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
+
+            listenedService.dispose()
 
             Truth.assertThat(stateBCount).isEqualTo(0)
 
@@ -156,6 +164,11 @@ class ListenServiceTest {
 
             val service =
                 ServiceFactory.buildSimpleService(serviceAScope, Dispatchers.Default, "Service A")
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
+
             val listenedService =
                 ServiceFactory.buildSimpleService(this, Dispatchers.Default, "Service B")
 
@@ -198,9 +211,7 @@ class ListenServiceTest {
                 listenedService.dispatch(FinishIntent())
             }
 
-            while (!listenedService.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
 
             println("service A changed state times : $serviceAReceiveCount")
 

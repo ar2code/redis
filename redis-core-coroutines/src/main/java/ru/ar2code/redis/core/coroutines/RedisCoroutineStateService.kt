@@ -61,6 +61,15 @@ open class RedisCoroutineStateService(
         private const val AWAIT_INIT_DELAY_MS = 1L
     }
 
+    /**
+     * Listener for getting callback when intent is dispatched to the service.
+     * When [ServiceIntentDispatcherListener.onIntentDispatched] called it means
+     * that service is handling this intent. Next step is to find an appropriate reducer.
+     *
+     * Using for testing purposes.
+     */
+    internal var serviceIntentDispatcherListener: ServiceIntentDispatcherListener? = null
+
     private var serviceStateInternal: State = State.Created()
 
     override var serviceState: State
@@ -213,6 +222,8 @@ open class RedisCoroutineStateService(
         serviceState = State.Disposed()
 
         intentMessagesChannel.close()
+
+        serviceIntentDispatcherListener = null
 
         onDisposed()
     }
@@ -390,6 +401,8 @@ open class RedisCoroutineStateService(
             while (isActive && !intentMessagesChannel.isClosedForReceive) {
                 try {
                     val msg = intentMessagesChannel.receive()
+
+                    serviceIntentDispatcherListener?.onIntentDispatched(msg)
 
                     val reducer = findReducer(msg)
 

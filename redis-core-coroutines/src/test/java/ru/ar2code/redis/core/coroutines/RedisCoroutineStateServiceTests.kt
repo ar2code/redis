@@ -24,7 +24,9 @@ import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
-import kotlin.math.exp
+import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposed
+import ru.ar2code.redis.core.coroutines.test.disposeServiceAfterNumbersOfDispatchedIntents
+import ru.ar2code.redis.core.coroutines.test.disposeServiceWhenIntentDispatched
 
 
 class RedisCoroutineStateServiceTests {
@@ -39,14 +41,10 @@ class RedisCoroutineStateServiceTests {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
-            val subscriber = object : ServiceSubscriber {
-                override suspend fun onReceive(newState: State) {
-                    if (newState is FinishState) {
-                        service.dispose()
-                    }
-                }
-            }
-            service.subscribe(subscriber)
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
 
             val d1 = async {
                 println("start dispatch task 1")
@@ -83,8 +81,6 @@ class RedisCoroutineStateServiceTests {
 
             awaitAll(d2, d3, d4)
 
-            delay(testDelayBeforeCheckingResult)
-
             service.dispatch(FinishIntent())
         }
 
@@ -93,24 +89,18 @@ class RedisCoroutineStateServiceTests {
         runBlocking(Dispatchers.Default) {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+            val totalIntents = 4000
             val repeatCount = 1000
             var total = 0
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
                     total++
-
-                    if (total > 4000) {
-                        delay(testDelayBeforeCheckingResult)
-                        service.dispatch(FinishIntent())
-                    }
-
-                    if (newState is FinishState) {
-                        service.dispose()
-                    }
                 }
             }
             service.subscribe(subscriber)
+
+            service.disposeServiceAfterNumbersOfDispatchedIntents(totalIntents)
 
             val d1 = async {
                 println("start dispatch task 1")
@@ -145,11 +135,9 @@ class RedisCoroutineStateServiceTests {
 
             awaitAll(d1, d2, d3, d4)
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
 
-            assertThat(total).isEqualTo(4003) //4000 dispatch + 1 initiated + 1 finish state + disposed
+            assertThat(total).isAtLeast(totalIntents) //4000 dispatch + 1 initiated + 1 finish state + disposed
 
         }
 
@@ -286,30 +274,27 @@ class RedisCoroutineStateServiceTests {
 
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
+
             var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
-                    if (newState is FinishState) {
-                        service.dispose()
-                    } else if (newState !is State.Disposed) {
+                    if (newState !is State.Disposed) {
                         lastStateFromIntent = newState
                     }
                 }
             }
             service.subscribe(subscriber)
 
-            delay(testDelayBeforeCheckingResult)
-
             service.dispatch(IntentTypeA())
-
-            delay(testDelayBeforeCheckingResult)
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
 
             assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
         }
@@ -318,14 +303,16 @@ class RedisCoroutineStateServiceTests {
     fun `service is in initiated state and dispatch FloatIntentType then found FloatStateReducer`() =
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
 
             var lastStateFromIntent: State? = null
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
-                    if (newState is FinishState) {
-                        service.dispose()
-                    } else if (newState !is State.Disposed) {
+                    if (newState !is State.Disposed) {
                         lastStateFromIntent = newState
                     }
                 }
@@ -344,9 +331,7 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
 
             assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
         }
@@ -392,6 +377,11 @@ class RedisCoroutineStateServiceTests {
         runBlocking {
             val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
 
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
+
             val expected = "${FlowStateD.NAME}${FlowStateF.NAME}"
             var result = ""
 
@@ -399,8 +389,6 @@ class RedisCoroutineStateServiceTests {
                 override suspend fun onReceive(newState: State) {
                     if (newState is FlowState) {
                         result += newState.name
-                    } else if (newState is FinishState) {
-                        service.dispose()
                     }
                 }
             }
@@ -414,15 +402,10 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
 
             assertThat(result).isEqualTo(expected)
-
-            service.dispose()
         }
-
 
     @Test
     fun `service is in initiated state and two subscribers added then subscribers receive initial state`() =
@@ -553,7 +536,7 @@ class RedisCoroutineStateServiceTests {
 
             val subscriber = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
-                    if(newState is State.Created) {
+                    if (newState is State.Created) {
                         createdResult = true
                     }
                     if (newState is CustomInitState) {
@@ -582,13 +565,15 @@ class RedisCoroutineStateServiceTests {
         var resultData = ""
 
         val service = ServiceFactory.buildSimpleService(this, Dispatchers.Default)
+        service.disposeServiceWhenIntentDispatched(
+            FinishIntent::class,
+            testDelayBeforeCheckingResult
+        )
 
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
                 if (newState is FlowState) {
                     resultData += newState.name
-                } else if (newState is FinishState) {
-                    service.dispose()
                 }
             }
         }
@@ -607,12 +592,9 @@ class RedisCoroutineStateServiceTests {
 
         service.dispatch(FinishIntent())
 
-        while (!service.isDisposed()) {
-            delay(1)
-        }
+        service.awaitWhileNotDisposed()
 
         assertThat(resultData).isEqualTo(expectedFlow)
-
     }
 
     @Test
@@ -620,6 +602,11 @@ class RedisCoroutineStateServiceTests {
         val expectResult = "IAC"  //Initiated -> State A (Intent) -> trigger -> State C
         var result = ""
         val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
+        service.disposeServiceWhenIntentDispatched(
+            FinishIntent::class,
+            testDelayBeforeCheckingResult
+        )
+
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
                 when (newState) {
@@ -649,9 +636,7 @@ class RedisCoroutineStateServiceTests {
 
         service.dispatch(FinishIntent())
 
-        while (!service.isDisposed()) {
-            delay(1)
-        }
+        service.awaitWhileNotDisposed()
 
         assertThat(result).isEqualTo(expectResult)
     }
@@ -705,6 +690,10 @@ class RedisCoroutineStateServiceTests {
             var slowResultOnMomentWhenQuickFinished = ""
 
             val service = ServiceFactory.buildSimpleServiceWithTriggers(this, Dispatchers.Default)
+            service.disposeServiceWhenIntentDispatched(
+                FinishIntent::class,
+                testDelayBeforeCheckingResult
+            )
 
             val subscriberQuick = object : ServiceSubscriber {
                 override suspend fun onReceive(newState: State) {
@@ -738,9 +727,6 @@ class RedisCoroutineStateServiceTests {
                         is StateC -> {
                             resultSlow += "C"
                         }
-                        is FinishState -> {
-                            service.dispose()
-                        }
                     }
                     delay(testDelayBeforeCheckingResult)
                 }
@@ -758,9 +744,7 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            while (!service.isDisposed()) {
-                delay(1)
-            }
+            service.awaitWhileNotDisposed()
 
             assertThat(resultSlow).isEqualTo(expectResult)
             assertThat(resultQuick).isEqualTo(expectResult)

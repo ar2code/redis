@@ -1,9 +1,11 @@
-package ru.ar2code.redis.core.coroutines
+package ru.ar2code.redis.core.coroutines.test
 
 import kotlinx.coroutines.delay
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.RedisStateService
 import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.coroutines.AwaitStateTimeoutException
+import ru.ar2code.redis.core.coroutines.awaitStateWithTimeout
 import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger
 import kotlin.reflect.KClass
@@ -65,12 +67,12 @@ class RedisServiceStateTableVariantCheckHelper(
                 expectedState
             )
 
-            logger.info("$LOG_KEY received state = ${state.objectLogName}")
+            logger.info("$LOG_KEY received state=${state.objectLogName}")
 
             expectedState.isInstance(state)
 
         } catch (e: AwaitStateTimeoutException) {
-            logger.info("$LOG_KEY current state = ${service.serviceState.objectLogName}. Check variant timeout error: ${e.message}.")
+            logger.info("$LOG_KEY current state=${service.serviceState.objectLogName}. Check variant timeout error: ${e.message}.")
 
             isExpectNotStateChanged
         }
@@ -83,9 +85,10 @@ class RedisServiceStateTableVariantCheckHelper(
         }
 
         try {
-            service.awaitStateWithTimeout(timeoutMs, initialState)
+            val state = service.awaitStateWithTimeout(timeoutMs, initialState)
+            logger.info("$LOG_KEY initial state=${state.objectLogName}")
         } catch (e: AwaitStateTimeoutException) {
-            throw AwaitStateTimeoutException("$LOG_KEY current state = ${service.serviceState.objectLogName}. Initial state error: ${e.message}.")
+            throw AwaitStateTimeoutException("$LOG_KEY current state=${service.serviceState.objectLogName}. Initial state error: ${e.message}.")
         }
     }
 
