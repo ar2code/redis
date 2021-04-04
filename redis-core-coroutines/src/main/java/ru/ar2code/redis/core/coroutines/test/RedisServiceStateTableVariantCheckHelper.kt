@@ -2,9 +2,9 @@ package ru.ar2code.redis.core.coroutines.test
 
 import kotlinx.coroutines.delay
 import ru.ar2code.redis.core.IntentMessage
-import ru.ar2code.redis.core.RedisStateService
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.AwaitStateTimeoutException
+import ru.ar2code.redis.core.coroutines.RedisCoroutineStateService
 import ru.ar2code.redis.core.coroutines.awaitStateWithTimeout
 import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger
@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
  * @param logger - log object.
  */
 class RedisServiceStateTableVariantCheckHelper(
-    private val service: RedisStateService,
+    private val service: RedisCoroutineStateService,
     private val initialStateIntents: List<IntentMessage>?,
     private val initialState: KClass<out State>,
     private val initialIntentDispatchDelayMs: Long,
@@ -51,9 +51,7 @@ class RedisServiceStateTableVariantCheckHelper(
     }
 
     suspend fun awaitChecking() {
-        while (!service.isDisposed()) {
-            delay(1)
-        }
+        service.awaitWhileNotDisposed()
     }
 
     private suspend fun checkMachine(): Boolean {
