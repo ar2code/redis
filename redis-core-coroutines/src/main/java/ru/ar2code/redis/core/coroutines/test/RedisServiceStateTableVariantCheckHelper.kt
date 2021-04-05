@@ -50,10 +50,6 @@ class RedisServiceStateTableVariantCheckHelper(
         return result
     }
 
-    suspend fun awaitChecking() {
-        service.awaitWhileNotDisposed()
-    }
-
     private suspend fun checkMachine(): Boolean {
         service.dispatch(checkStateIntent)
 
