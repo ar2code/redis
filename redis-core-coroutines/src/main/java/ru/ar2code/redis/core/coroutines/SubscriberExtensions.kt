@@ -54,20 +54,6 @@ private fun RedisStateService.awaitStateAsFlow(expectState: KClass<out State>) =
     }
 
 /**
- * Suspend and await expected state type [expectState] from service [this]
- * Extension will be suspended until expected state will be received or service becomes disposed.
- *
- * If service becomes disposed and expected state was not [State.Disposed] AwaitStateTimeoutException will be thrown
- */
-suspend fun RedisStateService.awaitState(expectState: KClass<out State>): State {
-    val awaitedState = awaitStateAsFlow(expectState).first()
-
-    SubscriberExtensionsUtil.throwErrorIfStateDisposedNotExpected(this, awaitedState, expectState)
-
-    return awaitedState
-}
-
-/**
  * Suspend and await expected state type [expectState] from service [this] with timeout.
  * Extension will be suspended until expected state will be received or service becomes disposed or timeout.
  *

@@ -27,6 +27,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
+import ru.ar2code.redis.core.coroutines.prepares.Constants.awaitStateTimeout
 
 class AwaitExtTests {
 
@@ -44,7 +45,7 @@ class AwaitExtTests {
             service.dispatch(FinishIntent())
         }
 
-        val awaitedState = service.awaitState(FlowStateD::class)
+        val awaitedState = service.awaitStateWithTimeout(awaitStateTimeout, FlowStateD::class)
 
         service.dispose()
 
@@ -62,7 +63,7 @@ class AwaitExtTests {
             service.dispatch(FinishIntent())
         }
 
-        val awaitedState = service.awaitStateWithTimeout(10, FlowStateD::class)
+        val awaitedState = service.awaitStateWithTimeout(awaitStateTimeout, FlowStateD::class)
 
         service.dispose()
 
@@ -82,7 +83,7 @@ class AwaitExtTests {
             service.dispose()
         }
 
-        val awaitedState = service.awaitState(FlowStateD::class)
+        val awaitedState = service.awaitStateWithTimeout(awaitStateTimeout, FlowStateD::class)
 
         Truth.assertThat(awaitedState).isInstanceOf(FlowStateD::class.java)
     }
@@ -100,7 +101,7 @@ class AwaitExtTests {
             service.dispose()
         }
 
-        val awaitedState = service.awaitState(State.Disposed::class)
+        val awaitedState = service.awaitStateWithTimeout(awaitStateTimeout, State.Disposed::class)
 
         Truth.assertThat(awaitedState).isInstanceOf(State.Disposed::class.java)
     }

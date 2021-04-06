@@ -1,6 +1,7 @@
 package ru.ar2code.redis.core.coroutines.test
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.coroutines.RedisCoroutineStateService
 import ru.ar2code.redis.core.coroutines.ServiceIntentDispatcherListener
@@ -43,8 +44,10 @@ fun RedisCoroutineStateService.disposeServiceWhenIntentDispatched(
     }
 }
 
-suspend fun RedisCoroutineStateService.awaitWhileNotDisposed() {
-    while (!this.isDisposed()) {
-        delay(1)
+suspend fun RedisCoroutineStateService.awaitWhileNotDisposedWithTimeout(timeoutMs: Long) {
+    withTimeout(timeoutMs) {
+        while (!this@awaitWhileNotDisposedWithTimeout.isDisposed()) {
+            delay(1)
+        }
     }
 }

@@ -24,8 +24,9 @@ import ru.ar2code.redis.core.ServiceStateListener
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
+import ru.ar2code.redis.core.coroutines.prepares.Constants.awaitDisposedStateTimeout
 import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
-import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposed
+import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposedWithTimeout
 import ru.ar2code.redis.core.coroutines.test.disposeServiceWhenIntentDispatched
 
 class ListenServiceTest {
@@ -62,7 +63,7 @@ class ListenServiceTest {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             listenedService.dispose()
 
@@ -106,7 +107,7 @@ class ListenServiceTest {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             listenedService.dispose()
 
@@ -148,7 +149,7 @@ class ListenServiceTest {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             listenedService.dispose()
 
@@ -211,7 +212,7 @@ class ListenServiceTest {
                 listenedService.dispatch(FinishIntent())
             }
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             println("service A changed state times : $serviceAReceiveCount")
 

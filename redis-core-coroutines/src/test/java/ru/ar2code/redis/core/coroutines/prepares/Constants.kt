@@ -17,6 +17,9 @@
 
 package ru.ar2code.redis.core.coroutines.prepares
 
-object Constants {
-    internal const val testDelayBeforeCheckingResult = 25L
+internal object Constants {
+    const val testDelayBeforeCheckingResult = 25L
+    const val awaitDisposedStateTimeout = 1000L
+    const val awaitStateTimeout = 1000L
+
 }

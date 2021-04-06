@@ -23,8 +23,9 @@ import org.junit.Test
 import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
+import ru.ar2code.redis.core.coroutines.prepares.Constants.awaitDisposedStateTimeout
 import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
-import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposed
+import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposedWithTimeout
 import ru.ar2code.redis.core.coroutines.test.disposeServiceAfterNumbersOfDispatchedIntents
 import ru.ar2code.redis.core.coroutines.test.disposeServiceWhenIntentDispatched
 
@@ -135,8 +136,8 @@ class RedisCoroutineStateServiceTests {
 
             awaitAll(d1, d2, d3, d4)
 
-            service.awaitWhileNotDisposed()
-
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
+            
             assertThat(total).isAtLeast(totalIntents) //4000 dispatch + 1 initiated + 1 finish state + disposed
 
         }
@@ -294,7 +295,7 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
         }
@@ -331,7 +332,7 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             assertThat(lastStateFromIntent).isInstanceOf(StateC::class.java)
         }
@@ -402,7 +403,7 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             assertThat(result).isEqualTo(expected)
         }
@@ -592,7 +593,7 @@ class RedisCoroutineStateServiceTests {
 
         service.dispatch(FinishIntent())
 
-        service.awaitWhileNotDisposed()
+        service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
         assertThat(resultData).isEqualTo(expectedFlow)
     }
@@ -636,7 +637,7 @@ class RedisCoroutineStateServiceTests {
 
         service.dispatch(FinishIntent())
 
-        service.awaitWhileNotDisposed()
+        service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
         assertThat(result).isEqualTo(expectResult)
     }
@@ -744,7 +745,7 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(FinishIntent())
 
-            service.awaitWhileNotDisposed()
+            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
 
             assertThat(resultSlow).isEqualTo(expectResult)
             assertThat(resultQuick).isEqualTo(expectResult)
