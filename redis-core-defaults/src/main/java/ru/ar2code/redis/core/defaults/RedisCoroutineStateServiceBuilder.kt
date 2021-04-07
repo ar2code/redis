@@ -145,7 +145,7 @@ open class RedisCoroutineStateServiceBuilder(
      * Build service
      */
     fun build(): RedisCoroutineStateService {
-        return RedisCoroutineSavedStateService(
+        return RedisCoroutineStateService(
             scope,
             dispatcher ?: Dispatchers.Default,
             initialState ?: State.Initiated(),
@@ -157,12 +157,12 @@ open class RedisCoroutineStateServiceBuilder(
             stateTriggers,
             stateTriggerSelector
                 ?: DefaultStateTriggerSelector(),
-            logger
-                ?: DefaultLogger(),
-            serviceLogName,
             savedStateStore,
             savedStateHandler,
-            stateStoreSelector ?: DefaultStateStoreSelector()
+            stateStoreSelector ?: DefaultStateStoreSelector(),
+            logger
+                ?: DefaultLogger(),
+            serviceLogName
         )
     }
 }

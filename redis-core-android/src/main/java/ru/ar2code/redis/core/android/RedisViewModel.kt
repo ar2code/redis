@@ -60,7 +60,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
     private val viewModelService by lazy {
-        RedisCoroutineSavedStateService(
+        RedisCoroutineStateService(
             viewModelScope,
             Dispatchers.Default,
             initialState,
@@ -69,12 +69,11 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
             listenedServiceIntentSelector,
             triggers,
             triggerSelector,
-            logger,
-            "${objectLogName}.service",
             savedState?.toRedisSavedStateStore(),
             savedStateHandler,
-            stateStoreSelector
-
+            stateStoreSelector,
+            logger,
+            "${objectLogName}.service"
         )
     }
 

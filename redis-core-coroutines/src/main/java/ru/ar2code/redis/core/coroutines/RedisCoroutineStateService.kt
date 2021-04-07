@@ -40,6 +40,9 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param listenedServicesIntentSelector algorithm how to find reaction for service state changing that current service listens
  * @param stateTriggers list of triggers that can be called when service change its state
  * @param stateTriggerSelector  algorithm how to find triggers when service change state
+ * @param savedStateStore state store implementation
+ * @param savedStateHandler object that handle storing/restoring state
+ * @param stateStoreSelector algorithm how to find storing logic for current state
  * @param logger logging object
  * @param serviceLogName object name that is used for logging
  */
@@ -53,6 +56,9 @@ open class RedisCoroutineStateService(
     private val listenedServicesIntentSelector: IntentSelector,
     private val stateTriggers: List<StateTrigger>?,
     private val stateTriggerSelector: StateTriggerSelector?,
+    private val savedStateStore: SavedStateStore?,
+    private val savedStateHandler: SavedStateHandler?,
+    private val stateStoreSelector: StateStoreSelector?,
     protected val logger: Logger,
     private val serviceLogName: String? = null
 ) : RedisStateService {
@@ -300,6 +306,15 @@ open class RedisCoroutineStateService(
      * Call when state changed from [old] to [new]
      */
     protected open suspend fun onStateChanged(old: State, new: State) {
+        savedStateHandler?.let {
+            val stateStore = stateStoreSelector?.findStateStore(new, it.stateStores)
+            stateStore?.let { store ->
+                logger.info("[$objectLogName] store state with ${store.objectLogName}")
+
+                store.store(new, savedStateStore)
+            }
+        }
+
         logger.info("[${this.objectLogName}] onStateChanged ${old.objectLogName} to ${new.objectLogName}")
     }
 
@@ -307,6 +322,9 @@ open class RedisCoroutineStateService(
      * Call after service state got first state after [State.Created]
      */
     protected open suspend fun onInitialized() {
+        dispatchIntentAfterInitializing()
+        lastRestoredStateIntent = null
+
         logger.info("[${this.objectLogName}] onInitialized")
     }
 
@@ -392,8 +410,29 @@ open class RedisCoroutineStateService(
     /**
      * Get initial state that service should get after creation. By default [initialState]
      */
-    protected open suspend fun getInitialState(): State {
-        return initialState
+    private suspend fun getInitialState(): State {
+        logger.info("[$objectLogName]:getInitialState() savedStateHandler=$savedStateHandler")
+
+        savedStateHandler?.let { handler ->
+            val storedStateName = savedStateStore?.get<String>(handler.stateStoreKeyName)
+
+            logger.info("[$objectLogName]:getInitialState() storedStateName=$storedStateName")
+
+            storedStateName?.let {
+                val stateRestore = stateStoreSelector?.findStateRestore(it, handler.stateRestores)
+
+                logger.info("[$objectLogName]:getInitialState() stateRestore=$stateRestore")
+
+                stateRestore?.let { restore ->
+                    logger.info("[$objectLogName] restore state with ${restore.objectLogName}")
+                    lastRestoredStateIntent = restore.restoreState(savedStateStore)
+                }
+            }
+        }
+
+        logger.info("[$objectLogName]:getInitialState() lastRestoredStateIntent=${lastRestoredStateIntent?.state}")
+
+        return lastRestoredStateIntent?.state ?: initialState
     }
 
     private fun subscribeToIntentMessages() {
@@ -465,6 +504,14 @@ open class RedisCoroutineStateService(
         while (serviceStateInternal is State.Created) {
             delay(AWAIT_INIT_DELAY_MS)
             logger.info("[$objectLogName] await passing initial state. Current state = ${serviceStateInternal.objectLogName}")
+        }
+    }
+
+    private var lastRestoredStateIntent: RestoredStateIntent? = null
+
+    private fun dispatchIntentAfterInitializing() {
+        lastRestoredStateIntent?.intentMessage?.let {
+            dispatch(it)
         }
     }
 }

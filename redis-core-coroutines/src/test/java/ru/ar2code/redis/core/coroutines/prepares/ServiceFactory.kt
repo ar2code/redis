@@ -74,7 +74,7 @@ object ServiceFactory {
     fun buildSimpleService(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
-        logObjectName : String? = null
+        logObjectName: String? = null
     ): RedisCoroutineStateService {
         return RedisCoroutineStateService(
             scope,
@@ -85,6 +85,9 @@ object ServiceFactory {
             DefaultIntentSelector(),
             emptyList(),
             DefaultStateTriggerSelector(),
+            null,
+            null,
+            null,
             TestLogger(),
             logObjectName
         )
@@ -103,6 +106,9 @@ object ServiceFactory {
             DefaultIntentSelector(),
             defaultTriggers,
             DefaultStateTriggerSelector(),
+            null,
+            null,
+            null,
             TestLogger()
         )
     }
@@ -112,8 +118,8 @@ object ServiceFactory {
         dispatcher: CoroutineDispatcher,
         stateStore: SavedStateStore,
         stateHandler: SavedStateHandler
-    ): RedisCoroutineSavedStateService {
-        return RedisCoroutineSavedStateService(
+    ): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
             scope,
             dispatcher,
             State.Initiated(),
@@ -122,11 +128,10 @@ object ServiceFactory {
             DefaultIntentSelector(),
             emptyList(),
             DefaultStateTriggerSelector(),
-            TestLogger(),
-            null,
             stateStore,
             stateHandler,
-            DefaultStateStoreSelector()
+            DefaultStateStoreSelector(),
+            TestLogger(),
         )
     }
 
@@ -143,6 +148,9 @@ object ServiceFactory {
             DefaultIntentSelector(),
             defaultTriggers,
             DefaultStateTriggerSelector(),
+            null,
+            null,
+            null,
             TestLogger()
         )
     }
@@ -160,6 +168,9 @@ object ServiceFactory {
             DefaultIntentSelector(),
             defaultTriggers,
             DefaultStateTriggerSelector(),
+            null,
+            null,
+            null,
             TestLogger()
         )
     }

@@ -19,6 +19,8 @@ package ru.ar2code.redis.core.defaults
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import ru.ar2code.redis.core.SavedStateHandler
+import ru.ar2code.redis.core.SavedStateStore
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.*
 
@@ -31,7 +33,9 @@ import ru.ar2code.redis.core.coroutines.*
 abstract class DefaultRedisCoroutineStateService(
     scope: CoroutineScope,
     reducers: List<StateReducer>,
-    triggers : List<StateTrigger>? = null
+    savedStateStore: SavedStateStore,
+    savedStateHandler: SavedStateHandler,
+    triggers: List<StateTrigger>? = null
 ) :
     RedisCoroutineStateService(
         scope,
@@ -42,5 +46,8 @@ abstract class DefaultRedisCoroutineStateService(
         DefaultIntentSelector(),
         triggers,
         DefaultStateTriggerSelector(),
+        savedStateStore,
+        savedStateHandler,
+        DefaultStateStoreSelector(),
         DefaultLogger()
     )

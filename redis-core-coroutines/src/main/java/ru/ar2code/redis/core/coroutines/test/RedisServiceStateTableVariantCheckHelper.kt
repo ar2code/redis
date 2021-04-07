@@ -74,6 +74,7 @@ class RedisServiceStateTableVariantCheckHelper(
 
     private suspend fun goToInitialState() {
         initialStateIntents?.forEach {
+            logger.info("$LOG_KEY dispatch intent=${it.objectLogName}")
             service.dispatch(it)
             delay(initialIntentDispatchDelayMs)
         }
