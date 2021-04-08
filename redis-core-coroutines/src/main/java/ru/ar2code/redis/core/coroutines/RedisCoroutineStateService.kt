@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateTriggerSelector  algorithm how to find triggers when service change state
  * @param savedStateStore state store implementation
  * @param savedStateHandler object that handle storing/restoring state
- * @param stateStoreSelector algorithm how to find storing logic for current state
+ * @param stateStoreSelector algorithm how to find store item for current state
  * @param logger logging object
  * @param serviceLogName object name that is used for logging
  */
