@@ -41,6 +41,10 @@ abstract class State : LoggableObject {
         }
     }
 
+    /**
+     * Disposed state means service is died.
+     * After that service does not dispatch any intents, reduce current state, etc.
+     */
     class Disposed : State() {
         override fun clone(): State {
             return Disposed()
