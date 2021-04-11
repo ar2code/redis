@@ -40,8 +40,10 @@ private fun RedisStateService.awaitStateAsFlow(expectState: KClass<out State>) =
                 val isDisposed = newState is State.Disposed
 
                 if (isExpectedState || isDisposed) {
-                    if (!channel.isClosedForSend) {
-                        send(newState)
+                    channel.runCatching {
+                        if (!channel.isClosedForSend) {
+                            send(newState)
+                        }
                     }
                     channel.close()
                 }
@@ -68,11 +70,7 @@ suspend fun RedisStateService.awaitStateWithTimeout(
     expectState: KClass<out State>
 ): State {
     val awaitedState = withTimeoutOrNull(timeoutMs) {
-        try {
-            awaitStateAsFlow(expectState).firstOrNull()
-        } catch (e: Exception) {
-            throw AwaitStateTimeoutException("await state $expectState finished with internal exception $e.")
-        }
+        awaitStateAsFlow(expectState).firstOrNull()
     }
         ?: throw AwaitStateTimeoutException("await state $expectState finished with $timeoutMs ms timeout.")
 
