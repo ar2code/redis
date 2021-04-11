@@ -40,7 +40,9 @@ private fun RedisStateService.awaitStateAsFlow(expectState: KClass<out State>) =
                 val isDisposed = newState is State.Disposed
 
                 if (isExpectedState || isDisposed) {
-                    sendBlocking(newState)
+                    if (!channel.isClosedForSend) {
+                        send(newState)
+                    }
                     channel.close()
                 }
             }
