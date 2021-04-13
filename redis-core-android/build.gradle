@@ -57,7 +57,7 @@ dependencies {
     implementation 'ru.ar2code.mutableliveevent:live-event:1.0.2'
     testImplementation "com.google.truth:truth:1.0.1"
 
-    def lifecycle_version = "2.2.0"
+    def lifecycle_version = "2.3.1"
     def arch_version = "2.1.0"
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
