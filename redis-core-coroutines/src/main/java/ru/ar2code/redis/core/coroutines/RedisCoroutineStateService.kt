@@ -319,7 +319,9 @@ open class RedisCoroutineStateService(
     }
 
     /**
-     * Call after service state got first state after [State.Created]
+     * Call after service state got first state after creation.
+     *
+     * Inside this method the service is ready and can handle intents.
      */
     protected open suspend fun onInitialized() {
         dispatchIntentAfterInitializing()
@@ -379,6 +381,17 @@ open class RedisCoroutineStateService(
         }
     }
 
+    /**
+     * Call after service created but before service get initial state.
+     *
+     * Difference from [onInitialized] is that inside onCreate method you can do some actions before service receive any intent.
+     */
+    protected open suspend fun onCreated() {
+        /**
+         * You can do some initial stuff here.
+         */
+    }
+
     private fun initialize() {
 
         fun initService() {
@@ -388,7 +401,10 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
+                onCreated()
+
                 broadcastNewState(getInitialState())
+
                 onInitialized()
             }
         }
