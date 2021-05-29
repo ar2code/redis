@@ -29,16 +29,19 @@ open class ConsoleLogger(tag: String) : Logger(tag) {
         level = Level.ALL
     } ?: null
 
-    override fun info(msg: String) {
-        javaLogger?.log(Level.INFO, msg)
+    override fun info(msg: String, level: String) {
+        javaLogger?.log(Level.INFO, buildMessage(msg, level))
     }
 
-    override fun error(msg: String, t: Throwable) {
-        javaLogger?.log(Level.SEVERE, msg, t)
+    override fun error(msg: String, t: Throwable, level: String) {
+        javaLogger?.log(Level.SEVERE, buildMessage(msg, level), t)
     }
 
-    override fun warning(msg: String) {
-        javaLogger?.log(Level.WARNING, msg)
+    override fun warning(msg: String, level: String) {
+        javaLogger?.log(Level.WARNING, buildMessage(msg, level))
     }
 
+    private fun buildMessage(msg: String, level: String): String {
+        return "[$level]/${msg}"
+    }
 }

@@ -21,7 +21,12 @@ package ru.ar2code.utils
  * Logger for Redis framework.
  */
 abstract class Logger(private val tag: String?) {
-    abstract fun info(msg: String)
-    abstract fun error(msg: String, t: Throwable)
-    abstract fun warning(msg: String)
+
+    companion object {
+        const val DEFAULT_LEVEL = "Redis-default"
+    }
+
+    abstract fun info(msg: String, level: String = DEFAULT_LEVEL)
+    abstract fun error(msg: String, t: Throwable, level: String = DEFAULT_LEVEL)
+    abstract fun warning(msg: String, level: String = DEFAULT_LEVEL)
 }

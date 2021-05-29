@@ -24,17 +24,17 @@ data class Changeable<T>(
     val data: T?,
 
     /**
-     * True means that [data] was changed since previous time. You need to update UI with a new [data]
-     * False means nothing was changed and you should ignore this state assume that UI is up-to-date with state
+     * You can keep data version inside UI and check version to decide do you need update UI or not.
+     * If version is the same, you do not need to update UI.
      */
-    val isChangedSincePrevious: Boolean
+    val version: Int = INIT_VERSION
 ) where T : Any {
 
-    /**
-     * Return new Changeable instance with same [data] but with [isChangedSincePrevious] = false.
-     */
-    fun sameNotChanged(): Changeable<T> {
-        return Changeable(data, isChangedSincePrevious = false)
+    companion object {
+        const val INIT_VERSION = 1
     }
 
+    fun generateUpperVersion(): Int {
+        return version + 1
+    }
 }
