@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
  * @param expectState - state that service should receive after dispatching [checkStateIntent]. If null - service should keep previous state.
  * @param logger - log object.
  */
-class RedisServiceStateTableVariantCheckHelper(
+open class RedisServiceStateTableVariantCheckHelper(
     private val service: RedisCoroutineStateService,
     private val initialStateIntents: List<IntentMessage>?,
     private val initialState: KClass<out State>,
@@ -45,9 +45,13 @@ class RedisServiceStateTableVariantCheckHelper(
 
         val result = checkMachine()
 
-        service.dispose()
+        disposeService()
 
         return result
+    }
+
+    protected open fun disposeService() {
+        service.dispose()
     }
 
     private suspend fun checkMachine(): Boolean {

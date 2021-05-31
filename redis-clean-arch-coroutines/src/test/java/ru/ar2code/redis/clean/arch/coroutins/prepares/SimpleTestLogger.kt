@@ -20,15 +20,15 @@ package ru.ar2code.redis.clean.arch.coroutins.prepares
 import ru.ar2code.utils.Logger
 
 class SimpleTestLogger : Logger("TestLogger") {
-    override fun info(msg: String) {
+    override fun info(msg: String, level: String) {
         println(msg)
     }
 
-    override fun error(msg: String, t: Throwable) {
+    override fun error(msg: String, t: Throwable, level: String) {
         println(msg)
     }
 
-    override fun warning(msg: String) {
+    override fun warning(msg: String, level: String) {
         println(msg)
     }
 }

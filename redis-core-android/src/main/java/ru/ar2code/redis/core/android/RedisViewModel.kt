@@ -18,7 +18,6 @@
 package ru.ar2code.redis.core.android
 
 import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.PROTECTED
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import ru.ar2code.mutableliveevent.EventArgs
@@ -26,7 +25,6 @@ import ru.ar2code.mutableliveevent.MutableLiveEvent
 import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
-import ru.ar2code.redis.core.coroutines.DefaultStateStoreSelector
 import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 
@@ -59,7 +57,8 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     ViewModel(), RedisDispatcher, LoggableObject, RedisListener
         where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
 
-    private val viewModelService by lazy {
+    @VisibleForTesting
+    internal val viewModelService by lazy {
         RedisCoroutineStateService(
             viewModelScope,
             Dispatchers.Default,
@@ -149,6 +148,12 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
         stateLiveMutable.postValue(newState)
         viewStateLiveMutable.postValue(newState.viewState)
         viewEventLiveMutable.postValue(EventArgs(newState.viewEvent))
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        viewModelService.dispose()
     }
 
     private fun subscribeToServiceResults() {
