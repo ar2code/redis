@@ -24,11 +24,12 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import ru.ar2code.redis.core.android.prepares.*
+import ru.ar2code.redis.core.coroutines.awaitStateWithTimeout
 
 
 class RedisViewModelUnitTest {
 
-    private val delayBeforeAssertMs = 100L
+    private val awaitTimeout = 5000L
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -37,89 +38,112 @@ class RedisViewModelUnitTest {
     fun `view model was created then view model get initiated state`() = runBlocking {
         val viewModel = TestViewModel()
 
-        delay(delayBeforeAssertMs)
+        viewModel.viewModelService.awaitStateWithTimeout(
+            awaitTimeout,
+            ViewModelInitiatedState::class
+        )
 
         assertThat(viewModel.state).isInstanceOf(ViewModelInitiatedState::class.java)
     }
 
     @Test
-    fun `view model with initiated state and dispatch intent A then view model change state to State A`() = runBlocking {
-        val viewModel = TestViewModel()
+    fun `view model with initiated state and dispatch intent A then view model change state to State A`() =
+        runBlocking {
+            val viewModel = TestViewModel()
 
-        viewModel.dispatch(IntentUiTypeA())
+            viewModel.dispatch(IntentUiTypeA())
 
-        delay(delayBeforeAssertMs)
+            viewModel.viewModelService.awaitStateWithTimeout(
+                awaitTimeout,
+                ViewModelTypeAState::class
+            )
 
-        assertThat(viewModel.state).isInstanceOf(ViewModelTypeAState::class.java)
-        assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeAState::class.java)
-    }
-
-    @Test
-    fun `view model with initiated state and dispatch intent B then view model change state to State B`() = runBlocking {
-        val viewModel = TestViewModel()
-
-        viewModel.dispatch(IntentUiTypeB())
-
-        delay(delayBeforeAssertMs)
-
-        assertThat(viewModel.state).isInstanceOf(ViewModelTypeBState::class.java)
-        assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeBState::class.java)
-    }
+            assertThat(viewModel.state).isInstanceOf(ViewModelTypeAState::class.java)
+            assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeAState::class.java)
+        }
 
     @Test
-    fun `view model receive state model only then viewStateLive is not null and viewEventLive is null`() = runBlocking {
-        val viewModel = TestViewModelWithRedisOnly()
+    fun `view model with initiated state and dispatch intent B then view model change state to State B`() =
+        runBlocking {
+            val viewModel = TestViewModel()
 
-        viewModel.viewStateLive.observeForever {}
-        viewModel.viewEventLive.observeForever {}
+            viewModel.dispatch(IntentUiTypeB())
 
-        viewModel.dispatch(IntentUiViewStateOnly())
+            viewModel.viewModelService.awaitStateWithTimeout(
+                awaitTimeout,
+                ViewModelTypeBState::class
+            )
 
-        delay(delayBeforeAssertMs)
-
-        assertThat(viewModel.state).isInstanceOf(ViewModelViewOnlyState::class.java)
-
-        val state = viewModel.state as ViewModelViewOnlyState
-
-        assertThat(state.viewState).isNotNull()
-        assertThat(state.viewEvent).isNull()
-    }
+            assertThat(viewModel.state).isInstanceOf(ViewModelTypeBState::class.java)
+            assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeBState::class.java)
+        }
 
     @Test
-    fun `view model receive event model only then viewStateLive is null and viewEventLive is not null`() = runBlocking {
-        val viewModel = TestViewModelWithRedisOnly()
+    fun `view model receive state model only then viewStateLive is not null and viewEventLive is null`() =
+        runBlocking {
+            val viewModel = TestViewModelWithRedisOnly()
 
-        viewModel.viewStateLive.observeForever {}
-        viewModel.viewEventLive.observeForever {}
+            viewModel.viewStateLive.observeForever {}
+            viewModel.viewEventLive.observeForever {}
 
-        viewModel.dispatch(IntentUiViewEventOnly())
+            viewModel.dispatch(IntentUiViewStateOnly())
 
-        delay(delayBeforeAssertMs)
+            viewModel.viewModelService.awaitStateWithTimeout(
+                awaitTimeout,
+                ViewModelViewOnlyState::class
+            )
 
-        assertThat(viewModel.state).isInstanceOf(ViewModelEventOnlyState::class.java)
+            assertThat(viewModel.state).isInstanceOf(ViewModelViewOnlyState::class.java)
 
-        val state = viewModel.state as ViewModelEventOnlyState
+            val state = viewModel.state as ViewModelViewOnlyState
 
-        assertThat(state.viewState).isNull()
-        assertThat(state.viewEvent).isNotNull()
-    }
+            assertThat(state.viewState).isNotNull()
+            assertThat(state.viewEvent).isNull()
+        }
 
     @Test
-    fun `view model receive state and event models then viewStateLive is not null and viewEventLive is not null`() = runBlocking {
-        val viewModel = TestViewModelWithRedisOnly()
+    fun `view model receive event model only then viewStateLive is null and viewEventLive is not null`() =
+        runBlocking {
+            val viewModel = TestViewModelWithRedisOnly()
 
-        viewModel.viewStateLive.observeForever {}
-        viewModel.viewEventLive.observeForever {}
+            viewModel.viewStateLive.observeForever {}
+            viewModel.viewEventLive.observeForever {}
 
-        viewModel.dispatch(IntentUiViewStateWithEvent())
+            viewModel.dispatch(IntentUiViewEventOnly())
 
-        delay(delayBeforeAssertMs)
+            viewModel.viewModelService.awaitStateWithTimeout(
+                awaitTimeout,
+                ViewModelEventOnlyState::class
+            )
 
-        assertThat(viewModel.state).isInstanceOf(ViewModelViewWithEventState::class.java)
+            assertThat(viewModel.state).isInstanceOf(ViewModelEventOnlyState::class.java)
 
-        val state = viewModel.state as ViewModelViewWithEventState
+            val state = viewModel.state as ViewModelEventOnlyState
 
-        assertThat(state.viewState).isNotNull()
-        assertThat(state.viewEvent).isNotNull()
-    }
+            assertThat(state.viewState).isNull()
+            assertThat(state.viewEvent).isNotNull()
+        }
+
+    @Test
+    fun `view model receive state and event models then viewStateLive is not null and viewEventLive is not null`() =
+        runBlocking {
+            val viewModel = TestViewModelWithRedisOnly()
+
+            viewModel.viewStateLive.observeForever {}
+            viewModel.viewEventLive.observeForever {}
+
+            viewModel.dispatch(IntentUiViewStateWithEvent())
+
+            viewModel.viewModelService.awaitStateWithTimeout(
+                awaitTimeout,
+                ViewModelViewWithEventState::class
+            )
+
+            assertThat(viewModel.state).isInstanceOf(ViewModelViewWithEventState::class.java)
+
+            val state = viewModel.state as ViewModelViewWithEventState
+
+            assertThat(state.viewState).isNotNull()
+            assertThat(state.viewEvent).isNotNull()
+        }
 }
