@@ -21,7 +21,7 @@ fun RedisCoroutineStateService.disposeServiceAfterNumbersOfDispatchedIntents(
         override suspend fun onIntentDispatched(intent: IntentMessage) {
             currentCounter++
 
-            println("currentCounter=$currentCounter")
+            println("[ServiceIntentDispatcherListener] for ${this@disposeServiceAfterNumbersOfDispatchedIntents.objectLogName} count=$currentCounter")
             if (currentCounter >= number) {
                 delay(disposeDelayMs)
                 this@disposeServiceAfterNumbersOfDispatchedIntents.dispose()
