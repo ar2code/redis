@@ -411,7 +411,11 @@ open class RedisCoroutineStateService(
             this.scope.launch(dispatcher) {
                 val errorState = runActionCatching { onCreated() }
 
-                broadcastNewState(errorState ?: getInitialState())
+                broadcastNewState(getInitialState())
+
+                errorState?.let {
+                    broadcastNewState(it)
+                }
 
                 onInitialized()
             }
