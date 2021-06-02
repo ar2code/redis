@@ -51,4 +51,12 @@ abstract class State : LoggableObject {
         }
     }
 
+    class ErrorOccurred(
+        val where: String,
+        val throwable: Throwable
+    ) : State() {
+        override fun clone(): State {
+            return ErrorOccurred(where, throwable)
+        }
+    }
 }

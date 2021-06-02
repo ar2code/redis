@@ -33,7 +33,7 @@ class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
         flowParam = params
 
         return flow {
-            emit(params!!)
+            emit(params)
             delay(1000)
             emit(params)
         }

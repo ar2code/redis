@@ -113,6 +113,52 @@ object ServiceFactory {
         )
     }
 
+    fun buildSimpleServiceWithActionErrorTrigger(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        emitErrorAsState: Boolean
+    ): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
+            scope,
+            dispatcher,
+            State.Initiated(),
+            defaultReducers,
+            DefaultReducerSelector(),
+            DefaultIntentSelector(),
+            listOf(TriggerWithActionError()),
+            DefaultStateTriggerSelector(),
+            null,
+            null,
+            null,
+            TestLogger(),
+            null,
+            emitErrorAsState
+        )
+    }
+
+    fun buildSimpleServiceWithIntentErrorTrigger(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        emitErrorAsState: Boolean
+    ): RedisCoroutineStateService {
+        return RedisCoroutineStateService(
+            scope,
+            dispatcher,
+            State.Initiated(),
+            defaultReducers,
+            DefaultReducerSelector(),
+            DefaultIntentSelector(),
+            listOf(TriggerWithIntentError()),
+            DefaultStateTriggerSelector(),
+            null,
+            null,
+            null,
+            TestLogger(),
+            null,
+            emitErrorAsState
+        )
+    }
+
     fun buildSimpleServiceWithSavedStateStore(
         scope: CoroutineScope,
         dispatcher: CoroutineDispatcher,
@@ -157,7 +203,8 @@ object ServiceFactory {
 
     fun buildServiceWithReducerException(
         scope: CoroutineScope,
-        dispatcher: CoroutineDispatcher
+        dispatcher: CoroutineDispatcher,
+        emitErrorAsState: Boolean
     ): RedisCoroutineStateService {
         return RedisCoroutineStateService(
             scope,
@@ -171,7 +218,44 @@ object ServiceFactory {
             null,
             null,
             null,
-            TestLogger()
+            TestLogger(),
+            null,
+            emitErrorAsState
         )
+    }
+
+    fun buildServiceWithErrorInsideCreateBlock(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        emitErrorAsState: Boolean
+    ): RedisCoroutineStateService {
+        return ServiceWithErrorInsideCreateBlock(scope, dispatcher, emitErrorAsState)
+    }
+}
+
+class ServiceWithErrorInsideCreateBlock(
+    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher,
+    emitErrorAsState: Boolean
+) : RedisCoroutineStateService(
+    scope,
+    dispatcher,
+    State.Initiated(),
+    ServiceFactory.defaultReducers,
+    DefaultReducerSelector(),
+    DefaultIntentSelector(),
+    ServiceFactory.defaultTriggers,
+    DefaultStateTriggerSelector(),
+    null,
+    null,
+    null,
+    TestLogger(),
+    null,
+    emitErrorAsState
+) {
+    override suspend fun onCreated() {
+        super.onCreated()
+
+        throw TestException()
     }
 }

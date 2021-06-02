@@ -21,11 +21,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ClosedSendChannelException
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import ru.ar2code.redis.core.*
 import ru.ar2code.utils.Logger
+import java.lang.Exception
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -45,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateStoreSelector algorithm how to find store item for current state
  * @param logger logging object
  * @param serviceLogName object name that is used for logging
+ * @param emitErrorAsState if true exceptions inside [StateReducer.reduce], [StateTrigger.invokeAction], [StateRestore.restoreState], [onCreated] will emit as [State.ErrorOccurred] state.
  */
 @ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
@@ -60,7 +60,8 @@ open class RedisCoroutineStateService(
     private val savedStateHandler: SavedStateHandler?,
     private val stateStoreSelector: StateStoreSelector?,
     protected val logger: Logger,
-    private val serviceLogName: String? = null
+    private val serviceLogName: String? = null,
+    private val emitErrorAsState: Boolean = true
 ) : RedisStateService {
 
     companion object {
@@ -337,7 +338,7 @@ open class RedisCoroutineStateService(
         logger.info("[${this.objectLogName}] onDisposed")
     }
 
-    internal suspend fun broadcastNewState(newServiceState: State) {
+    private suspend fun broadcastNewState(newServiceState: State) {
         try {
 
             if (isDisposed()) {
@@ -353,30 +354,36 @@ open class RedisCoroutineStateService(
 
             resultsChannel.emit(newServiceState)
 
-            dispatchTriggerByState(oldState, newServiceState)
+            val errorState = dispatchTriggerByState(oldState, newServiceState)
 
             onStateChanged(oldState, newServiceState)
+
+            if (errorState != null) {
+                broadcastNewState(errorState)
+            }
 
         } catch (e: ClosedSendChannelException) {
             logger.info("[$objectLogName] result channel is closed.")
         }
     }
 
-    private suspend fun dispatchTriggerByState(old: State, new: State) {
+    private suspend fun dispatchTriggerByState(old: State, new: State): State.ErrorOccurred? {
         val trigger = stateTriggerSelector?.findTrigger(stateTriggers, old, new)
 
         logger.info("[$objectLogName] try to find trigger for changing state from ${old.objectLogName} to ${new.objectLogName}. Trigger is found = ${trigger != null}")
 
-        trigger?.let {
+        return runActionCatching {
+            trigger?.let {
 
-            logger.info("[$objectLogName] fire trigger ${it.objectLogName}.")
+                logger.info("[$objectLogName] fire trigger ${it.objectLogName}.")
 
-            it.invokeAction(old, new)
+                it.invokeAction(old, new)
 
-            val triggerIntent = it.getTriggerIntent(old, new)
+                val triggerIntent = it.getTriggerIntent(old, new)
 
-            triggerIntent?.let { intent ->
-                dispatch(intent)
+                triggerIntent?.let { intent ->
+                    dispatch(intent)
+                }
             }
         }
     }
@@ -385,6 +392,7 @@ open class RedisCoroutineStateService(
      * Call after service created but before service get initial state.
      *
      * Difference from [onInitialized] is that inside onCreate method you can do some actions before service receive any intent.
+     *
      */
     protected open suspend fun onCreated() {
         /**
@@ -401,7 +409,11 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                onCreated()
+                val errorState = runActionCatching { onCreated() }
+
+                errorState?.let {
+                    broadcastNewState(it)
+                }
 
                 broadcastNewState(getInitialState())
 
@@ -441,7 +453,7 @@ open class RedisCoroutineStateService(
 
                 stateRestore?.let { restore ->
                     logger.info("[$objectLogName] restore state with ${restore.objectLogName}")
-                    lastRestoredStateIntent = restore.restoreState(savedStateStore)
+                    lastRestoredStateIntent = runRestoreCatching(restore)
                 }
             }
         }
@@ -473,9 +485,11 @@ open class RedisCoroutineStateService(
                         reducer.reduce(currentState, msg)
 
                     newStateFlow?.let { stateFlow ->
-                        stateFlow.collect {
-                            broadcastNewState(it)
-                        }
+                        stateFlow
+                            .catch { runFlowCatching(this, it) }
+                            .collect {
+                                broadcastNewState(it)
+                            }
                     }
                 } catch (e: ClosedReceiveChannelException) {
                     logger.info("[$objectLogName] intent channel is closed.")
@@ -534,6 +548,45 @@ open class RedisCoroutineStateService(
     private fun dispatchIntentAfterInitializing() {
         lastRestoredStateIntent?.intentMessage?.let {
             dispatch(it)
+        }
+    }
+
+    private fun getServiceNameForErrorState() =
+        this.serviceLogName ?: this::class.simpleName ?: "unknown service name"
+
+    private suspend fun runActionCatching(block: suspend () -> Unit): State.ErrorOccurred? {
+        return try {
+            block()
+            null
+        } catch (e: Exception) {
+            logger.info("[$objectLogName] runActionCatching exception=$e")
+            if (emitErrorAsState) {
+                State.ErrorOccurred(getServiceNameForErrorState(), e)
+            } else {
+                throw e
+            }
+        }
+    }
+
+    private suspend fun runRestoreCatching(stateRestore: StateRestore): RestoredStateIntent? {
+        return try {
+            stateRestore.restoreState(savedStateStore)
+        } catch (e: Exception) {
+            logger.info("[$objectLogName] runRestoreCatching exception=$e")
+            if (emitErrorAsState) {
+                RestoredStateIntent(State.ErrorOccurred(getServiceNameForErrorState(), e), null)
+            } else {
+                throw e
+            }
+        }
+    }
+
+    private suspend fun runFlowCatching(flowCollector: FlowCollector<State>, throwable: Throwable) {
+        if (emitErrorAsState) {
+            logger.info("[$objectLogName] runFlowCatching throwable=$throwable")
+            flowCollector.emit(State.ErrorOccurred(getServiceNameForErrorState(), throwable))
+        } else {
+            throw throwable
         }
     }
 }

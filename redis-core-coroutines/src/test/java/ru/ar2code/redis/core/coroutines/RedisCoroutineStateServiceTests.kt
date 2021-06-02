@@ -17,6 +17,7 @@
 
 package ru.ar2code.redis.core.coroutines
 
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
@@ -24,6 +25,7 @@ import ru.ar2code.redis.core.ServiceSubscriber
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.prepares.*
 import ru.ar2code.redis.core.coroutines.prepares.Constants.awaitDisposedStateTimeout
+import ru.ar2code.redis.core.coroutines.prepares.Constants.awaitStateTimeout
 import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeCheckingResult
 import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposedWithTimeout
 import ru.ar2code.redis.core.coroutines.test.disposeServiceAfterNumbersOfDispatchedIntents
@@ -137,7 +139,7 @@ class RedisCoroutineStateServiceTests {
             awaitAll(d1, d2, d3, d4)
 
             service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
-            
+
             assertThat(total).isAtLeast(totalIntents) //4000 dispatch + 1 initiated + 1 finish state + disposed
 
         }
@@ -258,15 +260,179 @@ class RedisCoroutineStateServiceTests {
         }
 
     @Test(expected = TestException::class)
-    fun `found reducer that contains error and reducer throws exception then service propagate same exception`() =
+    fun `found some reducer that contains an error and reducer throws an exception then service propagate the same exception if emitErrorAsState is false`() =
         runBlocking {
-            val service = ServiceFactory.buildServiceWithReducerException(this, Dispatchers.Default)
+            val service = ServiceFactory.buildServiceWithReducerException(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = false
+            )
 
             service.dispatch(IntentTypeA())
 
             delay(testDelayBeforeCheckingResult)
 
             service.dispose()
+        }
+
+    @Test
+    fun `found some reducer that contains an error and reducer throws an exception then service emit error state if emitErrorAsState is true`() =
+        runBlocking {
+            val service = ServiceFactory.buildServiceWithReducerException(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = true
+            )
+
+            var errorState: State.ErrorOccurred? = null
+
+            service.subscribe(object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (errorState == null && newState is State.ErrorOccurred) {
+                        errorState = newState
+                    }
+                }
+            })
+
+            service.dispatch(IntentTypeA())
+
+            service.awaitStateWithTimeout(awaitStateTimeout, State.ErrorOccurred::class)
+
+            service.dispose()
+
+            assertThat(errorState).isNotNull()
+            assertThat(errorState?.throwable).isInstanceOf(TestException::class.java)
+        }
+
+    @Test(expected = TestException::class)
+    fun `exception occurred inside trigger action block then service propagate the same exception if emitErrorAsState is false`() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleServiceWithActionErrorTrigger(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = false
+            )
+
+            service.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+        }
+
+    @Test
+    fun `exception occurred inside trigger action block then service emit error state if emitErrorAsState is true`() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleServiceWithActionErrorTrigger(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = true
+            )
+
+            var errorState: State.ErrorOccurred? = null
+
+            service.subscribe(object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (errorState == null && newState is State.ErrorOccurred) {
+                        errorState = newState
+                    }
+                }
+            })
+
+            service.dispatch(IntentTypeA())
+
+            service.awaitStateWithTimeout(awaitStateTimeout, State.ErrorOccurred::class)
+
+            service.dispose()
+
+            assertThat(errorState).isNotNull()
+            assertThat(errorState?.throwable).isInstanceOf(TestException::class.java)
+        }
+
+    @Test(expected = TestException::class)
+    fun `exception occurred inside trigger intent block then service propagate the same exception if emitErrorAsState is false`() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleServiceWithIntentErrorTrigger(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = false
+            )
+
+            service.dispatch(IntentTypeA())
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+        }
+
+    @Test
+    fun `exception occurred inside trigger intent block then service emit error state if emitErrorAsState is true`() =
+        runBlocking {
+            val service = ServiceFactory.buildSimpleServiceWithIntentErrorTrigger(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = true
+            )
+
+            var errorState: State.ErrorOccurred? = null
+
+            service.subscribe(object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (errorState == null && newState is State.ErrorOccurred) {
+                        errorState = newState
+                    }
+                }
+            })
+
+            service.dispatch(IntentTypeA())
+
+            service.awaitStateWithTimeout(awaitStateTimeout, State.ErrorOccurred::class)
+
+            service.dispose()
+
+            assertThat(errorState).isNotNull()
+            assertThat(errorState?.throwable).isInstanceOf(TestException::class.java)
+        }
+
+    @Test(expected = TestException::class)
+    fun `exception occurred inside on created block then service propagate the same exception if emitErrorAsState is false`() =
+        runBlocking {
+            val service = ServiceFactory.buildServiceWithErrorInsideCreateBlock(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = false
+            )
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+        }
+
+    @Test
+    fun `exception occurred inside on created block then service emit error state if emitErrorAsState is true`() =
+        runBlocking {
+            val service = ServiceFactory.buildServiceWithErrorInsideCreateBlock(
+                this,
+                Dispatchers.Default,
+                emitErrorAsState = true
+            )
+
+            var errorState: State.ErrorOccurred? = null
+
+            service.subscribe(object : ServiceSubscriber {
+                override suspend fun onReceive(newState: State) {
+                    if (errorState == null && newState is State.ErrorOccurred) {
+                        errorState = newState
+                    }
+                }
+            })
+
+            delay(testDelayBeforeCheckingResult)
+
+            service.dispose()
+
+            assertThat(errorState).isNotNull()
+            assertThat(errorState?.throwable).isInstanceOf(TestException::class.java)
         }
 
     @Test

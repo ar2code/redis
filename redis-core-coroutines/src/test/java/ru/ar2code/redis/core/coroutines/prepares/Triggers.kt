@@ -41,3 +41,18 @@ class InitiatedToAnyStateTrigger : StateTrigger(State.Initiated::class, null, Te
     override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
         IntentTypeC()
 }
+
+class TriggerWithActionError : StateTrigger(State.Initiated::class, null, TestLogger()) {
+    override suspend fun invokeAction(oldState: State, newState: State) {
+        throw TestException()
+    }
+
+    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
+        IntentTypeC()
+}
+
+class TriggerWithIntentError : StateTrigger(State.Initiated::class, null, TestLogger()) {
+    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage {
+        throw TestException()
+    }
+}
