@@ -20,20 +20,20 @@ package ru.ar2code.redis.core.coroutines
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 
-fun <T> State?.castOrNull(): T? where T : State? {
+inline fun <reified T> State?.castOrNull(): T? where T : State? {
     if (this == null) return null
     return this as? T
 }
 
-fun <T> IntentMessage?.castOrNull(): T? where T : IntentMessage? {
+inline fun <reified T> IntentMessage?.castOrNull(): T? where T : IntentMessage? {
     if (this == null) return null
     return this as? T
 }
 
-fun <T> State.cast(): T where T : State {
+inline fun <reified T> State.cast(): T where T : State {
     return this as T
 }
 
-fun <T> IntentMessage.cast(): T where T : IntentMessage {
+inline fun <reified T> IntentMessage.cast(): T where T : IntentMessage {
     return this as T
 }

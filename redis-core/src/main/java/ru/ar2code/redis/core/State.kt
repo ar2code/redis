@@ -51,12 +51,20 @@ abstract class State : LoggableObject {
         }
     }
 
+    /**
+     * @param where service name where an error occurred
+     * @param throwable occurred error
+     * @param currentState service's state before error
+     * @param intent service's intent that was handling before error occurred
+     */
     class ErrorOccurred(
         val where: String,
-        val throwable: Throwable
+        val throwable: Throwable,
+        val currentState : State,
+        val intent: IntentMessage?
     ) : State() {
         override fun clone(): State {
-            return ErrorOccurred(where, throwable)
+            return ErrorOccurred(where, throwable, currentState, intent)
         }
     }
 }

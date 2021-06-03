@@ -372,7 +372,7 @@ open class RedisCoroutineStateService(
 
         logger.info("[$objectLogName] try to find trigger for changing state from ${old.objectLogName} to ${new.objectLogName}. Trigger is found = ${trigger != null}")
 
-        return runActionCatching {
+        return runActionCatching(null) {
             trigger?.let {
 
                 logger.info("[$objectLogName] fire trigger ${it.objectLogName}.")
@@ -409,7 +409,7 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                val errorState = runActionCatching { onCreated() }
+                val errorState = runActionCatching(null) { onCreated() }
 
                 broadcastNewState(getInitialState())
 
@@ -453,7 +453,7 @@ open class RedisCoroutineStateService(
 
                 stateRestore?.let { restore ->
                     logger.info("[$objectLogName] restore state with ${restore.objectLogName}")
-                    lastRestoredStateIntent = runRestoreCatching(restore)
+                    lastRestoredStateIntent = runRestoreCatching(restore, null)
                 }
             }
         }
@@ -486,7 +486,7 @@ open class RedisCoroutineStateService(
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow
-                            .catch { runFlowCatching(this, it) }
+                            .catch { runFlowCatching(this, it, msg) }
                             .collect {
                                 broadcastNewState(it)
                             }
@@ -554,37 +554,66 @@ open class RedisCoroutineStateService(
     private fun getServiceNameForErrorState() =
         this.serviceLogName ?: this::class.simpleName ?: "unknown service name"
 
-    private suspend fun runActionCatching(block: suspend () -> Unit): State.ErrorOccurred? {
+    private suspend fun runActionCatching(
+        intentMessage: IntentMessage?,
+        block: suspend () -> Unit
+    ): State.ErrorOccurred? {
         return try {
             block()
             null
         } catch (e: Exception) {
             logger.info("[$objectLogName] runActionCatching exception=$e")
             if (emitErrorAsState) {
-                State.ErrorOccurred(getServiceNameForErrorState(), e)
+                State.ErrorOccurred(
+                    getServiceNameForErrorState(),
+                    e,
+                    serviceStateInternal.clone(),
+                    intentMessage
+                )
             } else {
                 throw e
             }
         }
     }
 
-    private suspend fun runRestoreCatching(stateRestore: StateRestore): RestoredStateIntent? {
+    private suspend fun runRestoreCatching(
+        stateRestore: StateRestore,
+        intentMessage: IntentMessage?
+    ): RestoredStateIntent? {
         return try {
             stateRestore.restoreState(savedStateStore)
         } catch (e: Exception) {
             logger.info("[$objectLogName] runRestoreCatching exception=$e")
             if (emitErrorAsState) {
-                RestoredStateIntent(State.ErrorOccurred(getServiceNameForErrorState(), e), null)
+                RestoredStateIntent(
+                    State.ErrorOccurred(
+                        getServiceNameForErrorState(),
+                        e,
+                        serviceStateInternal.clone(),
+                        intentMessage
+                    ), null
+                )
             } else {
                 throw e
             }
         }
     }
 
-    private suspend fun runFlowCatching(flowCollector: FlowCollector<State>, throwable: Throwable) {
+    private suspend fun runFlowCatching(
+        flowCollector: FlowCollector<State>,
+        throwable: Throwable,
+        intentMessage: IntentMessage?
+    ) {
         if (emitErrorAsState) {
             logger.info("[$objectLogName] runFlowCatching throwable=$throwable")
-            flowCollector.emit(State.ErrorOccurred(getServiceNameForErrorState(), throwable))
+            flowCollector.emit(
+                State.ErrorOccurred(
+                    getServiceNameForErrorState(),
+                    throwable,
+                    serviceStateInternal.clone(),
+                    intentMessage
+                )
+            )
         } else {
             throw throwable
         }
