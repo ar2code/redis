@@ -61,7 +61,7 @@ open class RedisCoroutineStateService(
     private val stateStoreSelector: StateStoreSelector?,
     protected val logger: Logger,
     private val serviceLogName: String? = null,
-    private val emitErrorAsState: Boolean = true
+    private val emitErrorAsState: Boolean = false
 ) : RedisStateService {
 
     companion object {
