@@ -55,9 +55,16 @@ open class RedisServiceStateTableVariantCheckHelper(
     }
 
     private suspend fun checkMachine(): Boolean {
+
+        val currentState = service.serviceState
+
         service.dispatch(checkStateIntent)
 
-        val expectedState = expectState ?: State::class
+        /*
+        Expect state as an instance of [expectState] or currentState if parameter expectState is null.
+        ExpectState is null means keep previous state.
+         */
+        val expectedState = expectState ?: currentState::class
 
         return try {
             val state = service.awaitStateWithTimeout(
