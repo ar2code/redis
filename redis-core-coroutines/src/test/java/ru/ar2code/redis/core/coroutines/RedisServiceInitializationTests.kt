@@ -47,7 +47,7 @@ class RedisServiceInitializationTests {
     }
 
     @Test
-    fun testAtomicInitialization() = runBlocking {
+    fun testAtomicInitializationWithErrorOccurring() = runBlocking {
 
         val service = ServiceWithErrorOnBeforeInitialization(this, Dispatchers.Default)
 
