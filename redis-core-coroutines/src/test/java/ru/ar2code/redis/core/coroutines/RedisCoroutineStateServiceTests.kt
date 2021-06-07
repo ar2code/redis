@@ -17,7 +17,6 @@
 
 package ru.ar2code.redis.core.coroutines
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import org.junit.Test
@@ -30,7 +29,6 @@ import ru.ar2code.redis.core.coroutines.prepares.Constants.testDelayBeforeChecki
 import ru.ar2code.redis.core.coroutines.test.awaitWhileNotDisposedWithTimeout
 import ru.ar2code.redis.core.coroutines.test.disposeServiceAfterNumbersOfDispatchedIntents
 import ru.ar2code.redis.core.coroutines.test.disposeServiceWhenIntentDispatched
-
 
 class RedisCoroutineStateServiceTests {
 
@@ -921,5 +919,5 @@ class RedisCoroutineStateServiceTests {
             assertThat(slowResultOnMomentWhenQuickFinished.length).isLessThan(expectResult.length)
         }
 
-
+    //todo test atomic service initialization
 }

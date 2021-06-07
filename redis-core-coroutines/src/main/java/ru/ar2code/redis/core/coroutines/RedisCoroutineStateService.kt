@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateStoreSelector algorithm how to find store item for current state
  * @param logger logging object
  * @param serviceLogName object name that is used for logging
- * @param emitErrorAsState if true exceptions inside [StateReducer.reduce], [StateTrigger.invokeAction], [StateRestore.restoreState], [onCreated] will emit as [State.ErrorOccurred] state.
+ * @param emitErrorAsState if true exceptions inside [StateReducer.reduce], [StateTrigger.invokeAction], [StateRestore.restoreState], [onBeforeInitialization] will emit as [State.ErrorOccurred] state.
  */
 @ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
@@ -91,6 +91,8 @@ open class RedisCoroutineStateService(
         get() = serviceLogName ?: "${super.objectLogName}#${hashCode()}"
 
     private val isDisposing = AtomicBoolean(false)
+
+    private val isServiceInitialized = AtomicBoolean(false)
 
     private var resultsChannel = MutableSharedFlow<State>(1)
 
@@ -181,7 +183,7 @@ open class RedisCoroutineStateService(
         try {
             logger.info("[$objectLogName] is going to dispatch intent ${msg.objectLogName}")
 
-            awaitPassCreatedState()
+            awaitPassInitializedState()
             intentMessagesChannel.send(msg)
         } catch (e: ClosedSendChannelException) {
             logger.info("[$objectLogName] intent channel is closed.")
@@ -394,7 +396,7 @@ open class RedisCoroutineStateService(
      * Difference from [onInitialized] is that inside onCreate method you can do some actions before service receive any intent.
      *
      */
-    protected open suspend fun onCreated() {
+    protected open suspend fun onBeforeInitialization() {
         /**
          * You can do some initial stuff here.
          */
@@ -409,13 +411,15 @@ open class RedisCoroutineStateService(
 
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
-                val errorState = runActionCatching(null) { onCreated() }
+                val errorState = runActionCatching(null) { onBeforeInitialization() }
 
                 broadcastNewState(getInitialState())
 
                 errorState?.let {
                     broadcastNewState(it)
                 }
+
+                isServiceInitialized.set(true)
 
                 onInitialized()
             }
@@ -536,8 +540,8 @@ open class RedisCoroutineStateService(
         return true
     }
 
-    private suspend fun awaitPassCreatedState() {
-        while (serviceStateInternal is State.Created) {
+    private suspend fun awaitPassInitializedState() {
+        while (!isServiceInitialized.get()) {
             delay(AWAIT_INIT_DELAY_MS)
             logger.info("[$objectLogName] await passing initial state. Current state = ${serviceStateInternal.objectLogName}")
         }

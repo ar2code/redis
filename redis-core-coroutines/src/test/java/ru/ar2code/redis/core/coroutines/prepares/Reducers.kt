@@ -256,7 +256,16 @@ class DisposedStateAnyIntentReducer : StateReducer(State.Disposed::class, null, 
 }
 
 class AnyStateCircleIntentReducer : StateReducer(null, CircleIntent::class, TestLogger()) {
-    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
+        return flow {
+            emit(StateA())
+        }
+    }
+}
+
+class ErrorStateIntentAReducer :
+    StateReducer(State.ErrorOccurred::class, IntentTypeA::class, TestLogger()) {
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
         return flow {
             emit(StateA())
         }

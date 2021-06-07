@@ -43,7 +43,8 @@ object ServiceFactory {
             AnyStateFinishIntentReducer(),
             FinishStateAnyIntentReducer(),
             DisposedStateAnyIntentReducer(),
-            AnyStateCircleIntentReducer()
+            AnyStateCircleIntentReducer(),
+            ErrorStateIntentAReducer()
         )
 
     val defaultTriggers = listOf(
@@ -253,8 +254,8 @@ class ServiceWithErrorInsideCreateBlock(
     null,
     emitErrorAsState
 ) {
-    override suspend fun onCreated() {
-        super.onCreated()
+    override suspend fun onBeforeInitialization() {
+        super.onBeforeInitialization()
 
         throw TestException()
     }
