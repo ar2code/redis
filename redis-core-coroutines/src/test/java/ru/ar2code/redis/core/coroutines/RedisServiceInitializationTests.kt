@@ -63,17 +63,24 @@ class RedisServiceInitializationTests {
 
         service.awaitStateWithTimeout(awaitStateTimeout, StateA::class)
 
-        Truth.assertThat(states.size).isIn(Range.range(2, BoundType.CLOSED, 3, BoundType.CLOSED))
+        Truth.assertThat(states.size).isIn(Range.range(1, BoundType.CLOSED, 3, BoundType.CLOSED))
 
-        if (states.size == 3) {
-            //Got all states: init, error, type a
-            Truth.assertThat(states[0]).isInstanceOf(State.Initiated::class.java)
-            Truth.assertThat(states[1]).isInstanceOf(State.ErrorOccurred::class.java)
-            Truth.assertThat(states[2]).isInstanceOf(StateA::class.java)
-        } else if (states.size == 2) {
-            //Got last states: error, type a. ErrorState wiped an init state, subscriber was very slow.
-            Truth.assertThat(states[0]).isInstanceOf(State.ErrorOccurred::class.java)
-            Truth.assertThat(states[1]).isInstanceOf(StateA::class.java)
+        when (states.size) {
+            3 -> {
+                //Got all states: init, error, type a
+                Truth.assertThat(states[0]).isInstanceOf(State.Initiated::class.java)
+                Truth.assertThat(states[1]).isInstanceOf(State.ErrorOccurred::class.java)
+                Truth.assertThat(states[2]).isInstanceOf(StateA::class.java)
+            }
+            2 -> {
+                //Got last states: error, type a. ErrorState wiped an init state, subscriber was very slow.
+                Truth.assertThat(states[0]).isInstanceOf(State.ErrorOccurred::class.java)
+                Truth.assertThat(states[1]).isInstanceOf(StateA::class.java)
+            }
+            1 -> {
+                //Only last error state
+                Truth.assertThat(states[0]).isInstanceOf(State.ErrorOccurred::class.java)
+            }
         }
 
         service.dispose()
