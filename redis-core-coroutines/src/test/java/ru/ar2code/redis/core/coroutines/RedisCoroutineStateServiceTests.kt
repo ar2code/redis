@@ -457,11 +457,11 @@ class RedisCoroutineStateServiceTests {
 
             service.dispatch(IntentTypeA())
 
-            service.dispatch(FinishIntent())
-
-            service.awaitWhileNotDisposedWithTimeout(awaitDisposedStateTimeout)
+            service.awaitStateWithTimeout(awaitStateTimeout, StateA::class)
 
             assertThat(lastStateFromIntent).isInstanceOf(StateA::class.java)
+
+            service.dispose()
         }
 
     @Test
