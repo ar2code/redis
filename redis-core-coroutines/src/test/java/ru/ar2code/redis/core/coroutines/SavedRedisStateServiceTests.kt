@@ -169,6 +169,8 @@ class SavedRedisStateServiceTests {
 
         val stateHandler = TestMemorySavedStateStore()
 
+        stateHandler.set("keep", "it")
+
         val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
             this,
             Dispatchers.Default,
@@ -180,10 +182,12 @@ class SavedRedisStateServiceTests {
 
         service.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
 
-        Truth.assertThat(stateHandler.keys().size).isEqualTo(2) //State key and data key
+        Truth.assertThat(stateHandler.keys().size).isEqualTo(3) //State key and data key + keep it
 
         service.dispose()
 
-        Truth.assertThat(stateHandler.keys().size).isEqualTo(0) //Stored keys were deleted.
+        Truth.assertThat(stateHandler.keys().size)
+            .isEqualTo(1) //Stored keys were deleted. Keep it only exists.
+        Truth.assertThat(stateHandler.get<String>("keep")).isEqualTo("it") //keep it exists
     }
 }
