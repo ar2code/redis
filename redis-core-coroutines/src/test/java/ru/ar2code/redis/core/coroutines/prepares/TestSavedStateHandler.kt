@@ -23,12 +23,14 @@ import ru.ar2code.redis.core.test.TestLogger
 class TestSavedStateHandler : SavedStateHandler {
 
     companion object {
+        const val STATE_KEY = "TEST_STATE_KEY"
         const val STATE_DATA_KEY = "KEY"
     }
 
     class TestStateStore : StateStore(null, TestLogger()) {
         override suspend fun store(state: State, store: SavedStateStore?) {
             if (state is StateB) {
+                store?.set(STATE_KEY, "StateB")
                 store?.set(STATE_DATA_KEY, state.data)
             }
         }
@@ -48,5 +50,9 @@ class TestSavedStateHandler : SavedStateHandler {
         get() = listOf(TestStateRestore())
 
     override val stateStoreKeyName: String
-        get() = "TEST_STATE_KEY"
+        get() = STATE_KEY
+
+    override fun getStoredKeys(): List<String> {
+        return listOf(STATE_KEY, STATE_DATA_KEY)
+    }
 }

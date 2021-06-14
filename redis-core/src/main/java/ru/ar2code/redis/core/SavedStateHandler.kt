@@ -36,4 +36,9 @@ interface SavedStateHandler {
     val stateRestores: List<StateRestore>
 
     val stateStoreKeyName: String
+
+    /**
+     * Get list of keys that was stored.
+     */
+    fun getStoredKeys(): List<String>
 }

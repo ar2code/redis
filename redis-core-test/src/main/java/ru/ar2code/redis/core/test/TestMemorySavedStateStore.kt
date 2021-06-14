@@ -41,4 +41,14 @@ class TestMemorySavedStateStore : SavedStateStore {
     override fun keys(): List<String> {
         return dictionary.keys.toList()
     }
+
+    override fun delete(key: String) {
+        dictionary.remove(key)
+    }
+
+    override fun delete(keys: List<String>) {
+        keys.forEach {
+            dictionary.remove(it)
+        }
+    }
 }

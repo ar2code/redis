@@ -27,4 +27,8 @@ interface SavedStateStore {
     fun <T> set(key: String, value: T?)
 
     fun keys(): List<String>
+
+    fun delete(key: String)
+
+    fun delete(keys: List<String>)
 }

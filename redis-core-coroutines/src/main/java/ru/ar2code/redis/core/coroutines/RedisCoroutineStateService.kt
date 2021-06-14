@@ -221,10 +221,18 @@ open class RedisCoroutineStateService(
             listenedServicesSubscribers.clear()
         }
 
+        fun clearSavedState() {
+            val storedKeys = savedStateHandler?.getStoredKeys()
+            storedKeys?.let {
+                savedStateStore?.delete(storedKeys)
+            }
+        }
+
         isDisposing.set(true)
 
         logger.info("[$objectLogName] is going to be disposed.")
 
+        clearSavedState()
         unsubscribeListeners()
         unsubscribeFromListenedServices()
 

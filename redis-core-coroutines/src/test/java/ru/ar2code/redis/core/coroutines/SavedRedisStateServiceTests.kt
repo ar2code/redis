@@ -75,8 +75,6 @@ class SavedRedisStateServiceTests {
 
         delay(testDelayBeforeCheckingResult)
 
-        service.dispose()
-
         val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
             this,
             Dispatchers.Default,
@@ -100,11 +98,12 @@ class SavedRedisStateServiceTests {
 
         serviceWithRestoring.subscribe(subscriber)
 
-        delay(testDelayBeforeCheckingResult)
+        serviceWithRestoring.awaitStateWithTimeout(Constants.awaitStateTimeout, FlowStateD::class)
 
-        Truth.assertThat(isGotInitResult)
-        Truth.assertThat(isGotPreviousServiceResult)
+        Truth.assertThat(isGotInitResult).isFalse()
+        Truth.assertThat(isGotPreviousServiceResult).isTrue()
 
+        service.dispose()
         serviceWithRestoring.dispose()
     }
 
@@ -125,8 +124,6 @@ class SavedRedisStateServiceTests {
         service.dispatch(IntentTypeB(savedId))
 
         delay(testDelayBeforeCheckingResult)
-
-        service.dispose()
 
         val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
             this,
@@ -155,12 +152,38 @@ class SavedRedisStateServiceTests {
 
         serviceWithRestoring.subscribe(subscriber)
 
-        delay(testDelayBeforeCheckingResult)
+        serviceWithRestoring.awaitStateWithTimeout(Constants.awaitStateTimeout, FlowStateD::class)
 
-        Truth.assertThat(isGotInitResult)
-        Truth.assertThat(isGotPreviousServiceResult)
-        Truth.assertThat(isGotFlowStateAfterRestoring)
+        Truth.assertThat(isGotInitResult).isFalse()
+        Truth.assertThat(isGotPreviousServiceResult).isTrue()
+        Truth.assertThat(isGotFlowStateAfterRestoring).isTrue()
 
+        service.dispose()
         serviceWithRestoring.dispose()
+    }
+
+    @Test
+    fun `Service deletes all stored data after disposing`() = runBlocking {
+
+        val savedId = 123
+
+        val stateHandler = TestMemorySavedStateStore()
+
+        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        service.dispatch(IntentTypeB(savedId))
+
+        service.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
+
+        Truth.assertThat(stateHandler.keys().size).isEqualTo(2) //State key and data key
+
+        service.dispose()
+
+        Truth.assertThat(stateHandler.keys().size).isEqualTo(0) //Stored keys were deleted.
     }
 }
