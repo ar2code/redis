@@ -35,5 +35,14 @@ fun SavedStateHandle.toRedisSavedStateStore(): SavedStateStore {
             return this@toRedisSavedStateStore.keys().toList()
         }
 
+        override fun delete(key: String) {
+            this@toRedisSavedStateStore.remove<Any>(key)
+        }
+
+        override fun delete(keys: List<String>) {
+            keys.forEach {
+                delete(it)
+            }
+        }
     }
 }
