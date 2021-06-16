@@ -51,6 +51,8 @@ class RedisViewModelUnitTest {
         runBlocking {
             val viewModel = TestViewModel()
 
+            viewModel.stateLive.observeForever {  }
+
             viewModel.dispatch(IntentUiTypeA())
 
             viewModel.viewModelService.awaitStateWithTimeout(
@@ -66,6 +68,8 @@ class RedisViewModelUnitTest {
     fun `view model with initiated state and dispatch intent B then view model change state to State B`() =
         runBlocking {
             val viewModel = TestViewModel()
+
+            viewModel.stateLive.observeForever {  }
 
             viewModel.dispatch(IntentUiTypeB())
 

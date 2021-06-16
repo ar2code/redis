@@ -22,6 +22,7 @@ import ru.ar2code.redis.core.SavedStateStore
 /**
  * Redis SavedStateStore that stores data in Memory.
  */
+@Suppress("UNCHECKED_CAST")
 class TestMemorySavedStateStore : SavedStateStore {
 
     private val dictionary = HashMap<String, Any>()

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
 interface FlowUseCase<TParams, TResult> {
-    open fun run(params: TParams): Flow<TResult>
+    fun run(params: TParams): Flow<TResult>
 
     /**
      * Cancel use case execution and throw [UseCaseCancelledException] from flow
