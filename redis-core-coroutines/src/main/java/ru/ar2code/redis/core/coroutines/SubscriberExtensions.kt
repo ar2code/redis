@@ -32,11 +32,11 @@ import kotlin.reflect.KClass
  * Returns flow that subscribe to a redis service and collects single element equals to [expectState]
  * This flow never stops until expected state will be received or service becomes disposed.
  */
-private fun RedisStateService.awaitStateAsFlow(expectState: KClass<out State>) =
+fun RedisStateService.awaitStateAsFlow(expectState: KClass<out State>?) =
     callbackFlow<State> {
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
-                val isExpectedState = expectState.isInstance(newState)
+                val isExpectedState = expectState == null || expectState.isInstance(newState)
                 val isDisposed = newState is State.Disposed
 
                 if (isExpectedState || isDisposed) {
@@ -56,6 +56,14 @@ private fun RedisStateService.awaitStateAsFlow(expectState: KClass<out State>) =
             this@awaitStateAsFlow.unsubscribe(subscriber)
         }
     }
+
+/**
+ *
+ */
+suspend fun RedisStateService.awaitFirstState(): State {
+    return this.awaitStateAsFlow(null)
+        .first()
+}
 
 /**
  * Suspend and await expected state type [expectState] from service [this] with timeout.
