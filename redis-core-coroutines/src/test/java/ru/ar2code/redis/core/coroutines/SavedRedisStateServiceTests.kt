@@ -123,7 +123,7 @@ class SavedRedisStateServiceTests {
 
         service.dispatch(IntentTypeB(savedId))
 
-        delay(testDelayBeforeCheckingResult)
+        service.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
 
         val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
             this,
@@ -132,18 +132,10 @@ class SavedRedisStateServiceTests {
             TestSavedStateHandler()
         )
 
-        var isGotInitResult = false
-        var isGotPreviousServiceResult = false
         var isGotFlowStateAfterRestoring = false
 
         val subscriber = object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
-                if (newState is State.Initiated) {
-                    isGotInitResult = true
-                }
-                if (newState is StateB) {
-                    isGotPreviousServiceResult = newState.data == savedId
-                }
                 if (newState is FlowStateD) {
                     isGotFlowStateAfterRestoring = true
                 }
@@ -154,8 +146,6 @@ class SavedRedisStateServiceTests {
 
         serviceWithRestoring.awaitStateWithTimeout(Constants.awaitStateTimeout, FlowStateD::class)
 
-        Truth.assertThat(isGotInitResult).isFalse()
-        Truth.assertThat(isGotPreviousServiceResult).isTrue()
         Truth.assertThat(isGotFlowStateAfterRestoring).isTrue()
 
         service.dispose()
@@ -189,5 +179,37 @@ class SavedRedisStateServiceTests {
         Truth.assertThat(stateHandler.keys().size)
             .isEqualTo(1) //Stored keys were deleted. Keep it only exists.
         Truth.assertThat(stateHandler.get<String>("keep")).isEqualTo("it") //keep it exists
+    }
+
+    @Test
+    fun `Test service isServiceRestoredState flag after restoring`() = runBlocking {
+
+        val savedId = 123
+
+        val stateHandler = TestMemorySavedStateStore()
+
+        val service = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        service.dispatch(IntentTypeB(savedId))
+
+        service.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
+
+        val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
+            this,
+            Dispatchers.Default,
+            stateHandler,
+            TestSavedStateHandler()
+        )
+
+        Truth.assertThat(service.isServiceRestoredState()).isFalse()
+        Truth.assertThat(serviceWithRestoring.isServiceRestoredState()).isTrue()
+
+        service.dispose()
+        serviceWithRestoring.dispose()
     }
 }

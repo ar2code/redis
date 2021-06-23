@@ -1,14 +1,10 @@
 package ru.ar2code.redis.core.android.test
 
-import kotlinx.coroutines.delay
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.android.BaseViewEvent
 import ru.ar2code.redis.core.android.BaseViewState
 import ru.ar2code.redis.core.android.RedisViewModel
-import ru.ar2code.redis.core.coroutines.AwaitStateTimeoutException
-import ru.ar2code.redis.core.coroutines.RedisCoroutineStateService
-import ru.ar2code.redis.core.coroutines.awaitStateWithTimeout
 import ru.ar2code.redis.core.coroutines.test.RedisServiceStateTableVariantCheckHelper
 import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger

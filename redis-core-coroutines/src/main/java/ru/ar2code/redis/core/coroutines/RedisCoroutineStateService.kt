@@ -94,6 +94,8 @@ open class RedisCoroutineStateService(
 
     private val isServiceInitialized = AtomicBoolean(false)
 
+    private var isServiceWasRestored = false
+
     private var resultsChannel = MutableSharedFlow<State>(1)
 
     private var intentMessagesChannel = Channel<IntentMessage>(Channel.UNLIMITED)
@@ -179,15 +181,22 @@ open class RedisCoroutineStateService(
         }
     }
 
-    private suspend fun sendIntentMessage(msg: IntentMessage) {
+    private suspend fun sendIntentMessage(msg: IntentMessage, awaitInitialization: Boolean = true) {
         try {
             logger.info("[$objectLogName] is going to dispatch intent ${msg.objectLogName}")
 
-            awaitPassInitializedState()
+            if (awaitInitialization) {
+                awaitPassInitializedState()
+            }
             intentMessagesChannel.send(msg)
         } catch (e: ClosedSendChannelException) {
             logger.info("[$objectLogName] intent channel is closed.")
         }
+    }
+
+    override suspend fun isServiceRestoredState(): Boolean {
+        awaitFirstState()
+        return isServiceWasRestored
     }
 
     /**
@@ -335,9 +344,6 @@ open class RedisCoroutineStateService(
      * Inside this method the service is ready and can handle intents.
      */
     protected open suspend fun onInitialized() {
-        dispatchIntentAfterInitializing()
-        lastRestoredStateIntent = null
-
         logger.info("[${this.objectLogName}] onInitialized")
     }
 
@@ -417,6 +423,12 @@ open class RedisCoroutineStateService(
             subscribeToIntentMessages()
         }
 
+        suspend fun dispatchIntentAfterInitializing() {
+            lastRestoredStateIntent?.intentMessage?.let {
+                sendIntentMessage(it, awaitInitialization = false)
+            }
+        }
+
         fun provideInitializedResult() {
             this.scope.launch(dispatcher) {
                 val errorState = runActionCatching(null) { onBeforeInitialization() }
@@ -426,6 +438,10 @@ open class RedisCoroutineStateService(
                 errorState?.let {
                     broadcastNewState(it)
                 }
+
+                dispatchIntentAfterInitializing()
+
+                lastRestoredStateIntent = null
 
                 isServiceInitialized.set(true)
 
@@ -448,7 +464,7 @@ open class RedisCoroutineStateService(
     }
 
     /**
-     * Get initial state that service should get after creation. By default [initialState]
+     * Get initial state that service should get after creation. By default [initialState].
      */
     private suspend fun getInitialState(): State {
         logger.info("[$objectLogName]:getInitialState() savedStateHandler=$savedStateHandler")
@@ -470,7 +486,10 @@ open class RedisCoroutineStateService(
             }
         }
 
-        logger.info("[$objectLogName]:getInitialState() lastRestoredStateIntent=${lastRestoredStateIntent?.state}")
+        isServiceWasRestored =
+            lastRestoredStateIntent?.state != null || lastRestoredStateIntent?.intentMessage != null
+
+        logger.info("[$objectLogName]:getInitialState() lastRestoredState=${lastRestoredStateIntent?.state}, lastRestoredIntent=${lastRestoredStateIntent?.intentMessage}, isServiceWasRestored=${isServiceWasRestored}")
 
         return lastRestoredStateIntent?.state ?: initialState
     }
@@ -556,12 +575,6 @@ open class RedisCoroutineStateService(
     }
 
     private var lastRestoredStateIntent: RestoredStateIntent? = null
-
-    private fun dispatchIntentAfterInitializing() {
-        lastRestoredStateIntent?.intentMessage?.let {
-            dispatch(it)
-        }
-    }
 
     private fun getServiceNameForErrorState() =
         this.serviceLogName ?: this::class.simpleName ?: "unknown service name"

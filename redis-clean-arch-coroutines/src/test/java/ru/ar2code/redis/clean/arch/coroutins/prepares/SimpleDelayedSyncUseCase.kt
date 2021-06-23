@@ -21,10 +21,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.clean.arch.coroutines.SynchronizedUseCase
+import ru.ar2code.redis.core.test.TestLogger
 
 class SimpleDelayedSyncUseCase : SynchronizedUseCase<String, String>(
     DefaultSynchronizedUseCaseAwaitConfig(),
-    SimpleTestLogger()
+    TestLogger()
 ) {
 
     private var flowParam: String? = null

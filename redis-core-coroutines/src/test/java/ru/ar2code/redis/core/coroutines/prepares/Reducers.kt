@@ -105,6 +105,19 @@ class StateBTypeBReducer :
     }
 }
 
+class FlowStateDTypeBReducer :
+    StateReducer(FlowStateD::class, IntentTypeB::class, TestLogger()) {
+
+    override fun reduce(
+        currentState: State,
+        intent: IntentMessage
+    ): Flow<State> {
+        return flow {
+            emit(StateB((intent as IntentTypeB).payload ?: 0))
+        }
+    }
+}
+
 class StateBTypeFlowReducer :
     StateReducer(StateB::class, IntentTypeFlow::class, TestLogger()) {
 

@@ -44,7 +44,8 @@ object ServiceFactory {
             FinishStateAnyIntentReducer(),
             DisposedStateAnyIntentReducer(),
             AnyStateCircleIntentReducer(),
-            ErrorStateIntentAReducer()
+            ErrorStateIntentAReducer(),
+            FlowStateDTypeBReducer()
         )
 
     val defaultTriggers = listOf(

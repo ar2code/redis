@@ -24,7 +24,7 @@ package ru.ar2code.redis.core
  *
  * If both parameters are not null service get [state] first and then send [intentMessage] to itself.
  */
-class RestoredStateIntent(
+data class RestoredStateIntent(
     val state: State?,
     val intentMessage: IntentMessage?
 )
