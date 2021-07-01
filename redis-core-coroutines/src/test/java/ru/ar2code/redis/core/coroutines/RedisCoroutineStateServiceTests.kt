@@ -918,6 +918,4 @@ class RedisCoroutineStateServiceTests {
             assertThat(slowResultOnMomentWhenQuickFinished).isNotEmpty()
             assertThat(slowResultOnMomentWhenQuickFinished.length).isLessThan(expectResult.length)
         }
-
-    //todo test atomic service initialization
 }

@@ -24,7 +24,7 @@ interface SavedStateStoreProvider {
 
     val keysPrefix: String
 
-    val loggerLevel : String
+    val loggerLevel: String
 
     fun getSavedStateHandle(): SavedStateHandle
 
@@ -38,7 +38,7 @@ interface SavedStateStoreProvider {
         savedState.keys().forEach { key ->
             val v = savedState.get<String>(key)
 
-            val outKey = if (key.contains(keysPrefix)) {
+            val outKey = if (key.startsWith(keysPrefix)) {
                 key
             } else {
                 "${keysPrefix}$key"
@@ -61,7 +61,7 @@ interface SavedStateStoreProvider {
 
                 val value = bundle.getString(key)
 
-                val inKey = key.replace(keysPrefix, "")
+                val inKey = key.replaceFirst(keysPrefix, "")
 
                 savedState.set(inKey, value)
 
