@@ -138,7 +138,7 @@ class SavedStateStoreProviderTest {
                 storeProvider.copyStateProviderToBundle(bundleWithData)
             }
         }
-        
+
         Truth.assertThat(storeProvider.getSavedStateStore().keys().size).isEqualTo(testData.size)
         Truth.assertThat(bundleWithData.size()).isEqualTo(testData.size + 1) //+ ключ keep it
 

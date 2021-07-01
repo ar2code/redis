@@ -17,7 +17,6 @@ import ru.ar2code.utils.Logger
  * The prefix [keysPrefix] is used to distinguish between application keys.
  * ScopeStateProvider only stores String values.
  */
-//todo test
 interface SavedStateStoreProvider {
 
     val logger: Logger
@@ -57,7 +56,8 @@ interface SavedStateStoreProvider {
         val savedState = getSavedStateHandle()
 
         bundle?.keySet()?.forEach { key ->
-            if (key.contains(keysPrefix)) {
+
+            if (key.startsWith(keysPrefix)) {
 
                 val value = bundle.getString(key)
 
