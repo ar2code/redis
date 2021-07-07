@@ -311,6 +311,8 @@ class RedisCoroutineStateServiceTests {
                 emitErrorAsState = false
             )
 
+            service.awaitStateWithTimeout(awaitStateTimeout, State.Initiated::class)
+
             service.dispatch(IntentTypeA())
 
             delay(testDelayBeforeCheckingResult)

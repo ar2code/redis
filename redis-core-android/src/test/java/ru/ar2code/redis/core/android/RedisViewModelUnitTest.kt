@@ -19,6 +19,7 @@ package ru.ar2code.redis.core.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -60,6 +61,9 @@ class RedisViewModelUnitTest {
             )
 
             assertThat(viewModel.state).isInstanceOf(ViewModelTypeAState::class.java)
+
+            delay(10)
+
             assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeAState::class.java)
         }
 
@@ -78,6 +82,9 @@ class RedisViewModelUnitTest {
             )
 
             assertThat(viewModel.state).isInstanceOf(ViewModelTypeBState::class.java)
+
+            delay(10)
+
             assertThat(viewModel.stateLive.value).isInstanceOf(ViewModelTypeBState::class.java)
         }
 

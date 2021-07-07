@@ -38,8 +38,6 @@ open class RedisServiceStateTableVariantCheckHelper(
         private const val LOG_KEY = "[TestRedisServiceStateTableVariant]"
     }
 
-    private val isExpectNotStateChanged = expectState == null
-
     suspend fun checkVariant(): Boolean {
         goToInitialState()
 
@@ -78,8 +76,7 @@ open class RedisServiceStateTableVariantCheckHelper(
 
         } catch (e: AwaitStateTimeoutException) {
             logger.info("$LOG_KEY current state=${service.serviceState.objectLogName}. Check variant timeout error: ${e.message}.")
-
-            isExpectNotStateChanged
+            false
         }
     }
 
