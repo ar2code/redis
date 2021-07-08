@@ -25,11 +25,11 @@ import kotlin.reflect.KClass
 /**
  * ViewStateReducer is a [RedisViewModel] special [StateReducer] that works only with [ViewModelStateWithEvent]
  */
-abstract class ViewStateReducer<ViewState, ViewEvent>(
+abstract class ViewStateReducer<out ViewState, out ViewEvent>(
     expectState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
     expectIntentType: KClass<out IntentMessage>?,
     logger: Logger
 ) : StateReducer(
     expectState,
     expectIntentType, logger
-) where ViewState : BaseViewState, ViewEvent : BaseViewEvent
+) where ViewState : RedisViewState, ViewEvent : RedisViewEvent

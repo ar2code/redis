@@ -23,8 +23,8 @@ import ru.ar2code.redis.core.State
  * Base class for [RedisViewModel] state.
  * This State consists of UI model, and UI event.
  */
-abstract class ViewModelStateWithEvent<ViewState, ViewEvent>(
+abstract class ViewModelStateWithEvent<out ViewState, out ViewEvent>(
     val viewState: ViewState?,
     val viewEvent: ViewEvent?
-) : State() where ViewState : BaseViewState, ViewEvent : BaseViewEvent
+) : State() where ViewState : RedisViewState, ViewEvent : RedisViewEvent
 

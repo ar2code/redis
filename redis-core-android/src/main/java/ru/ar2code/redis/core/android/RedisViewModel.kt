@@ -55,7 +55,7 @@ abstract class RedisViewModel<ViewState, ViewEvent>(
     protected val logger: Logger = RedisCoreAndroidLogger(),
 ) :
     ViewModel(), RedisDispatcher, LoggableObject, RedisListener
-        where ViewState : BaseViewState, ViewEvent : BaseViewEvent {
+        where ViewState : RedisViewState, ViewEvent : RedisViewEvent {
 
     @VisibleForTesting
     internal val viewModelService by lazy {

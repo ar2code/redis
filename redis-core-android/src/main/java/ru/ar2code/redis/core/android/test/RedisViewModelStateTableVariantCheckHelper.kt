@@ -2,8 +2,8 @@ package ru.ar2code.redis.core.android.test
 
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
-import ru.ar2code.redis.core.android.BaseViewEvent
-import ru.ar2code.redis.core.android.BaseViewState
+import ru.ar2code.redis.core.android.RedisViewEvent
+import ru.ar2code.redis.core.android.RedisViewState
 import ru.ar2code.redis.core.android.RedisViewModel
 import ru.ar2code.redis.core.coroutines.test.RedisServiceStateTableVariantCheckHelper
 import ru.ar2code.redis.core.test.TestLogger
@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
  * @param logger - log object.
  */
 class RedisViewModelStateTableVariantCheckHelper(
-    private val viewModel: RedisViewModel<out BaseViewState, out BaseViewEvent>,
+    private val viewModel: RedisViewModel<out RedisViewState, out RedisViewEvent>,
     private val initialStateIntents: List<IntentMessage>?,
     private val initialState: KClass<out State>,
     private val initialIntentDispatchDelayMs: Long,

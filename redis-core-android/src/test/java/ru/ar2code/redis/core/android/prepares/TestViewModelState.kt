@@ -17,6 +17,6 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.redis.core.android.BaseViewState
+import ru.ar2code.redis.core.android.RedisViewState
 
-class TestViewModelState : BaseViewState
+class TestViewModelState : RedisViewState

@@ -17,6 +17,6 @@
 
 package ru.ar2code.redis.core.android.prepares
 
-import ru.ar2code.redis.core.android.BaseViewEvent
+import ru.ar2code.redis.core.android.RedisViewEvent
 
-class TestViewModelEvent : BaseViewEvent
+class TestViewModelEvent : RedisViewEvent

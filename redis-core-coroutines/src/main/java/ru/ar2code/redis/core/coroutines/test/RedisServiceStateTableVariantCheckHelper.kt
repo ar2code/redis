@@ -65,6 +65,9 @@ open class RedisServiceStateTableVariantCheckHelper(
         val expectedState = expectState ?: currentState::class
 
         return try {
+
+            logger.info("$LOG_KEY check machine: await state class=${expectedState}")
+
             val state = service.awaitStateWithTimeout(
                 timeoutMs,
                 expectedState
@@ -89,7 +92,7 @@ open class RedisServiceStateTableVariantCheckHelper(
 
         try {
             val state = service.awaitStateWithTimeout(timeoutMs, initialState)
-            logger.info("$LOG_KEY initial state=${state.objectLogName}")
+            logger.info("$LOG_KEY goToInitialState: currentState=${service.serviceState.objectLogName}")
         } catch (e: AwaitStateTimeoutException) {
             throw AwaitStateTimeoutException("$LOG_KEY current state=${service.serviceState.objectLogName}. Initial state error: ${e.message}.")
         }

@@ -17,4 +17,4 @@
 
 package ru.ar2code.redis.core.android
 
-interface BaseViewState
+interface RedisViewEvent
