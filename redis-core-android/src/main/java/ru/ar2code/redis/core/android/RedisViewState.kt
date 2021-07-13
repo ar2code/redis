@@ -17,4 +17,6 @@
 
 package ru.ar2code.redis.core.android
 
-interface RedisViewState
+interface RedisViewState {
+    fun clone(): RedisViewState
+}

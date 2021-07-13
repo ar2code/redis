@@ -19,4 +19,8 @@ package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.android.RedisViewState
 
-class TestViewModelState : RedisViewState
+class TestViewModelState : RedisViewState {
+    override fun clone(): RedisViewState {
+        return TestViewModelState()
+    }
+}

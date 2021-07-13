@@ -9,4 +9,6 @@ interface RedisErrorViewState : RedisViewState {
     fun isErrorShouldBeRender(currentUiState: RedisErrorViewState?): Boolean {
         return error.data != null && error.version != currentUiState?.error?.version
     }
+
+    fun updateErrorVersion(serviceError: State.ErrorOccurred): RedisErrorViewState
 }

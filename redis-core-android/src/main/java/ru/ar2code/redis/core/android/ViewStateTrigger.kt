@@ -24,12 +24,12 @@ import kotlin.reflect.KClass
 /**
  * ViewStateTrigger is a [RedisViewModel] special [StateTrigger] that works only with [ViewModelStateWithEvent]
  */
-abstract class ViewStateTrigger<out ViewState, out ViewEvent>(
-    expectOldState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
-    expectNewState: KClass<out ViewModelStateWithEvent<ViewState, ViewEvent>>?,
+abstract class ViewStateTrigger(
+    expectOldState: KClass<out ViewModelStateWithEvent>?,
+    expectNewState: KClass<out ViewModelStateWithEvent>?,
     logger: Logger
 ) : StateTrigger(
     expectOldState,
     expectNewState,
     logger
-) where ViewState : RedisViewState, ViewEvent : RedisViewEvent
+)

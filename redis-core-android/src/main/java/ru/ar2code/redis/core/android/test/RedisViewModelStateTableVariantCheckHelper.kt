@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
  * @param logger - log object.
  */
 class RedisViewModelStateTableVariantCheckHelper(
-    private val viewModel: RedisViewModel<out RedisViewState, out RedisViewEvent>,
+    private val viewModel: RedisViewModel,
     private val initialStateIntents: List<IntentMessage>?,
     private val initialState: KClass<out State>,
     private val initialIntentDispatchDelayMs: Long,

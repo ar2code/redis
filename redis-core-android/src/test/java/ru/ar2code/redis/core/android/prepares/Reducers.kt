@@ -32,7 +32,7 @@ val defaultReducers = listOf(
     InitiatedStateUiViewWithEventReducer()
 )
 
-class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
+class InitiatedStateTypeAReducer : ViewStateReducer(
     ViewModelInitiatedState::class, IntentUiTypeA::class, TestLogger()
 ) {
     override fun reduce(
@@ -44,7 +44,7 @@ class InitiatedStateTypeAReducer : ViewStateReducer<TestViewModelState, TestView
     }
 }
 
-class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
+class InitiatedStateTypeBReducer : ViewStateReducer(
     ViewModelInitiatedState::class, IntentUiTypeB::class, TestLogger()
 ) {
     override fun reduce(
@@ -57,7 +57,7 @@ class InitiatedStateTypeBReducer : ViewStateReducer<TestViewModelState, TestView
 }
 
 class InitiatedStateUiViewStateOnlyReducer :
-    ViewStateReducer<TestViewModelState, TestViewModelEvent>(
+    ViewStateReducer(
         ViewModelInitiatedState::class, IntentUiViewStateOnly::class, TestLogger()
     ) {
     override fun reduce(
@@ -69,7 +69,7 @@ class InitiatedStateUiViewStateOnlyReducer :
     }
 }
 
-class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, TestViewModelEvent>(
+class InitiatedStateUiEventOnlyReducer : ViewStateReducer(
     ViewModelInitiatedState::class, IntentUiViewEventOnly::class, TestLogger()
 ) {
     override fun reduce(
@@ -82,7 +82,7 @@ class InitiatedStateUiEventOnlyReducer : ViewStateReducer<TestViewModelState, Te
 }
 
 class InitiatedStateUiViewWithEventReducer :
-    ViewStateReducer<TestViewModelState, TestViewModelEvent>(
+    ViewStateReducer(
         ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class, TestLogger()
     ) {
     override fun reduce(

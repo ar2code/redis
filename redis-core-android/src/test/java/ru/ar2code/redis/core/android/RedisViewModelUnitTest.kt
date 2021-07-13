@@ -91,7 +91,7 @@ class RedisViewModelUnitTest {
     @Test
     fun `view model receive state model only then viewStateLive is not null and viewEventLive is null`() =
         runBlocking {
-            val viewModel = TestViewModelWithRedisOnly()
+            val viewModel = TestRedisViewModel()
 
             viewModel.viewStateLive.observeForever {}
             viewModel.viewEventLive.observeForever {}
@@ -114,7 +114,7 @@ class RedisViewModelUnitTest {
     @Test
     fun `view model receive event model only then viewStateLive is null and viewEventLive is not null`() =
         runBlocking {
-            val viewModel = TestViewModelWithRedisOnly()
+            val viewModel = TestRedisViewModel()
 
             viewModel.viewStateLive.observeForever {}
             viewModel.viewEventLive.observeForever {}
@@ -137,7 +137,7 @@ class RedisViewModelUnitTest {
     @Test
     fun `view model receive state and event models then viewStateLive is not null and viewEventLive is not null`() =
         runBlocking {
-            val viewModel = TestViewModelWithRedisOnly()
+            val viewModel = TestRedisViewModel()
 
             viewModel.viewStateLive.observeForever {}
             viewModel.viewEventLive.observeForever {}

@@ -37,4 +37,9 @@ data class Changeable<T>(
     fun generateUpperVersion(): Int {
         return version + 1
     }
+
+    //todo test
+    fun shouldBeRendered(previous: Changeable<T>): Boolean {
+        return data != null && version != previous.version
+    }
 }
