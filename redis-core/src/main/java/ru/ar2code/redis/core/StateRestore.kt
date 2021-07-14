@@ -7,6 +7,7 @@ abstract class StateRestore(
     private val expectStateName: String?,
     protected val logger: Logger
 ) : LoggableObject {
+
     abstract suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
 
     fun isStateRestoreApplicable(stateName: String): Boolean {

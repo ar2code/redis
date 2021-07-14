@@ -22,7 +22,7 @@ package ru.ar2code.redis.core
  */
 interface StateStoreSelector {
 
-    fun findStateStore(state: State, stateStores : List<StateStore>): StateStore?
+    fun findStateStore(state: State, stateStores : List<StateStore<*>>): StateStore<*>?
 
     fun findStateRestore(stateName: String, stateStores : List<StateRestore>): StateRestore?
 }

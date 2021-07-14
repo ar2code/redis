@@ -27,13 +27,17 @@ class TestSavedStateHandler : SavedStateHandler {
         const val STATE_DATA_KEY = "KEY"
     }
 
-    class TestStateStore : StateStore(null, TestLogger()) {
-        override suspend fun store(state: State, store: SavedStateStore?) {
-            if (state is StateB) {
-                store?.set(STATE_KEY, "StateB")
-                store?.set(STATE_DATA_KEY, state.data)
-            }
+    class TestStateStore : StateStore<StateB>("StateB", TestLogger()) {
+        override suspend fun storeStateData(state: StateB, store: SavedStateStore?) {
+            store?.set(STATE_DATA_KEY, state.data)
         }
+
+        override fun isStateStoreApplicable(state: State): Boolean {
+            return state is StateB
+        }
+
+        override val isAnyState: Boolean
+            get() = false
     }
 
     class TestStateRestore : StateRestore("StateB", TestLogger()) {
@@ -43,7 +47,7 @@ class TestSavedStateHandler : SavedStateHandler {
         }
     }
 
-    override val stateStores: List<StateStore>
+    override val stateStores: List<StateStore<*>>
         get() = listOf(TestStateStore())
 
     override val stateRestores: List<StateRestore>

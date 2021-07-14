@@ -30,8 +30,6 @@ import ru.ar2code.redis.core.test.TestMemorySavedStateStore
 
 class SavedRedisStateServiceTests {
 
-    private val testDelayBeforeCheckingResult = 50L
-
     @Test
     fun `Service stores arbitrary data in state storage`() = runBlocking {
 
@@ -48,7 +46,7 @@ class SavedRedisStateServiceTests {
 
         service.dispatch(IntentTypeB(savedId))
 
-        delay(testDelayBeforeCheckingResult)
+        service.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
 
         val storedData = stateHandler.get<Int>(TestSavedStateHandler.STATE_DATA_KEY)
 
@@ -73,7 +71,7 @@ class SavedRedisStateServiceTests {
 
         service.dispatch(IntentTypeB(savedId))
 
-        delay(testDelayBeforeCheckingResult)
+        service.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
 
         val serviceWithRestoring = ServiceFactory.buildSimpleServiceWithSavedStateStore(
             this,

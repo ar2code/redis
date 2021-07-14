@@ -54,7 +54,7 @@ open class RedisCoroutineStateService(
     private val reducers: List<StateReducer<*, *>>,
     private val reducerSelector: ReducerSelector,
     private val listenedServicesIntentSelector: IntentSelector,
-    private val stateTriggers: List<StateTrigger<*,*>>?,
+    private val stateTriggers: List<StateTrigger<*, *>>?,
     private val stateTriggerSelector: StateTriggerSelector?,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?,
@@ -326,16 +326,20 @@ open class RedisCoroutineStateService(
      * Call when state changed from [old] to [new]
      */
     protected open suspend fun onStateChanged(old: State, new: State) {
+        logger.info("[${this.objectLogName}] onStateChanged ${old.objectLogName} to ${new.objectLogName}")
+    }
+
+    private suspend fun storeState(new: State) {
         savedStateHandler?.let {
             val stateStore = stateStoreSelector?.findStateStore(new, it.stateStores)
             stateStore?.let { store ->
                 logger.info("[$objectLogName] store state with ${store.objectLogName}")
 
+                savedStateStore?.set(it.stateStoreKeyName, store.storedStateName)
+
                 store.store(new, savedStateStore)
             }
         }
-
-        logger.info("[${this.objectLogName}] onStateChanged ${old.objectLogName} to ${new.objectLogName}")
     }
 
     /**
@@ -363,6 +367,8 @@ open class RedisCoroutineStateService(
             }
 
             logger.info("[$objectLogName] changing state from ${serviceStateInternal.objectLogName} to ${newServiceState.objectLogName}")
+
+            storeState(newServiceState)
 
             val oldState = serviceStateInternal
 

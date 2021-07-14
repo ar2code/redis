@@ -19,29 +19,32 @@ package ru.ar2code.redis.core
 
 import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
-import kotlin.reflect.KClass
 
 /**
- * Describes mechanism og storing specified state [expectState]
+ * Describes mechanism og storing specified state [S]
  *
  * You should create a list of StateStore items to provide a mechanism of storing for each service state.
  * But you can set only single StateStore that handles all service states. For it just create [StateStore] with [StateStore.expectState] is null.
  */
-abstract class StateStore(
-    private val expectState: KClass<out State>?,
+@Suppress("UNCHECKED_CAST")
+abstract class StateStore<S>(
+    val storedStateName: String,
     protected val logger: Logger
-) : LoggableObject {
+) : LoggableObject where S : State {
 
-    abstract suspend fun store(state: State, store: SavedStateStore?)
-
-    fun isStateStoreApplicable(state: State): Boolean {
-        return isAnyState() || expectState?.isInstance(state) == true
+    suspend fun store(state: State, store: SavedStateStore?) {
+        storeStateData(state as S, store)
     }
+
+    /**
+     * Store state data
+     */
+    abstract suspend fun storeStateData(state: S, store: SavedStateStore?)
+
+    abstract fun isStateStoreApplicable(state: State): Boolean
 
     /**
      * Is universal StateStore for any states?
      */
-    fun isAnyState(): Boolean {
-        return expectState == null
-    }
+    abstract val isAnyState: Boolean
 }

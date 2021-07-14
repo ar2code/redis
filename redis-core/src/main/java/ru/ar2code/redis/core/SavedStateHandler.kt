@@ -31,7 +31,7 @@ package ru.ar2code.redis.core
  */
 interface SavedStateHandler {
 
-    val stateStores: List<StateStore>
+    val stateStores: List<StateStore<*>>
 
     val stateRestores: List<StateRestore>
 
