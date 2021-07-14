@@ -44,17 +44,17 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param stateStoreSelector algorithm how to find store item for current state
  * @param logger logging object
  * @param serviceLogName object name that is used for logging
- * @param emitErrorAsState if true exceptions inside [StateReducer.reduce], [StateTrigger.invokeAction], [StateRestore.restoreState], [onBeforeInitialization] will emit as [State.ErrorOccurred] state.
+ * @param emitErrorAsState if true exceptions inside [StateReducer.reduceState], [StateTrigger.invokeAction], [StateRestore.restoreState], [onBeforeInitialization] will emit as [State.ErrorOccurred] state.
  */
 @ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
     private val initialState: State,
-    private val reducers: List<StateReducer>,
+    private val reducers: List<StateReducer<*, *>>,
     private val reducerSelector: ReducerSelector,
     private val listenedServicesIntentSelector: IntentSelector,
-    private val stateTriggers: List<StateTrigger>?,
+    private val stateTriggers: List<StateTrigger<*,*>>?,
     private val stateTriggerSelector: StateTriggerSelector?,
     private val savedStateStore: SavedStateStore?,
     private val savedStateHandler: SavedStateHandler?,
@@ -513,7 +513,7 @@ open class RedisCoroutineStateService(
                     }
 
                     val newStateFlow =
-                        reducer.reduce(currentState, msg)
+                        reducer.reduceState(currentState, msg)
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow
@@ -533,7 +533,7 @@ open class RedisCoroutineStateService(
 
     private fun findReducer(
         intentMessage: IntentMessage
-    ): StateReducer {
+    ): StateReducer<*, *> {
         try {
             return reducerSelector.findReducer(reducers, serviceStateInternal, intentMessage)
         } catch (e: ReducerNotFoundException) {

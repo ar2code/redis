@@ -22,37 +22,96 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateTrigger
 import ru.ar2code.redis.core.test.TestLogger
 
-class InitiatedToAStateTrigger : StateTrigger(State.Initiated::class, StateA::class, TestLogger()) {
-    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
-        IntentTypeC()
+class InitiatedToAStateTrigger : StateTrigger<State.Initiated, StateA>(TestLogger()) {
+    override fun specifyTriggerIntent(oldState: State.Initiated, newState: StateA): IntentMessage? {
+        return IntentTypeC()
+    }
+
+    override val isAnyOldState: Boolean
+        get() = false
+    override val isAnyNewState: Boolean
+        get() = false
+
+    override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+        return oldState is State.Initiated && newState is StateA
+    }
 }
 
-class InitiatedToBStateTrigger : StateTrigger(State.Initiated::class, StateB::class, TestLogger()) {
-    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
-        IntentTypeFlow()
+class InitiatedToBStateTrigger : StateTrigger<State.Initiated, StateB>(TestLogger()) {
+    override fun specifyTriggerIntent(oldState: State.Initiated, newState: StateB): IntentMessage? {
+        return IntentTypeFlow()
+    }
+
+    override val isAnyOldState: Boolean
+        get() = false
+    override val isAnyNewState: Boolean
+        get() = false
+
+    override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+        return oldState is State.Initiated && newState is StateB
+    }
 }
 
-class AnyToCStateTrigger : StateTrigger(null, StateC::class, TestLogger()) {
-    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
-        IntentTypeFlow()
+class AnyToCStateTrigger : StateTrigger<State, StateC>(TestLogger()) {
+    override fun specifyTriggerIntent(oldState: State, newState: StateC): IntentMessage? {
+        return IntentTypeFlow()
+    }
+
+    override val isAnyOldState: Boolean
+        get() = true
+    override val isAnyNewState: Boolean
+        get() = false
+
+    override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+        return newState is StateC
+    }
 }
 
-class InitiatedToAnyStateTrigger : StateTrigger(State.Initiated::class, null, TestLogger()) {
-    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
-        IntentTypeC()
+class InitiatedToAnyStateTrigger : StateTrigger<State.Initiated, State>(TestLogger()) {
+    override fun specifyTriggerIntent(oldState: State.Initiated, newState: State): IntentMessage? {
+        return IntentTypeC()
+    }
+
+    override val isAnyOldState: Boolean
+        get() = false
+    override val isAnyNewState: Boolean
+        get() = true
+
+    override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+        return oldState is State.Initiated
+    }
 }
 
-class TriggerWithActionError : StateTrigger(State.Initiated::class, null, TestLogger()) {
-    override suspend fun invokeAction(oldState: State, newState: State) {
+class TriggerWithActionError : StateTrigger<State.Initiated, State>(TestLogger()) {
+    override suspend fun invokeSpecifiedAction(oldState: State.Initiated, newState: State) {
         throw TestException()
     }
 
-    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage =
-        IntentTypeC()
+    override fun specifyTriggerIntent(oldState: State.Initiated, newState: State): IntentMessage? {
+        return IntentTypeC()
+    }
+
+    override val isAnyOldState: Boolean
+        get() = false
+    override val isAnyNewState: Boolean
+        get() = true
+
+    override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+        return oldState is State.Initiated
+    }
 }
 
-class TriggerWithIntentError : StateTrigger(State.Initiated::class, null, TestLogger()) {
-    override fun getTriggerIntent(oldState: State, newState: State): IntentMessage {
+class TriggerWithIntentError : StateTrigger<State.Initiated, State>(TestLogger()) {
+    override fun specifyTriggerIntent(oldState: State.Initiated, newState: State): IntentMessage? {
         throw TestException()
+    }
+
+    override val isAnyOldState: Boolean
+        get() = false
+    override val isAnyNewState: Boolean
+        get() = true
+
+    override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+        return oldState is State.Initiated
     }
 }

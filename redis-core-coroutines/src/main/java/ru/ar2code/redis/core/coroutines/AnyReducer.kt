@@ -17,9 +17,11 @@
 
 package ru.ar2code.redis.core.coroutines
 
+import ru.ar2code.redis.core.IntentMessage
+import ru.ar2code.redis.core.State
 import ru.ar2code.utils.Logger
 
 /**
  * Any reducer that can be applied to any state and any intent
  */
-abstract class AnyReducer(logger: Logger) : StateReducer(null, null, logger)
+abstract class AnyReducer(logger: Logger) : StateReducer<State, IntentMessage>(logger)

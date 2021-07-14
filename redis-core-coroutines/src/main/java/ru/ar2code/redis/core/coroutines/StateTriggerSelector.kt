@@ -22,9 +22,9 @@ import ru.ar2code.redis.core.State
 interface StateTriggerSelector {
 
     fun findTrigger(
-        triggers: List<StateTrigger>?,
+        triggers: List<StateTrigger<*, *>>?,
         old: State,
-        new : State
-    ): StateTrigger?
+        new: State
+    ): StateTrigger<*, *>?
 
 }

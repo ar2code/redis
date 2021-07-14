@@ -44,8 +44,8 @@ import ru.ar2code.utils.Logger
 abstract class RedisViewModel(
     protected val savedState: SavedStateHandle?,
     protected val initialState: ViewModelStateWithEvent,
-    protected val reducers: List<StateReducer>,
-    protected val triggers: List<StateTrigger>? = null,
+    protected val reducers: List<StateReducer<*, *>>,
+    protected val triggers: List<StateTrigger<*, *>>? = null,
     protected val reducerSelector: ReducerSelector = DefaultReducerSelector(),
     protected val triggerSelector: StateTriggerSelector = DefaultStateTriggerSelector(),
     protected val listenedServiceIntentSelector: IntentSelector = DefaultIntentSelector(),
@@ -75,7 +75,7 @@ abstract class RedisViewModel(
     }
 
     /**
-     * If true exceptions inside [StateReducer.reduce], [StateTrigger.invokeAction], [StateRestore.restoreState], will emit as [State.ErrorOccurred] state.
+     * If true exceptions inside [StateReducer.reduceState], [StateTrigger.invokeAction], [StateRestore.restoreState], will emit as [State.ErrorOccurred] state.
      */
     protected open val emitExceptionAsErrorState = false
 

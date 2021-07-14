@@ -23,9 +23,9 @@ import ru.ar2code.redis.core.State
 interface ReducerSelector {
 
     fun findReducer(
-        reducers: List<StateReducer>,
+        reducers: List<StateReducer<*, *>>,
         state: State,
         intentMessage: IntentMessage
-    ): StateReducer
+    ): StateReducer<*, *>
 
 }

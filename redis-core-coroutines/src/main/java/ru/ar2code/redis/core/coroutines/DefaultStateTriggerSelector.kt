@@ -26,9 +26,13 @@ import ru.ar2code.redis.core.State
  */
 class DefaultStateTriggerSelector : StateTriggerSelector {
 
-    override fun findTrigger(triggers: List<StateTrigger>?, old: State, new: State): StateTrigger? {
+    override fun findTrigger(
+        triggers: List<StateTrigger<*, *>>?,
+        old: State,
+        new: State
+    ): StateTrigger<*, *>? {
 
-        var anyTrigger: StateTrigger? = null
+        var anyTrigger: StateTrigger<*, *>? = null
 
         triggers?.forEach {
             val isConcreteTriggerApplicable =

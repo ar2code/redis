@@ -25,15 +25,20 @@ import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.StateReducer
 import ru.ar2code.redis.core.test.TestLogger
 
-class SimpleExceptionStateReducer : StateReducer(
-    State.Initiated::class, IntentTypeA::class,
+class SimpleExceptionStateReducer : StateReducer<State.Initiated, IntentTypeA>(
     TestLogger()
 ) {
+    override val isAnyIntent: Boolean
+        get() = false
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Initiated && intent is IntentTypeA
+    }
+
+    override fun reduce(currentState: State.Initiated, intent: IntentTypeA): Flow<State>? {
         return flow {
             throw TestException()
         }
@@ -41,11 +46,21 @@ class SimpleExceptionStateReducer : StateReducer(
 }
 
 class InitiatedStateConcurrentTypeReducer :
-    StateReducer(State.Initiated::class, IntentTypeConcurrentTest::class, TestLogger()) {
+    StateReducer<State.Initiated, IntentTypeConcurrentTest>(TestLogger()) {
+
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Initiated && intent is IntentTypeConcurrentTest
+    }
 
     override fun reduce(
-        currentState: State,
-        intent: IntentMessage
+        currentState: State.Initiated,
+        intent: IntentTypeConcurrentTest
     ): Flow<State> {
         return flow {
             emit(StateA())
@@ -54,12 +69,19 @@ class InitiatedStateConcurrentTypeReducer :
 }
 
 class StateAConcurrentTypeReducer :
-    StateReducer(StateA::class, IntentTypeConcurrentTest::class, TestLogger()) {
+    StateReducer<StateA, IntentTypeConcurrentTest>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is StateA && intent is IntentTypeConcurrentTest
+    }
+
+    override fun reduce(currentState: StateA, intent: IntentTypeConcurrentTest): Flow<State> {
         return flow {
             emit(StateA())
         }
@@ -67,12 +89,19 @@ class StateAConcurrentTypeReducer :
 }
 
 class InitiatedStateTypeAReducer :
-    StateReducer(State.Initiated::class, IntentTypeA::class, TestLogger()) {
+    StateReducer<State.Initiated, IntentTypeA>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Initiated && intent is IntentTypeA
+    }
+
+    override fun reduce(currentState: State.Initiated, intent: IntentTypeA): Flow<State> {
         return flow {
             emit(StateA())
         }
@@ -80,25 +109,39 @@ class InitiatedStateTypeAReducer :
 }
 
 class InitiatedStateTypeBReducer :
-    StateReducer(State.Initiated::class, IntentTypeB::class, TestLogger()) {
+    StateReducer<State.Initiated, IntentTypeB>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Initiated && intent is IntentTypeB
+    }
+
+    override fun reduce(currentState: State.Initiated, intent: IntentTypeB): Flow<State>? {
         return flow {
-            emit(StateB((intent as IntentTypeB).payload ?: 0))
+            emit(StateB(intent.payload ?: 0))
         }
     }
 }
 
 class StateBTypeBReducer :
-    StateReducer(StateB::class, IntentTypeB::class, TestLogger()) {
+    StateReducer<StateB, IntentTypeB>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is StateB && intent is IntentTypeB
+    }
+
+    override fun reduce(currentState: StateB, intent: IntentTypeB): Flow<State>? {
         return flow {
             emit(StateB((intent as IntentTypeB).payload ?: 0))
         }
@@ -106,12 +149,19 @@ class StateBTypeBReducer :
 }
 
 class FlowStateDTypeBReducer :
-    StateReducer(FlowStateD::class, IntentTypeB::class, TestLogger()) {
+    StateReducer<FlowStateD, IntentTypeB>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is FlowStateD && intent is IntentTypeB
+    }
+
+    override fun reduce(currentState: FlowStateD, intent: IntentTypeB): Flow<State>? {
         return flow {
             emit(StateB((intent as IntentTypeB).payload ?: 0))
         }
@@ -119,12 +169,19 @@ class FlowStateDTypeBReducer :
 }
 
 class StateBTypeFlowReducer :
-    StateReducer(StateB::class, IntentTypeFlow::class, TestLogger()) {
+    StateReducer<StateB, IntentTypeFlow>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is StateB && intent is IntentTypeFlow
+    }
+
+    override fun reduce(currentState: StateB, intent: IntentTypeFlow): Flow<State>? {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
         }
@@ -133,12 +190,19 @@ class StateBTypeFlowReducer :
 
 
 class StateATypeCReducer :
-    StateReducer(StateA::class, IntentTypeC::class, TestLogger()) {
+    StateReducer<StateA, IntentTypeC>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is StateA && intent is IntentTypeC
+    }
+
+    override fun reduce(currentState: StateA, intent: IntentTypeC): Flow<State>? {
         return flow {
             emit(StateC())
         }
@@ -146,12 +210,19 @@ class StateATypeCReducer :
 }
 
 class InitiatedStateTypeFlowReducer :
-    StateReducer(State.Initiated::class, IntentTypeFlow::class, TestLogger()) {
+    StateReducer<State.Initiated, IntentTypeFlow>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Initiated && intent is IntentTypeFlow
+    }
+
+    override fun reduce(currentState: State.Initiated, intent: IntentTypeFlow): Flow<State>? {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
             emit(FlowStateF(FlowStateF.NAME))
@@ -160,12 +231,19 @@ class InitiatedStateTypeFlowReducer :
 }
 
 class FlowStateTypeFlowReducer :
-    StateReducer(FlowState::class, IntentTypeFlow::class, TestLogger()) {
+    StateReducer<FlowState, IntentTypeFlow>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is FlowState && intent is IntentTypeFlow
+    }
+
+    override fun reduce(currentState: FlowState, intent: IntentTypeFlow): Flow<State>? {
         return flow {
             emit(FlowStateD(FlowStateD.NAME))
             emit(FlowStateF(FlowStateF.NAME))
@@ -174,12 +252,19 @@ class FlowStateTypeFlowReducer :
 }
 
 class InitiatedStateTypeDelayFlowReducer :
-    StateReducer(State.Initiated::class, IntentTypeDelayFlow::class, TestLogger()) {
+    StateReducer<State.Initiated, IntentTypeDelayFlow>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Initiated && intent is IntentTypeDelayFlow
+    }
+
+    override fun reduce(currentState: State.Initiated, intent: IntentTypeDelayFlow): Flow<State>? {
         return flow {
             emit(FlowStateG(FlowStateG.NAME))
             delay(25)
@@ -189,12 +274,19 @@ class InitiatedStateTypeDelayFlowReducer :
 }
 
 class FlowStateTypeDelayFlowReducer :
-    StateReducer(FlowState::class, IntentTypeDelayFlow::class, TestLogger()) {
+    StateReducer<FlowState, IntentTypeDelayFlow>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is FlowState && intent is IntentTypeDelayFlow
+    }
+
+    override fun reduce(currentState: FlowState, intent: IntentTypeDelayFlow): Flow<State>? {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
             delay(25)
@@ -204,12 +296,19 @@ class FlowStateTypeDelayFlowReducer :
 }
 
 class AnyStateTypeCReducer :
-    StateReducer(null, IntentTypeC::class, TestLogger()) {
+    StateReducer<State, IntentTypeC>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = true
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return intent is IntentTypeC
+    }
+
+    override fun reduce(currentState: State, intent: IntentTypeC): Flow<State>? {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
             delay(25)
@@ -219,12 +318,19 @@ class AnyStateTypeCReducer :
 }
 
 class AnyStateAnyTypeReducer :
-    StateReducer(null, null, TestLogger()) {
+    StateReducer<State, IntentMessage>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = true
+
+    override val isAnyState: Boolean
+        get() = true
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return true
+    }
+
+    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
             delay(25)
@@ -234,12 +340,19 @@ class AnyStateAnyTypeReducer :
 }
 
 class StateCAnyTypeReducer :
-    StateReducer(StateC::class, null, TestLogger()) {
+    StateReducer<StateC, IntentMessage>(TestLogger()) {
 
-    override fun reduce(
-        currentState: State,
-        intent: IntentMessage
-    ): Flow<State> {
+    override val isAnyIntent: Boolean
+        get() = true
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is StateC
+    }
+
+    override fun reduce(currentState: StateC, intent: IntentMessage): Flow<State>? {
         return flow {
             emit(FlowStateF(FlowStateF.NAME))
             delay(25)
@@ -248,28 +361,68 @@ class StateCAnyTypeReducer :
     }
 }
 
-class AnyStateFinishIntentReducer : StateReducer(null, FinishIntent::class, TestLogger()) {
-    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+class AnyStateFinishIntentReducer : StateReducer<State, FinishIntent>(TestLogger()) {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = true
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return intent is FinishIntent
+    }
+
+    override fun reduce(currentState: State, intent: FinishIntent): Flow<State> {
         return flow {
             emit(FinishState())
         }
     }
 }
 
-class FinishStateAnyIntentReducer : StateReducer(FinishState::class, null, TestLogger()) {
-    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+class FinishStateAnyIntentReducer : StateReducer<FinishState, IntentMessage>(TestLogger()) {
+    override val isAnyIntent: Boolean
+        get() = true
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is FinishState
+    }
+
+    override fun reduce(currentState: FinishState, intent: IntentMessage): Flow<State>? {
         return null
     }
 }
 
-class DisposedStateAnyIntentReducer : StateReducer(State.Disposed::class, null, TestLogger()) {
-    override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+class DisposedStateAnyIntentReducer : StateReducer<State.Disposed, IntentMessage>(TestLogger()) {
+    override val isAnyIntent: Boolean
+        get() = true
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.Disposed
+    }
+
+    override fun reduce(currentState: State.Disposed, intent: IntentMessage): Flow<State>? {
         return null
     }
 }
 
-class AnyStateCircleIntentReducer : StateReducer(null, CircleIntent::class, TestLogger()) {
-    override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
+class AnyStateCircleIntentReducer : StateReducer<State, CircleIntent>(TestLogger()) {
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = true
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return intent is CircleIntent
+    }
+
+    override fun reduce(currentState: State, intent: CircleIntent): Flow<State> {
         return flow {
             emit(StateA())
         }
@@ -277,8 +430,19 @@ class AnyStateCircleIntentReducer : StateReducer(null, CircleIntent::class, Test
 }
 
 class ErrorStateIntentAReducer :
-    StateReducer(State.ErrorOccurred::class, IntentTypeA::class, TestLogger()) {
-    override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
+    StateReducer<State.ErrorOccurred, IntentTypeA>(TestLogger()) {
+
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override val isAnyState: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is State.ErrorOccurred && intent is IntentTypeA
+    }
+
+    override fun reduce(currentState: State.ErrorOccurred, intent: IntentTypeA): Flow<State>? {
         return flow {
             emit(StateA())
         }

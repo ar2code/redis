@@ -29,36 +29,30 @@ import kotlin.reflect.KClass
  * action object describing "what happened", and returns a new state value as flow.
  * A reducer's function signature is: (state, action) => Flow<newState>
  */
-abstract class StateReducer(
-    private val expectState: KClass<out State>?,
-    private val expectIntentType: KClass<out IntentMessage>?,
+abstract class StateReducer<S, I>(
     protected val logger: Logger
-) : LoggableObject {
-    abstract fun reduce(
+) : LoggableObject where S : State, I : IntentMessage {
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun reduceState(
         currentState: State,
         intent: IntentMessage
-    ): Flow<State>?
-
-    fun isReducerApplicable(
-        currentState: State,
-        intent: IntentMessage
-    ): Boolean {
-        val isExpectedOrAnyState = isAnyState() || expectState?.isInstance(currentState) == true
-        val isExpectedOrAnyIntent =
-            isAnyIntentType() || expectIntentType?.isInstance(intent) == true
-
-        return isExpectedOrAnyState && isExpectedOrAnyIntent
+    ): Flow<State>? {
+        return reduce(currentState as S, intent as I)
     }
 
     fun isStateWithIntentSpecified(): Boolean {
-        return !isAnyState() && !isAnyIntentType()
+        return !isAnyState && !isAnyIntent
     }
 
-    fun isAnyState(): Boolean {
-        return expectState == null
-    }
+    abstract val isAnyState: Boolean
 
-    fun isAnyIntentType(): Boolean {
-        return expectIntentType == null
-    }
+    abstract val isAnyIntent: Boolean
+
+    abstract fun reduce(currentState: S, intent: I): Flow<State>?
+
+    abstract fun isReducerApplicable(
+        currentState: State,
+        intent: IntentMessage
+    ): Boolean
 }

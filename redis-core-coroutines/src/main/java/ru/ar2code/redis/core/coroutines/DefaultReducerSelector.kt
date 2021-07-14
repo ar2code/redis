@@ -28,12 +28,12 @@ import ru.ar2code.redis.core.State
 class DefaultReducerSelector : ReducerSelector {
 
     override fun findReducer(
-        reducers: List<StateReducer>,
+        reducers: List<StateReducer<*,*>>,
         state: State,
         intentMessage: IntentMessage
-    ): StateReducer {
+    ): StateReducer<*,*> {
 
-        var anyReducer: StateReducer? = null
+        var anyReducer: StateReducer<*,*>? = null
 
         reducers.forEach {
             val isConcreteReducerApplicable =

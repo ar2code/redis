@@ -27,35 +27,34 @@ import kotlin.reflect.KClass
  * You can specify some triggers that should fire when service change state from A to B
  * Trigger can do some simple action or dispatch an intent to its service.
  */
-abstract class StateTrigger(
-    private val expectOldState: KClass<out State>?,
-    private val expectNewState: KClass<out State>?,
+@Suppress("UNCHECKED_CAST")
+abstract class StateTrigger<O, N>(
     protected val logger: Logger
-) : LoggableObject {
-    open fun getTriggerIntent(oldState: State, newState: State): IntentMessage? = null
+) : LoggableObject where O : State, N : State {
 
-    open suspend fun invokeAction(oldState: State, newState: State) {}
+    abstract val isAnyOldState: Boolean
 
-    fun isTriggerApplicable(
+    abstract val isAnyNewState: Boolean
+
+    internal fun getTriggerIntent(oldState: State, newState: State): IntentMessage? {
+        return specifyTriggerIntent(oldState as O, newState as N)
+    }
+
+    internal suspend fun invokeAction(oldState: State, newState: State) {
+        invokeSpecifiedAction(oldState as O, newState as N)
+    }
+
+    open fun specifyTriggerIntent(oldState: O, newState: N): IntentMessage? = null
+
+    open suspend fun invokeSpecifiedAction(oldState: O, newState: N) {}
+
+    abstract fun isTriggerApplicable(
         oldState: State,
         newState: State
-    ): Boolean {
-
-        val isOldApplicable = isAnyOldState() || expectOldState?.isInstance(oldState) == true
-        val isNewApplicable = isAnyNewState() || expectNewState?.isInstance(newState) == true
-
-        return isOldApplicable && isNewApplicable
-    }
+    ): Boolean
 
     fun isStatesSpecified(): Boolean {
-        return !isAnyNewState() && !isAnyOldState()
+        return !isAnyNewState && !isAnyOldState
     }
 
-    fun isAnyOldState(): Boolean {
-        return expectOldState == null
-    }
-
-    fun isAnyNewState(): Boolean {
-        return expectNewState == null
-    }
 }

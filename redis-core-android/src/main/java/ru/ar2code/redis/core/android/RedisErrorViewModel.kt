@@ -14,8 +14,8 @@ import ru.ar2code.utils.Logger
 abstract class RedisErrorViewModel(
     savedState: SavedStateHandle?,
     initialState: ViewModelStateWithEvent,
-    reducers: List<StateReducer>,
-    triggers: List<StateTrigger>? = null,
+    reducers: List<StateReducer<*, *>>,
+    triggers: List<StateTrigger<*, *>>? = null,
     reducerSelector: ReducerSelector = DefaultReducerSelector(),
     triggerSelector: StateTriggerSelector = DefaultStateTriggerSelector(),
     listenedServiceIntentSelector: IntentSelector = DefaultIntentSelector(),
@@ -25,11 +25,11 @@ abstract class RedisErrorViewModel(
 ) : RedisViewModel(
     savedState,
     initialState,
-    mutableListOf<StateReducer>(
+    mutableListOf<StateReducer<*, *>>(
         ErrorStateOnReloadAfterErrorIntentReducer(logger),
         AnyStateOnReloadAfterErrorIntentReducer(logger),
     ).apply { addAll(reducers) }.toList(),
-    mutableListOf<StateTrigger>(
+    mutableListOf<StateTrigger<*, *>>(
         AnyStateToErrorOccurredStateTrigger(logger)
     ).apply {
         triggers?.let {
@@ -78,28 +78,46 @@ abstract class RedisErrorViewModel(
     //region Reducers
 
     class ErrorStateOnReloadAfterErrorIntentReducer(logger: Logger) :
-        ViewStateReducer(
-            ErrorState::class,
-            ReloadAfterErrorIntent::class,
+        ViewStateReducer<ErrorState, ReloadAfterErrorIntent>(
             logger
         ) {
-
-        override fun reduce(currentState: State, intent: IntentMessage): Flow<State> {
+        override fun reduce(
+            currentState: ErrorState,
+            intent: ReloadAfterErrorIntent
+        ): Flow<State> {
             return flow {
                 emit(ReloadingAfterErrorState(currentState.cast<ViewModelStateWithEvent>().viewState.castOrNull()))
             }
         }
+
+        override val isAnyState: Boolean
+            get() = false
+
+        override val isAnyIntent: Boolean
+            get() = false
+
+        override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+            return currentState is ErrorState && intent is ReloadAfterErrorIntent
+        }
     }
 
     class AnyStateOnReloadAfterErrorIntentReducer(logger: Logger) :
-        ViewStateReducer(
-            null,
-            ReloadAfterErrorIntent::class,
+        ViewStateReducer<State, ReloadAfterErrorIntent>(
             logger
         ) {
 
-        override fun reduce(currentState: State, intent: IntentMessage): Flow<State>? {
+        override fun reduce(currentState: State, intent: ReloadAfterErrorIntent): Flow<State>? {
             return null
+        }
+
+        override val isAnyState: Boolean
+            get() = true
+
+        override val isAnyIntent: Boolean
+            get() = false
+
+        override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+            return intent is ReloadAfterErrorIntent
         }
     }
 
@@ -107,12 +125,25 @@ abstract class RedisErrorViewModel(
 
     //region Triggers
 
-    class AnyStateToErrorOccurredStateTrigger(logger: Logger) : StateTrigger(
-        null, State.ErrorOccurred::class,
-        logger
-    ) {
-        override fun getTriggerIntent(oldState: State, newState: State): IntentMessage {
+    class AnyStateToErrorOccurredStateTrigger(logger: Logger) :
+        StateTrigger<State, State.ErrorOccurred>(
+            logger
+        ) {
+
+        override fun specifyTriggerIntent(
+            oldState: State,
+            newState: State.ErrorOccurred
+        ): IntentMessage {
             return OnServiceErrorIntent(newState.cast())
+        }
+
+        override val isAnyOldState: Boolean
+            get() = true
+        override val isAnyNewState: Boolean
+            get() = false
+
+        override fun isTriggerApplicable(oldState: State, newState: State): Boolean {
+            return newState is State.ErrorOccurred
         }
     }
 

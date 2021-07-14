@@ -33,13 +33,13 @@ import ru.ar2code.utils.Logger
  */
 open class RedisCoroutineStateServiceBuilder(
     private val scope: CoroutineScope,
-    private val reducers: List<StateReducer>
+    private val reducers: List<StateReducer<*,*>>
 ) {
     private var dispatcher: CoroutineDispatcher? = null
     private var initialState: State? = null
     private var reducerSelector: ReducerSelector? = null
     private var listenedServicesIntentSelector: IntentSelector? = null
-    private var stateTriggers: List<StateTrigger>? = null
+    private var stateTriggers: List<StateTrigger<*,*>>? = null
     private var stateTriggerSelector: StateTriggerSelector? = null
     private var logger: Logger? = null
     private var savedStateStore: SavedStateStore? = null
@@ -85,7 +85,7 @@ open class RedisCoroutineStateServiceBuilder(
     /**
      * Set list of triggers that can be called when service change its state
      */
-    fun setTriggers(triggers: List<StateTrigger>): RedisCoroutineStateServiceBuilder {
+    fun setTriggers(triggers: List<StateTrigger<*,*>>): RedisCoroutineStateServiceBuilder {
         this.stateTriggers = triggers
         return this
     }

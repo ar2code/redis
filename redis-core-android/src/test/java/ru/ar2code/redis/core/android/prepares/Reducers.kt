@@ -32,61 +32,104 @@ val defaultReducers = listOf(
     InitiatedStateUiViewWithEventReducer()
 )
 
-class InitiatedStateTypeAReducer : ViewStateReducer(
-    ViewModelInitiatedState::class, IntentUiTypeA::class, TestLogger()
+class InitiatedStateTypeAReducer : ViewStateReducer<ViewModelInitiatedState, IntentUiTypeA>(
+    TestLogger()
 ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage
+        currentState: ViewModelInitiatedState,
+        intent: IntentUiTypeA
     ): Flow<State> {
         return flow {
             emit(ViewModelTypeAState(null, null))
         }
     }
+
+    override val isAnyState: Boolean
+        get() = false
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is ViewModelInitiatedState && intent is IntentUiTypeA
+    }
 }
 
-class InitiatedStateTypeBReducer : ViewStateReducer(
-    ViewModelInitiatedState::class, IntentUiTypeB::class, TestLogger()
+class InitiatedStateTypeBReducer : ViewStateReducer<ViewModelInitiatedState, IntentUiTypeB>(
+    TestLogger()
 ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage
+        currentState: ViewModelInitiatedState,
+        intent: IntentUiTypeB
     ): Flow<State> {
         return flow {
             emit(ViewModelTypeBState(null, null))
         }
     }
+
+    override val isAnyState: Boolean
+        get() = false
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is ViewModelInitiatedState && intent is IntentUiTypeB
+    }
 }
 
 class InitiatedStateUiViewStateOnlyReducer :
-    ViewStateReducer(
-        ViewModelInitiatedState::class, IntentUiViewStateOnly::class, TestLogger()
+    ViewStateReducer<ViewModelInitiatedState, IntentUiViewStateOnly>(
+        TestLogger()
     ) {
+
     override fun reduce(
-        currentState: State, intent: IntentMessage
+        currentState: ViewModelInitiatedState,
+        intent: IntentUiViewStateOnly
     ): Flow<State> {
         return flow {
             emit(ViewModelViewOnlyState(TestViewModelState()))
         }
     }
+
+    override val isAnyState: Boolean
+        get() = false
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is ViewModelInitiatedState && intent is IntentUiViewStateOnly
+    }
 }
 
-class InitiatedStateUiEventOnlyReducer : ViewStateReducer(
-    ViewModelInitiatedState::class, IntentUiViewEventOnly::class, TestLogger()
-) {
+class InitiatedStateUiEventOnlyReducer :
+    ViewStateReducer<ViewModelInitiatedState, IntentUiViewStateOnly>(
+        TestLogger()
+    ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage
+        currentState: ViewModelInitiatedState,
+        intent: IntentUiViewStateOnly
     ): Flow<State> {
         return flow {
             emit(ViewModelEventOnlyState(TestViewModelEvent()))
         }
     }
+
+    override val isAnyState: Boolean
+        get() = false
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is ViewModelInitiatedState && intent is IntentUiViewStateOnly
+    }
 }
 
 class InitiatedStateUiViewWithEventReducer :
-    ViewStateReducer(
-        ViewModelInitiatedState::class, IntentUiViewStateWithEvent::class, TestLogger()
+    ViewStateReducer<ViewModelInitiatedState, IntentUiViewStateWithEvent>(
+        TestLogger()
     ) {
     override fun reduce(
-        currentState: State, intent: IntentMessage
+        currentState: ViewModelInitiatedState,
+        intent: IntentUiViewStateWithEvent
     ): Flow<State> {
         return flow {
             emit(
@@ -95,5 +138,14 @@ class InitiatedStateUiViewWithEventReducer :
                 )
             )
         }
+    }
+
+    override val isAnyState: Boolean
+        get() = false
+    override val isAnyIntent: Boolean
+        get() = false
+
+    override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
+        return currentState is ViewModelInitiatedState && intent is IntentUiViewStateWithEvent
     }
 }
