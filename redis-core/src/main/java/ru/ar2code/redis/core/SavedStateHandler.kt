@@ -18,16 +18,19 @@
 package ru.ar2code.redis.core
 
 /**
- * Interface that describes how to store and restore state
+ * Redis service can store/restore its current state as map key -> value.
+ *
+ * Interface that describes how to store and restore state.
+ *
  * When state changed service find a StateStore item for new state inside [stateStores].
- * If [StateStore] item found service invoke [StateStore.store] method to store current state.
+ * If [StateStore] item found service invoke [StateStore.storeStateData] method to store current state.
  *
  * So you should create a list of StateStore items to provide a mechanism of storing for each service state.
- * But you can set only single StateStore that handles all service states. For it just create [StateStore] with [StateStore.expectState] is null.
+ * But you can set only single StateStore that handles all service states. For it just create [StateStore] with [StateStore.isAnyState] = true.
  *
  * After service was created it searches a [StateRestore] inside [stateRestores] and invoke [StateRestore.restoreState] to give you a possibility restore state or dispatch an intent to service itself.
  *
- * @property stateStoreKeyName - is used for storing state name in [SavedStateStore]
+ * @property stateStoreKeyName - is used for storing state name in [SavedStateStore] as key.
  */
 interface SavedStateHandler {
 

@@ -24,7 +24,10 @@ import ru.ar2code.utils.Logger
  * Describes mechanism og storing specified state [S]
  *
  * You should create a list of StateStore items to provide a mechanism of storing for each service state.
- * But you can set only single StateStore that handles all service states. For it just create [StateStore] with [StateStore.expectState] is null.
+ *
+ * But you can set only single StateStore that handles all service states.
+ *
+ * @param storedStateName - this string will be used as State value inside [SavedStateStore]. By this name you can recognize and restore specified state.
  */
 @Suppress("UNCHECKED_CAST")
 abstract class StateStore<S>(
@@ -32,19 +35,25 @@ abstract class StateStore<S>(
     protected val logger: Logger
 ) : LoggableObject where S : State {
 
-    suspend fun store(state: State, store: SavedStateStore?) {
-        storeStateData(state as S, store)
+    suspend fun storeStateData(state: State, store: SavedStateStore?) {
+        storeSpecifiedStateData(state as S, store)
     }
 
     /**
-     * Store state data
+     * Store only state data.
+     * Don't store state name inside this method.
      */
-    abstract suspend fun storeStateData(state: S, store: SavedStateStore?)
+    abstract suspend fun storeSpecifiedStateData(state: S, store: SavedStateStore?)
 
+    /**
+     * Is this StateStore applicable for storing specified [state]
+     */
     abstract fun isStateStoreApplicable(state: State): Boolean
 
     /**
      * Is universal StateStore for any states?
+     *
+     * If true this StateStore can be used for storing any type of state.
      */
     abstract val isAnyState: Boolean
 }

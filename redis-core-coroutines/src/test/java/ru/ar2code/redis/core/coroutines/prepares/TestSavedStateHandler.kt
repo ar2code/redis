@@ -28,7 +28,7 @@ class TestSavedStateHandler : SavedStateHandler {
     }
 
     class TestStateStore : StateStore<StateB>("StateB", TestLogger()) {
-        override suspend fun storeStateData(state: StateB, store: SavedStateStore?) {
+        override suspend fun storeSpecifiedStateData(state: StateB, store: SavedStateStore?) {
             store?.set(STATE_DATA_KEY, state.data)
         }
 

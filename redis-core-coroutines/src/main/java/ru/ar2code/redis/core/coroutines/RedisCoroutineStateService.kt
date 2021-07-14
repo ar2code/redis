@@ -337,7 +337,7 @@ open class RedisCoroutineStateService(
 
                 savedStateStore?.set(it.stateStoreKeyName, store.storedStateName)
 
-                store.store(new, savedStateStore)
+                store.storeStateData(new, savedStateStore)
             }
         }
     }

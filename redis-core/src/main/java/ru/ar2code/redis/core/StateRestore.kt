@@ -10,14 +10,14 @@ abstract class StateRestore(
 
     abstract suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent?
 
-    fun isStateRestoreApplicable(stateName: String): Boolean {
+    open fun isStateRestoreApplicable(stateName: String): Boolean {
         return isAnyState() || expectStateName == stateName
     }
 
     /**
      * Is universal StateRestore for any state name?
      */
-    fun isAnyState(): Boolean {
+    open fun isAnyState(): Boolean {
         return expectStateName.isNullOrEmpty()
     }
 }
