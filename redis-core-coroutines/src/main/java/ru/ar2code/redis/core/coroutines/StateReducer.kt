@@ -34,7 +34,7 @@ abstract class StateReducer<S, I>(
 ) : LoggableObject where S : State, I : IntentMessage {
 
     @Suppress("UNCHECKED_CAST")
-    internal fun reduceState(
+    fun reduceState(
         currentState: State,
         intent: IntentMessage
     ): Flow<State>? {

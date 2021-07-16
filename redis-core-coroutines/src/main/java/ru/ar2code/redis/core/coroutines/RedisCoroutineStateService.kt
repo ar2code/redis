@@ -508,18 +508,17 @@ open class RedisCoroutineStateService(
 
                     serviceIntentDispatcherListener?.onIntentDispatched(msg)
 
-                    val reducer = findReducer(msg)
-
-                    logger.info("[$objectLogName] Received intent ${msg.objectLogName}. Found reducer: ${reducer.objectLogName}.")
-
-                    val currentState = serviceStateInternal
-                    if (currentState is State.Disposed) {
+                    if (isDisposed()) {
                         logger.info("[$objectLogName] currentState is disposed. Skip reducer and return.")
                         return@launch
                     }
 
+                    val reducer = findReducer(msg)
+
+                    logger.info("[$objectLogName] Received intent ${msg.objectLogName}. Found reducer: ${reducer.objectLogName}.")
+
                     val newStateFlow =
-                        reducer.reduceState(currentState, msg)
+                        reducer.reduceState(serviceStateInternal, msg)
 
                     newStateFlow?.let { stateFlow ->
                         stateFlow

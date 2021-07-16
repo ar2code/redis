@@ -101,12 +101,12 @@ class InitiatedStateUiViewStateOnlyReducer :
 }
 
 class InitiatedStateUiEventOnlyReducer :
-    ViewStateReducer<ViewModelInitiatedState, IntentUiViewStateOnly>(
+    ViewStateReducer<ViewModelInitiatedState, IntentUiViewEventOnly>(
         TestLogger()
     ) {
     override fun reduce(
         currentState: ViewModelInitiatedState,
-        intent: IntentUiViewStateOnly
+        intent: IntentUiViewEventOnly
     ): Flow<State> {
         return flow {
             emit(ViewModelEventOnlyState(TestViewModelEvent()))
@@ -119,7 +119,7 @@ class InitiatedStateUiEventOnlyReducer :
         get() = false
 
     override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
-        return currentState is ViewModelInitiatedState && intent is IntentUiViewStateOnly
+        return currentState is ViewModelInitiatedState && intent is IntentUiViewEventOnly
     }
 }
 

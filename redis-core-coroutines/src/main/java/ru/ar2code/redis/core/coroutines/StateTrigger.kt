@@ -36,11 +36,11 @@ abstract class StateTrigger<O, N>(
 
     abstract val isAnyNewState: Boolean
 
-    internal fun getTriggerIntent(oldState: State, newState: State): IntentMessage? {
+    fun getTriggerIntent(oldState: State, newState: State): IntentMessage? {
         return specifyTriggerIntent(oldState as O, newState as N)
     }
 
-    internal suspend fun invokeAction(oldState: State, newState: State) {
+    suspend fun invokeAction(oldState: State, newState: State) {
         invokeSpecifiedAction(oldState as O, newState as N)
     }
 
