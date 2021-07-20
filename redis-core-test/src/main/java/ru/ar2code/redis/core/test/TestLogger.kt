@@ -17,21 +17,22 @@
 
 package ru.ar2code.redis.core.test
 
+import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 
 /**
  * Test logger that uses [println] method for logging
  */
 class TestLogger : Logger("TestLogger") {
-    override fun info(msg: String, level: String) {
+    override fun info(msg: String, level: String, where: LoggableObject?) {
         println(msg)
     }
 
-    override fun error(msg: String, t: Throwable, level: String) {
+    override fun error(msg: String, t: Throwable, level: String, where: LoggableObject?) {
         println(msg)
     }
 
-    override fun warning(msg: String, level: String) {
+    override fun warning(msg: String, level: String, where: LoggableObject?) {
         println(msg)
     }
 }

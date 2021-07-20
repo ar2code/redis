@@ -56,6 +56,7 @@ class SavedRedisStateServiceTests {
     }
 
     @Test
+    //todo check test
     fun `Service restores state if state handler contains data`() = runBlocking {
 
         val savedId = 123

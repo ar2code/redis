@@ -26,7 +26,7 @@ abstract class Logger(private val tag: String?) {
         const val DEFAULT_LEVEL = "Redis-default"
     }
 
-    abstract fun info(msg: String, level: String = DEFAULT_LEVEL)
-    abstract fun error(msg: String, t: Throwable, level: String = DEFAULT_LEVEL)
-    abstract fun warning(msg: String, level: String = DEFAULT_LEVEL)
+    abstract fun info(msg: String, level: String = DEFAULT_LEVEL, where : LoggableObject? = null)
+    abstract fun error(msg: String, t: Throwable, level: String = DEFAULT_LEVEL, where : LoggableObject? = null)
+    abstract fun warning(msg: String, level: String = DEFAULT_LEVEL, where : LoggableObject? = null)
 }

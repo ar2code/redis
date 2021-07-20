@@ -50,7 +50,8 @@ interface RedisStateService : RedisDispatcher, RedisListener, LoggableObject {
     fun getSubscribersCount(): Int
 
     /**
-     * Indicates that service restored state or dispatched an intent to itself after initialization from [SavedStateHandler] .
+     * Indicates that service restored state or dispatched an intent to itself after initialization from [SavedStateHandler].
+     * This flag never clears.
      */
     suspend fun isServiceRestoredState(): Boolean
 }

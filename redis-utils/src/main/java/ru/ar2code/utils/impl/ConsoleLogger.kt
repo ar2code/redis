@@ -17,6 +17,7 @@
 
 package ru.ar2code.utils.impl
 
+import ru.ar2code.utils.LoggableObject
 import ru.ar2code.utils.Logger
 import java.util.logging.Level
 
@@ -29,19 +30,19 @@ open class ConsoleLogger(tag: String) : Logger(tag) {
         level = Level.ALL
     } ?: null
 
-    override fun info(msg: String, level: String) {
-        javaLogger?.log(Level.INFO, buildMessage(msg, level))
+    override fun info(msg: String, level: String, where: LoggableObject?) {
+        javaLogger?.log(Level.INFO, buildMessage(msg, level, where))
     }
 
-    override fun error(msg: String, t: Throwable, level: String) {
-        javaLogger?.log(Level.SEVERE, buildMessage(msg, level), t)
+    override fun error(msg: String, t: Throwable, level: String, where: LoggableObject?) {
+        javaLogger?.log(Level.SEVERE, buildMessage(msg, level, where), t)
     }
 
-    override fun warning(msg: String, level: String) {
-        javaLogger?.log(Level.WARNING, buildMessage(msg, level))
+    override fun warning(msg: String, level: String, where: LoggableObject?) {
+        javaLogger?.log(Level.WARNING, buildMessage(msg, level, where))
     }
 
-    private fun buildMessage(msg: String, level: String): String {
-        return "[$level]/${msg}"
+    private fun buildMessage(msg: String, level: String, where: LoggableObject?): String {
+        return "[$level]/$where: $msg"
     }
 }

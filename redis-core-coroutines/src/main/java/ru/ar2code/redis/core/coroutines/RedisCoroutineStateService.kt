@@ -233,6 +233,10 @@ open class RedisCoroutineStateService(
         fun clearSavedState() {
             val storedKeys = savedStateHandler?.getStoredKeys()
             storedKeys?.let {
+                savedStateHandler?.stateStoreKeyName?.let {
+                    savedStateStore?.delete(it)
+                }
+
                 savedStateStore?.delete(storedKeys)
             }
         }

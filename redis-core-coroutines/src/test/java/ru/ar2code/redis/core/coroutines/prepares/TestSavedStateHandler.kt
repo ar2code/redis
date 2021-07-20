@@ -57,6 +57,6 @@ class TestSavedStateHandler : SavedStateHandler {
         get() = STATE_KEY
 
     override fun getStoredKeys(): List<String> {
-        return listOf(STATE_KEY, STATE_DATA_KEY)
+        return listOf(STATE_DATA_KEY)
     }
 }
