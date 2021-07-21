@@ -43,3 +43,7 @@ data class Changeable<T>(
         return data != null && version != previous.version
     }
 }
+
+fun <T> Changeable<T>?.getUpperVersion(): Int where T : Any {
+    return this?.generateUpperVersion() ?: Changeable.INIT_VERSION
+}
