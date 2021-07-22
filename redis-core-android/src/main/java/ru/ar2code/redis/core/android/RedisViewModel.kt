@@ -79,12 +79,12 @@ abstract class RedisViewModel(
      */
     protected open val emitExceptionAsErrorState = false
 
-    private val viewStateLiveMutable = MutableLiveData<RedisViewState>()
+    private val viewStateLiveMutable = MutableLiveData<RedisViewState?>()
 
     /**
      * View state. Ui should bind and render this data.
      */
-    val viewStateLive: LiveData<RedisViewState> = viewStateLiveMutable
+    val viewStateLive: LiveData<RedisViewState?> = viewStateLiveMutable
 
     private val viewEventLiveMutable = MutableLiveEvent<EventArgs<RedisViewEvent>>()
 

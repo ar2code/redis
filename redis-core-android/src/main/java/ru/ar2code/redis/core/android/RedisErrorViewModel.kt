@@ -152,7 +152,7 @@ abstract class RedisErrorViewModel(
     //region Intents
 
     /**
-     * Intent with error state from some Redis service (listening service or internal viewmodel service).
+     * Intent with error state from some Redis service (listening service or internal view model service).
      */
     class OnServiceErrorIntent(val errorState: State.ErrorOccurred) :
         IntentMessage() {

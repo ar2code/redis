@@ -356,7 +356,7 @@ open class RedisCoroutineStateService(
     }
 
     /**
-     * Call after service completely disposed
+     * Call after service was disposed
      */
     protected open fun onDisposed() {
         logger.info("[${this.objectLogName}] onDisposed")
@@ -376,7 +376,7 @@ open class RedisCoroutineStateService(
 
             val oldState = serviceStateInternal
 
-            serviceState = newServiceState
+            serviceStateInternal = newServiceState
 
             resultsChannel.emit(newServiceState)
 
@@ -519,7 +519,7 @@ open class RedisCoroutineStateService(
                         return@launch
                     }
 
-                    val reducer = findReducer(msg)
+                    val reducer = findReducer(currentState, msg)
 
                     logger.info("[$objectLogName] Received intent ${msg.objectLogName}. Found reducer: ${reducer.objectLogName}.")
 
@@ -543,10 +543,11 @@ open class RedisCoroutineStateService(
     }
 
     private fun findReducer(
+        state: State,
         intentMessage: IntentMessage
     ): StateReducer<*, *> {
         try {
-            return reducerSelector.findReducer(reducers, serviceStateInternal, intentMessage)
+            return reducerSelector.findReducer(reducers, state, intentMessage)
         } catch (e: ReducerNotFoundException) {
             throw ReducerNotFoundException("$objectLogName findReducer exception", e)
         }
