@@ -531,6 +531,8 @@ open class RedisCoroutineStateService(
                             .collect {
                                 broadcastNewState(it)
                             }
+                    } ?: kotlin.run {
+                        logger.info("[$objectLogName] reducer returned null.")
                     }
                 } catch (e: ClosedReceiveChannelException) {
                     logger.info("[$objectLogName] intent channel is closed.")
