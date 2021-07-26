@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param serviceLogName object name that is used for logging
  * @param emitErrorAsState if true exceptions inside [StateReducer.reduceState], [StateTrigger.invokeAction], [StateRestore.restoreState], [onBeforeInitialization] will emit as [State.ErrorOccurred] state.
  */
-@ExperimentalCoroutinesApi
 open class RedisCoroutineStateService(
     private val scope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
