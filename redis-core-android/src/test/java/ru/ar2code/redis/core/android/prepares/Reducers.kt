@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.android.Changeable
 import ru.ar2code.redis.core.android.ViewStateReducer
 import ru.ar2code.redis.core.test.TestLogger
 
@@ -86,7 +87,7 @@ class InitiatedStateUiViewStateOnlyReducer :
         intent: IntentUiViewStateOnly
     ): Flow<State> {
         return flow {
-            emit(ViewModelViewOnlyState(TestViewModelState()))
+            emit(ViewModelViewOnlyState(TestViewModelState(Changeable(null))))
         }
     }
 
@@ -134,7 +135,7 @@ class InitiatedStateUiViewWithEventReducer :
         return flow {
             emit(
                 ViewModelViewWithEventState(
-                    TestViewModelState(), TestViewModelEvent()
+                    TestViewModelState(Changeable(null)), TestViewModelEvent()
                 )
             )
         }

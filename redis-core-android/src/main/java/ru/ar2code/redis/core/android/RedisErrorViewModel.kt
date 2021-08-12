@@ -7,7 +7,6 @@ import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
-//todo test
 /**
  * When unhandled exception occurred inside view model (reducer, trigger, etc), view model gets [State.ErrorOccurred] as state
  * and dispatches [OnViewModelErrorIntent] intent with error information. You should add reducer to handle [OnViewModelErrorIntent].

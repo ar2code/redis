@@ -17,10 +17,32 @@
 
 package ru.ar2code.redis.core.android.prepares
 
+import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.android.Changeable
+import ru.ar2code.redis.core.android.RedisErrorViewState
 import ru.ar2code.redis.core.android.RedisViewState
+import ru.ar2code.redis.core.coroutines.castOrNull
 
-class TestViewModelState : RedisViewState {
+class TestViewModelState(override val error: Changeable<State.ErrorOccurred>) :
+    RedisErrorViewState {
+
+    override fun isErrorShouldBeRendered(currentUiState: RedisErrorViewState?): Boolean {
+        return super.isErrorShouldBeRendered(currentUiState)
+    }
+
+    override fun updateErrorVersion(serviceError: State.ErrorOccurred): RedisErrorViewState {
+        return TestViewModelState(Changeable(error.data, error.generateUpperVersion()))
+    }
+
     override fun clone(): RedisViewState {
-        return TestViewModelState()
+        return TestViewModelState(error)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return error.data == other.castOrNull<TestViewModelState>()?.error?.data
+    }
+
+    override fun hashCode(): Int {
+        return error.hashCode()
     }
 }
