@@ -191,7 +191,14 @@ abstract class RedisErrorViewModel(
     }
 
     /**
-     * Dispatch [ReloadAfterErrorIntent]
+     * Dispatch [ReloadAfterErrorIntent].
+     *
+     * Will work only if the current view model state is [ErrorState].
+     * In this case view model goes from [ErrorState] to [ReloadingAfterErrorState].
+     * New ReloadingAfterErrorState contains ui state [RedisViewState] from previous error state.
+     *
+     * You need to add some trigger from [ErrorState] to [ReloadingAfterErrorState] to handle retry attempt
+     * (invoke some action or dispatch some intent to view model).
      */
     fun tryAgainAfterError() {
         dispatch(ReloadAfterErrorIntent())
