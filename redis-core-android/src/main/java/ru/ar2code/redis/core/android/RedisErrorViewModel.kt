@@ -135,7 +135,7 @@ abstract class RedisErrorViewModel(
             oldState: State,
             newState: State.ErrorOccurred
         ): IntentMessage {
-            return OnViewModelErrorIntent(newState.cast())
+            return OnViewModelErrorIntent(newState)
         }
 
         override val isAnyOldState: Boolean
