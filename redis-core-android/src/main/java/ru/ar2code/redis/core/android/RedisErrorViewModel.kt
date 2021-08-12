@@ -1,16 +1,17 @@
 package ru.ar2code.redis.core.android
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.ar2code.redis.core.*
-import ru.ar2code.redis.core.android.ext.toRedisSavedStateStore
 import ru.ar2code.redis.core.coroutines.*
 import ru.ar2code.utils.Logger
 
 //todo test
+/**
+ * When unhandled exception occurred inside view model (reducer, trigger, etc), view model gets [State.ErrorOccurred] as state
+ * and dispatches [OnViewModelErrorIntent] intent with error information. You should add reducer to handle [OnViewModelErrorIntent].
+ */
 abstract class RedisErrorViewModel(
     savedState: SavedStateHandle?,
     initialState: ViewModelStateWithEvent,
@@ -134,7 +135,7 @@ abstract class RedisErrorViewModel(
             oldState: State,
             newState: State.ErrorOccurred
         ): IntentMessage {
-            return OnServiceErrorIntent(newState.cast())
+            return OnViewModelErrorIntent(newState.cast())
         }
 
         override val isAnyOldState: Boolean
@@ -154,18 +155,23 @@ abstract class RedisErrorViewModel(
     /**
      * Intent with error state from some Redis service (listening service or internal view model service).
      */
-    class OnServiceErrorIntent(val errorState: State.ErrorOccurred) :
+    class OnListeningServiceErrorIntent(val errorState: State.ErrorOccurred) :
         IntentMessage() {
         companion object {
             fun createBuilder(): StateIntentMessageBuilder {
                 return object : StateIntentMessageBuilder {
                     override fun build(state: State): IntentMessage {
-                        return OnServiceErrorIntent(state.cast())
+                        return OnListeningServiceErrorIntent(state.cast())
                     }
                 }
             }
         }
     }
+
+    /**
+     * Intent with error that occurred inside view model.
+     */
+    class OnViewModelErrorIntent(val errorState: State.ErrorOccurred) : IntentMessage()
 
     /**
      * Intent indicates that view model should try to restart a whole work process.
@@ -175,9 +181,11 @@ abstract class RedisErrorViewModel(
     //endregion
 
     /**
-     * Adds variant: [State.ErrorOccurred] to [OnServiceErrorIntent] to [serviceStateListener].
+     * Adds variant: [State.ErrorOccurred] to [OnListeningServiceErrorIntent] to [serviceStateListener].
      *
-     * When listening service emits [State.ErrorOccurred] view model dispatches [OnServiceErrorIntent] intent.
+     * When listening service emits [State.ErrorOccurred] view model dispatches [OnListeningServiceErrorIntent] intent.
+     *
+     * If you need to add custom variant to handle listening service error, use [listen].
      */
     fun listenWithErrorHandling(serviceStateListener: ServiceStateListener) {
         viewModelService.listen(extendWithErrorStateListener(serviceStateListener))
@@ -190,13 +198,9 @@ abstract class RedisErrorViewModel(
         dispatch(ReloadAfterErrorIntent())
     }
 
-    override fun listen(serviceStateListener: ServiceStateListener) {
-        throw Exception("Use :listenWithErrorHandling for RedisErrorViewModel instead of :listen.")
-    }
-
     private fun extendWithErrorStateListener(serviceStateListener: ServiceStateListener): ServiceStateListener {
         val mapWithErrorState = serviceStateListener.stateIntentMap.toMutableMap().apply {
-            put(State.ErrorOccurred::class, OnServiceErrorIntent.createBuilder())
+            put(State.ErrorOccurred::class, OnListeningServiceErrorIntent.createBuilder())
         }
 
         return ServiceStateListener(serviceStateListener.listeningService, mapWithErrorState)
