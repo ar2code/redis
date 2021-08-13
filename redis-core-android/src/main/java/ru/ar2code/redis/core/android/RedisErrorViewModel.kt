@@ -152,7 +152,18 @@ abstract class RedisErrorViewModel(
     //region Intents
 
     /**
-     * Intent with error state from some Redis service (listening service or internal view model service).
+     * Intent with error state that occurred inside some redis service that was listening by view model.
+     *
+     * How to use:
+     *
+     * Listen any service with method [listenWithErrorHandling].
+     * If listening service get state [State.ErrorOccurred], view model will dispatch the intent [OnListeningServiceErrorIntent] to itself.
+     *
+     * You should add needed reducers to handle it.
+     *
+     * At least you should have one common reducer: (any state, OnListeningServiceErrorIntent) -> new state (maybe ErrorState)
+     *
+     * You should use [ErrorState] as new state if you want to use basic mechanism of reloading after error with method [tryAgainAfterError].
      */
     class OnListeningServiceErrorIntent(val errorState: State.ErrorOccurred) :
         IntentMessage() {
@@ -169,11 +180,27 @@ abstract class RedisErrorViewModel(
 
     /**
      * Intent with error that occurred inside view model.
+     *
+     * How to use:
+     *
+     * When some error occurred inside view model logic, view model gets to [State.ErrorOccurred] state.
+     * After that special trigger fires the intent [OnViewModelErrorIntent] with that occurred error.
+     *
+     * You should add needed reducers to handle it.
+     *
+     * At least you should have one common reducer: (any state, OnViewModelErrorIntent) -> ErrorState
+     *
+     * You should use [ErrorState] as new state if you want to use basic mechanism of reloading after error with method [tryAgainAfterError].
      */
     class OnViewModelErrorIntent(val errorState: State.ErrorOccurred) : IntentMessage()
 
     /**
      * Intent indicates that view model should try to restart a whole work process.
+     *
+     * You should not add needed reducers to handle it. View Model handle it by itself, just go to [ReloadingAfterErrorState].
+     *
+     * You need to add some trigger from [ErrorState] to [ReloadingAfterErrorState] to handle retry attempt
+     * (invoke some action or dispatch some intent to view model).
      */
     class ReloadAfterErrorIntent : IntentMessage()
 
