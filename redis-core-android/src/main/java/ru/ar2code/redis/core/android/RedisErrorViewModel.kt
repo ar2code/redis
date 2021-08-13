@@ -10,6 +10,12 @@ import ru.ar2code.utils.Logger
 /**
  * When unhandled exception occurred inside view model (reducer, trigger, etc), view model gets [State.ErrorOccurred] as state
  * and dispatches [OnViewModelErrorIntent] intent with error information. You should add reducer to handle [OnViewModelErrorIntent].
+ *
+ * View model dispatches [OnListeningServiceErrorIntent] if some of listening services get to [State.ErrorOccurred] state.
+ *
+ * View model has basic mechanism of reloading after error.
+ *
+ * Read more [OnViewModelErrorIntent], [OnListeningServiceErrorIntent], [ReloadAfterErrorIntent]
  */
 abstract class RedisErrorViewModel(
     savedState: SavedStateHandle?,
@@ -157,6 +163,7 @@ abstract class RedisErrorViewModel(
      * How to use:
      *
      * Listen any service with method [listenWithErrorHandling].
+     *
      * If listening service get state [State.ErrorOccurred], view model will dispatch the intent [OnListeningServiceErrorIntent] to itself.
      *
      * You should add needed reducers to handle it.
@@ -188,7 +195,7 @@ abstract class RedisErrorViewModel(
      *
      * You should add needed reducers to handle it.
      *
-     * At least you should have one common reducer: (any state, OnViewModelErrorIntent) -> ErrorState
+     * At least you should have one common reducer: (ErrorOccurred, OnViewModelErrorIntent) -> ErrorState
      *
      * You should use [ErrorState] as new state if you want to use basic mechanism of reloading after error with method [tryAgainAfterError].
      */
