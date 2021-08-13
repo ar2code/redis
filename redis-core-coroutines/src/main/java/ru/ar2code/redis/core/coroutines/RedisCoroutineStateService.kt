@@ -407,7 +407,7 @@ open class RedisCoroutineStateService(
                 val triggerIntent = it.getTriggerIntent(old, new)
 
                 triggerIntent?.let { intent ->
-                    dispatch(intent)
+                    sendIntentMessage(intent)
                 }
             }
         }
