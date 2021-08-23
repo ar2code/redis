@@ -18,77 +18,76 @@
 package ru.ar2code.redis.core.android.prepares
 
 import ru.ar2code.redis.core.State
+import ru.ar2code.redis.core.android.ViewModelErrorStateWithEvent
 import ru.ar2code.redis.core.android.ViewModelStateWithEvent
-import ru.ar2code.redis.core.coroutines.cast
-import ru.ar2code.redis.core.coroutines.castOrNull
 
 class ViewModelInitiatedState(
     viewState: TestViewModelState? = null,
     viewEvent: TestViewModelEvent? = null
 ) :
-    ViewModelStateWithEvent(
+    ViewModelErrorStateWithEvent<TestViewModelState, TestViewModelEvent>(
         viewState, viewEvent
     ) {
     override fun clone(): State {
         return ViewModelInitiatedState(
-            viewState.castOrNull(),
-            viewEvent.castOrNull()
+            viewState,
+            viewEvent
         )
     }
 }
 
 class ViewModelTypeAState(viewState: TestViewModelState?, viewEvent: TestViewModelEvent?) :
-    ViewModelStateWithEvent(
+    ViewModelErrorStateWithEvent<TestViewModelState, TestViewModelEvent>(
         viewState, viewEvent
     ) {
     override fun clone(): State {
         return ViewModelTypeAState(
-            viewState.castOrNull(),
-            viewEvent.castOrNull()
+            viewState,
+            viewEvent
         )
     }
 }
 
 class ViewModelTypeBState(viewState: TestViewModelState?, viewEvent: TestViewModelEvent?) :
-    ViewModelStateWithEvent(
+    ViewModelErrorStateWithEvent<TestViewModelState, TestViewModelEvent>(
         viewState, viewEvent
     ) {
     override fun clone(): State {
         return ViewModelTypeBState(
-            viewState.castOrNull(),
-            viewEvent.castOrNull()
+            viewState,
+            viewEvent
         )
     }
 }
 
 class ViewModelViewOnlyState(viewState: TestViewModelState) :
-    ViewModelStateWithEvent(
+    ViewModelErrorStateWithEvent<TestViewModelState, TestViewModelEvent>(
         viewState, null
     ) {
     override fun clone(): State {
         return ViewModelViewOnlyState(
-            viewState!!.cast()
+            viewState!!
         )
     }
 }
 
 class ViewModelEventOnlyState(viewEvent: TestViewModelEvent) :
-    ViewModelStateWithEvent(
+    ViewModelErrorStateWithEvent<TestViewModelState, TestViewModelEvent>(
         null, viewEvent
     ) {
     override fun clone(): State {
-        return ViewModelEventOnlyState(viewEvent!!.cast())
+        return ViewModelEventOnlyState(viewEvent!!)
     }
 }
 
 class ViewModelViewWithEventState(viewState: TestViewModelState, viewEvent: TestViewModelEvent) :
-    ViewModelStateWithEvent(
+    ViewModelErrorStateWithEvent<TestViewModelState, TestViewModelEvent>(
         viewState, viewEvent
     ) {
     override fun clone(): State {
         return ViewModelViewWithEventState(
-            viewState!!.cast(),
-            viewEvent!!.cast()
+            viewState!!,
+            viewEvent!!
         )
     }
 }

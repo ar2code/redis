@@ -23,8 +23,8 @@ import ru.ar2code.redis.core.State
  * State class for [RedisViewModel].
  * This State consists of UI model, and UI event.
  */
-abstract class ViewModelStateWithEvent(
-    val viewState: RedisViewState?,
-    val viewEvent: RedisViewEvent?
-) : State()
+abstract class ViewModelStateWithEvent<S, E>(
+    open val viewState: S?,
+    open val viewEvent: E?
+) : State() where S : RedisViewState, E : RedisViewEvent
 

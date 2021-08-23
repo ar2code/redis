@@ -17,9 +17,9 @@ import ru.ar2code.utils.Logger
  *
  * Read more [OnViewModelErrorIntent], [OnListeningServiceErrorIntent], [ReloadAfterErrorIntent]
  */
-abstract class RedisErrorViewModel(
+abstract class RedisErrorViewModel<S, E>(
     savedState: SavedStateHandle?,
-    initialState: ViewModelStateWithEvent,
+    initialState: ViewModelErrorStateWithEvent<S, E>,
     reducers: List<StateReducer<*, *>>,
     triggers: List<StateTrigger<*, *>>? = null,
     reducerSelector: ReducerSelector = DefaultReducerSelector(),
@@ -28,11 +28,11 @@ abstract class RedisErrorViewModel(
     stateStoreSelector: StateStoreSelector = DefaultStateStoreSelector(),
     savedStateHandler: SavedStateHandler? = null,
     logger: Logger = RedisCoreAndroidLogger()
-) : RedisViewModel(
+) : RedisViewModel<S, E>(
     savedState,
     initialState,
     mutableListOf<StateReducer<*, *>>(
-        ErrorStateOnReloadAfterErrorIntentReducer(logger),
+        ErrorStateOnReloadAfterErrorIntentReducer<S, E>(logger),
         AnyStateOnReloadAfterErrorIntentReducer(logger),
     ).apply { addAll(reducers) }.toList(),
     mutableListOf<StateTrigger<*, *>>(
@@ -50,32 +50,32 @@ abstract class RedisErrorViewModel(
     stateStoreSelector,
     savedStateHandler,
     logger
-) {
+) where S : RedisErrorViewState, E : RedisViewEvent {
 
     override val emitExceptionAsErrorState: Boolean
         get() = true
 
     //region States
 
-    class ErrorState(
-        viewState: RedisErrorViewState?
-    ) : ViewModelStateWithEvent(
+    class ErrorState<S, E>(
+        viewState: S?
+    ) : ViewModelErrorStateWithEvent<S, E>(
         viewState,
         null
-    ) {
+    ) where S : RedisErrorViewState, E : RedisViewEvent {
         override fun clone(): State {
-            return ErrorState(viewState?.clone().castOrNull())
+            return ErrorState<S, E>(viewState)
         }
     }
 
-    class ReloadingAfterErrorState(
-        viewState: RedisErrorViewState?
-    ) : ViewModelStateWithEvent(
+    class ReloadingAfterErrorState<S, E>(
+        viewState: S?
+    ) : ViewModelErrorStateWithEvent<S, E>(
         viewState,
         null
-    ) {
+    ) where S : RedisErrorViewState, E : RedisViewEvent {
         override fun clone(): State {
-            return ReloadingAfterErrorState(viewState?.clone().castOrNull())
+            return ReloadingAfterErrorState<S, E>(viewState)
         }
     }
 
@@ -83,16 +83,16 @@ abstract class RedisErrorViewModel(
 
     //region Reducers
 
-    class ErrorStateOnReloadAfterErrorIntentReducer(logger: Logger) :
-        ViewStateReducer<ErrorState, ReloadAfterErrorIntent>(
+    class ErrorStateOnReloadAfterErrorIntentReducer<S, E>(logger: Logger) :
+        ViewStateReducer<ErrorState<S, E>, ReloadAfterErrorIntent>(
             logger
-        ) {
+        ) where S : RedisErrorViewState, E : RedisViewEvent {
         override fun reduce(
-            currentState: ErrorState,
+            currentState: ErrorState<S, E>,
             intent: ReloadAfterErrorIntent
         ): Flow<State> {
             return flow {
-                emit(ReloadingAfterErrorState(currentState.cast<ViewModelStateWithEvent>().viewState.castOrNull()))
+                emit(ReloadingAfterErrorState<S, E>(currentState.viewState))
             }
         }
 
@@ -103,7 +103,7 @@ abstract class RedisErrorViewModel(
             get() = false
 
         override fun isReducerApplicable(currentState: State, intent: IntentMessage): Boolean {
-            return currentState is ErrorState && intent is ReloadAfterErrorIntent
+            return currentState is ErrorState<*, *> && intent is ReloadAfterErrorIntent
         }
     }
 

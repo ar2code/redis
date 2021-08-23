@@ -600,7 +600,7 @@ open class RedisCoroutineStateService(
             block()
             null
         } catch (e: Exception) {
-            logger.info("[$objectLogName] runActionCatching exception=$e")
+            logger.info("[$objectLogName] runActionCatching exception=$e, stackTrace=${e.stackTraceToString()}")
             if (emitErrorAsState) {
                 State.ErrorOccurred(
                     getServiceNameForErrorState(),
@@ -621,7 +621,7 @@ open class RedisCoroutineStateService(
         return try {
             stateRestore.restoreState(savedStateStore)
         } catch (e: Exception) {
-            logger.info("[$objectLogName] runRestoreCatching exception=$e")
+            logger.info("[$objectLogName] runRestoreCatching exception=$e, stackTrace=${e.stackTraceToString()}")
             if (emitErrorAsState) {
                 RestoredStateIntent(
                     State.ErrorOccurred(
@@ -643,7 +643,7 @@ open class RedisCoroutineStateService(
         intentMessage: IntentMessage?
     ) {
         if (emitErrorAsState) {
-            logger.info("[$objectLogName] runFlowCatching throwable=$throwable")
+            logger.info("[$objectLogName] runFlowCatching throwable=$throwable, stackTrace=${throwable.stackTraceToString()}")
             flowCollector.emit(
                 State.ErrorOccurred(
                     getServiceNameForErrorState(),

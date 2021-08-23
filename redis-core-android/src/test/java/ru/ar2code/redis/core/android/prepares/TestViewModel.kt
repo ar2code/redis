@@ -24,7 +24,7 @@ import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger
 
 
-class TestViewModel : RedisViewModel(
+class TestViewModel : RedisViewModel<TestViewModelState, TestViewModelEvent>(
     null,
     initialState = ViewModelInitiatedState(),
     reducers = defaultReducers,

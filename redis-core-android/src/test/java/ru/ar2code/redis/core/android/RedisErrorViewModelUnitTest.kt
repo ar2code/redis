@@ -212,7 +212,8 @@ class RedisErrorViewModelUnitTest {
             RedisErrorViewModel.ErrorState::class
         )
 
-        val currentUiState = viewModel.state.cast<RedisErrorViewModel.ErrorState>().viewState
+        val currentUiState =
+            viewModel.state.cast<RedisErrorViewModel.ErrorState<TestViewModelState, TestViewModelEvent>>().viewState
 
         viewModel.tryAgainAfterError()
 
@@ -221,7 +222,8 @@ class RedisErrorViewModelUnitTest {
             RedisErrorViewModel.ReloadingAfterErrorState::class
         )
 
-        val reloadingState = viewModel.state.cast<RedisErrorViewModel.ReloadingAfterErrorState>()
+        val reloadingState =
+            viewModel.state.cast<RedisErrorViewModel.ReloadingAfterErrorState<TestViewModelState, TestViewModelEvent>>()
 
         assertThat(reloadingState.viewState).isEqualTo(currentUiState)
     }

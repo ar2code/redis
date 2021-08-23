@@ -11,7 +11,7 @@ import ru.ar2code.redis.core.coroutines.StateReducer
 import ru.ar2code.redis.core.test.TestLogger
 
 class TestRedisErrorViewModelWithException(reducers: List<StateReducer<*, *>>) :
-    RedisErrorViewModel(
+    RedisErrorViewModel<TestViewModelState, TestViewModelEvent>(
         null,
         initialState = ViewModelInitiatedState(),
         reducers = reducers,
@@ -85,7 +85,13 @@ class TestRedisErrorViewModelWithException(reducers: List<StateReducer<*, *>>) :
             intent: OnViewModelErrorIntent
         ): Flow<State> {
             return flow {
-                emit(ErrorState(TestViewModelState(Changeable(currentState))))
+                emit(
+                    ErrorState<TestViewModelState, TestViewModelEvent>(
+                        TestViewModelState(
+                            Changeable(currentState)
+                        )
+                    )
+                )
             }
         }
 
@@ -134,7 +140,7 @@ class TestRedisErrorViewModelWithException(reducers: List<StateReducer<*, *>>) :
             intent: OnListeningServiceErrorIntent
         ): Flow<State> {
             return flow {
-                emit((ErrorState(null)))
+                emit((ErrorState<TestViewModelState, TestViewModelEvent>(null)))
             }
         }
 

@@ -17,4 +17,15 @@
 
 package ru.ar2code.redis.core.android
 
-interface RedisViewState
+/**
+ * State class for [RedisViewModel].
+ * This State consists of UI model, and UI event.
+ */
+abstract class ViewModelErrorStateWithEvent<S, E>(
+    override val viewState: S?,
+    override val viewEvent: E?
+) : ViewModelStateWithEvent<S, E>(
+    viewState,
+    viewEvent
+) where S : RedisErrorViewState, E : RedisViewEvent
+

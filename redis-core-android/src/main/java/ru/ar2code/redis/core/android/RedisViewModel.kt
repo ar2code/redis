@@ -41,9 +41,9 @@ import ru.ar2code.utils.Logger
  *
  * You can read more about LiveEvent here https://github.com/ar2code/MutableLiveEvent
  */
-abstract class RedisViewModel(
+abstract class RedisViewModel<S, E>(
     protected val savedState: SavedStateHandle?,
-    protected val initialState: ViewModelStateWithEvent,
+    protected val initialState: ViewModelStateWithEvent<S, E>,
     protected val reducers: List<StateReducer<*, *>>,
     protected val triggers: List<StateTrigger<*, *>>? = null,
     protected val reducerSelector: ReducerSelector = DefaultReducerSelector(),
@@ -53,7 +53,8 @@ abstract class RedisViewModel(
     protected val savedStateHandler: SavedStateHandler? = null,
     protected val logger: Logger = RedisCoreAndroidLogger(),
 ) :
-    ViewModel(), RedisDispatcher, LoggableObject, RedisListener {
+    ViewModel(), RedisDispatcher, LoggableObject,
+    RedisListener where S : RedisViewState, E : RedisViewEvent {
 
     internal open val viewModelService by lazy {
         RedisCoroutineStateService(
@@ -79,20 +80,20 @@ abstract class RedisViewModel(
      */
     protected open val emitExceptionAsErrorState = false
 
-    private val viewStateLiveMutable = MutableLiveData<RedisViewState?>()
+    private val viewStateLiveMutable = MutableLiveData<S?>()
 
     /**
      * View state. Ui should bind and render this data.
      */
-    val viewStateLive: LiveData<RedisViewState?> = viewStateLiveMutable
+    val viewStateLive: LiveData<S?> = viewStateLiveMutable
 
-    private val viewEventLiveMutable = MutableLiveEvent<EventArgs<RedisViewEvent>>()
+    private val viewEventLiveMutable = MutableLiveEvent<EventArgs<E>>()
 
     /**
      * Event that can be sent to all currently active observers.
      * Use it if you need to do some action only one time and don`t keep event as a state like show toast etc.
      */
-    val viewEventLive: LiveData<EventArgs<RedisViewEvent>> = viewEventLiveMutable
+    val viewEventLive: LiveData<EventArgs<E>> = viewEventLiveMutable
 
     /**
      * Current state of the view model
@@ -101,12 +102,12 @@ abstract class RedisViewModel(
         get() = viewModelService.serviceState
 
     private val stateLiveMutable =
-        MutableLiveData<ViewModelStateWithEvent>()
+        MutableLiveData<ViewModelStateWithEvent<S, E>>()
 
     /**
      * Current state [state] of the view model as liveData
      */
-    val stateLive: LiveData<ViewModelStateWithEvent> =
+    val stateLive: LiveData<ViewModelStateWithEvent<S, E>> =
         stateLiveMutable
 
     init {
@@ -147,7 +148,7 @@ abstract class RedisViewModel(
     /**
      * Set result from IntentMessage if reducer return [ViewModelStateWithEvent] state
      */
-    protected open fun postResult(newState: ViewModelStateWithEvent) {
+    protected open fun postResult(newState: ViewModelStateWithEvent<S, E>) {
         logger.info("[$objectLogName] is post result to ${newState.objectLogName}")
 
         stateLiveMutable.postValue(newState)
@@ -168,7 +169,7 @@ abstract class RedisViewModel(
         viewModelService.subscribe(object : ServiceSubscriber {
             override suspend fun onReceive(newState: State) {
 
-                val viewModelState = newState.castOrNull<ViewModelStateWithEvent>()
+                val viewModelState = newState.castOrNull<ViewModelStateWithEvent<S, E>>()
 
                 viewModelState?.let {
                     postResult(viewModelState)
