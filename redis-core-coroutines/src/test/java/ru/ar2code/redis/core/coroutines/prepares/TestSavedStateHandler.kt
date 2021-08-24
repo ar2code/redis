@@ -20,7 +20,8 @@ package ru.ar2code.redis.core.coroutines.prepares
 import ru.ar2code.redis.core.*
 import ru.ar2code.redis.core.test.TestLogger
 
-class TestSavedStateHandler : SavedStateHandler {
+class TestSavedStateHandler(private val dispatchIntentTypeFlowOnRestore: Boolean = true) :
+    SavedStateHandler {
 
     companion object {
         const val STATE_KEY = "TEST_STATE_KEY"
@@ -40,10 +41,15 @@ class TestSavedStateHandler : SavedStateHandler {
             get() = false
     }
 
-    class TestStateRestore : StateRestore("StateB", TestLogger()) {
+    class TestStateRestore(private val dispatchIntentTypeFlowOnRestore: Boolean) :
+        StateRestore("StateB", TestLogger()) {
         override suspend fun restoreState(store: SavedStateStore?): RestoredStateIntent? {
             val data = store?.get<Int>(STATE_DATA_KEY) ?: return null
-            return RestoredStateIntent(StateB(data), IntentTypeFlow())
+            return if (dispatchIntentTypeFlowOnRestore) {
+                RestoredStateIntent(StateB(data), IntentTypeFlow())
+            } else {
+                RestoredStateIntent(StateB(data), null)
+            }
         }
     }
 
@@ -51,7 +57,7 @@ class TestSavedStateHandler : SavedStateHandler {
         get() = listOf(TestStateStore())
 
     override val stateRestores: List<StateRestore>
-        get() = listOf(TestStateRestore())
+        get() = listOf(TestStateRestore(dispatchIntentTypeFlowOnRestore))
 
     override val stateStoreKeyName: String
         get() = STATE_KEY

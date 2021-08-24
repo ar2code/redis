@@ -56,7 +56,6 @@ class SavedRedisStateServiceTests {
     }
 
     @Test
-    //todo check test
     fun `Service restores state if state handler contains data`() = runBlocking {
 
         val savedId = 123
@@ -78,29 +77,14 @@ class SavedRedisStateServiceTests {
             this,
             Dispatchers.Default,
             stateHandler,
-            TestSavedStateHandler()
+            TestSavedStateHandler(dispatchIntentTypeFlowOnRestore = false)
         )
 
-        var isGotInitResult = false
-        var isGotPreviousServiceResult = false
+        serviceWithRestoring.awaitStateWithTimeout(Constants.awaitStateTimeout, StateB::class)
 
-        val subscriber = object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
-                if (newState is State.Initiated) {
-                    isGotInitResult = true
-                }
-                if (newState is StateB) {
-                    isGotPreviousServiceResult = newState.data == savedId
-                }
-            }
-        }
+        val serviceState = serviceWithRestoring.serviceState.cast<StateB>()
 
-        serviceWithRestoring.subscribe(subscriber)
-
-        serviceWithRestoring.awaitStateWithTimeout(Constants.awaitStateTimeout, FlowStateD::class)
-
-        Truth.assertThat(isGotInitResult).isFalse()
-        Truth.assertThat(isGotPreviousServiceResult).isTrue()
+        Truth.assertThat(serviceState.data).isEqualTo(savedId)
 
         service.dispose()
         serviceWithRestoring.dispose()
@@ -131,21 +115,9 @@ class SavedRedisStateServiceTests {
             TestSavedStateHandler()
         )
 
-        var isGotFlowStateAfterRestoring = false
-
-        val subscriber = object : ServiceSubscriber {
-            override suspend fun onReceive(newState: State) {
-                if (newState is FlowStateD) {
-                    isGotFlowStateAfterRestoring = true
-                }
-            }
-        }
-
-        serviceWithRestoring.subscribe(subscriber)
-
         serviceWithRestoring.awaitStateWithTimeout(Constants.awaitStateTimeout, FlowStateD::class)
 
-        Truth.assertThat(isGotFlowStateAfterRestoring).isTrue()
+        Truth.assertThat(serviceWithRestoring.serviceState).isInstanceOf(FlowStateD::class.java)
 
         service.dispose()
         serviceWithRestoring.dispose()
