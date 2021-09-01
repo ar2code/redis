@@ -17,6 +17,4 @@
 
 package ru.ar2code.redis.core.android
 
-interface RedisViewEvent {
-    fun clone(): RedisViewEvent
-}
+interface RedisViewEvent

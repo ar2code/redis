@@ -9,6 +9,13 @@ interface RedisErrorViewState : RedisViewState {
         return error.shouldBeRendered(currentUiState?.error)
     }
 
+    /**
+     * @return RedisErrorViewState with [RedisErrorViewState.error] that contains [serviceError] as data and upper version from current [RedisErrorViewState.error] changeable.
+     */
     fun updateErrorVersion(serviceError: State.ErrorOccurred): RedisErrorViewState
 
+    /**
+     * @return RedisErrorViewState without error. [RedisErrorViewState.error] data should be null.
+     */
+    fun clearError(): RedisErrorViewState
 }

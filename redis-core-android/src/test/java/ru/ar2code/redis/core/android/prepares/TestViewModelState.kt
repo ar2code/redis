@@ -34,6 +34,10 @@ class TestViewModelState(override val error: Changeable<State.ErrorOccurred>) :
         return TestViewModelState(Changeable(error.data, error.generateUpperVersion()))
     }
 
+    override fun clearError(): RedisErrorViewState {
+        return TestViewModelState(Changeable(null, error.generateUpperVersion()))
+    }
+
     override fun equals(other: Any?): Boolean {
         return error.data == other.castOrNull<TestViewModelState>()?.error?.data
     }

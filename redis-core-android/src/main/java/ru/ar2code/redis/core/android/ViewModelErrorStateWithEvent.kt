@@ -22,7 +22,9 @@ package ru.ar2code.redis.core.android
  * This State consists of UI model, and UI event.
  */
 abstract class ViewModelErrorStateWithEvent<S, E>(
+    @Transient
     override val viewState: S?,
+    @Transient
     override val viewEvent: E?
 ) : ViewModelStateWithEvent<S, E>(
     viewState,
