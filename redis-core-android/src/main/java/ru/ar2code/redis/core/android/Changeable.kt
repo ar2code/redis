@@ -17,8 +17,6 @@
 
 package ru.ar2code.redis.core.android
 
-import androidx.annotation.VisibleForTesting
-
 /**
  * Data class that contains some data with flag that indicates is data was changed or not.
  */
@@ -33,7 +31,6 @@ data class Changeable<T>(
 ) where T : Any {
 
     companion object {
-        @VisibleForTesting
         const val INIT_VERSION = 1
     }
 
@@ -48,6 +45,14 @@ data class Changeable<T>(
 }
 
 //todo test ext
+
+fun <T> Changeable<T>?.updateDataWithUpperVersion(data: T?): Changeable<T> where T : Any {
+    return Changeable(data, getUpperVersion())
+}
+
+fun <T> Changeable<T>?.updateDataWithSameVersion(data: T?): Changeable<T> where T : Any {
+    return Changeable(data, getCurrentOrInitVersion())
+}
 
 fun <T> Changeable<T>?.getUpperVersion(): Int where T : Any {
     return this?.generateUpperVersion() ?: Changeable.INIT_VERSION
