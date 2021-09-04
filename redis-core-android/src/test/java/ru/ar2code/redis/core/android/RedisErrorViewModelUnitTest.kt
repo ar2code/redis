@@ -115,7 +115,7 @@ class RedisErrorViewModelUnitTest {
 
             assertThat(error.throwable).isInstanceOf(TestRedisErrorViewModelWithException.TestRedisViewModelThrowable::class.java)
             assertThat(error.intent).isInstanceOf(IntentUiTypeB::class.java)
-            assertThat(error.currentState).isInstanceOf(ViewModelInitiatedState::class.java)
+            assertThat(error.stateBeforeError).isInstanceOf(ViewModelInitiatedState::class.java)
         }
 
     @Test
@@ -184,7 +184,7 @@ class RedisErrorViewModelUnitTest {
 
             assertThat(error.throwable).isInstanceOf(TestServiceWithException.SomeError::class.java)
             assertThat(error.intent).isInstanceOf(TestServiceWithException.SomeIntent::class.java)
-            assertThat(error.currentState).isInstanceOf(State.Initiated::class.java)
+            assertThat(error.stateBeforeError).isInstanceOf(State.Initiated::class.java)
 
             viewModel.stopListening(listener)
             listeningService.dispose()

@@ -180,6 +180,10 @@ open class RedisCoroutineStateService(
         }
     }
 
+    fun isErrorBelongsService(error: State.ErrorOccurred?): Boolean {
+        return error?.where == getServiceWhereNameForErrorState()
+    }
+
     private suspend fun sendIntentMessage(msg: IntentMessage, awaitInitialization: Boolean = true) {
         try {
             logger.info("[$objectLogName] is going to dispatch intent ${msg.objectLogName}")
@@ -589,8 +593,8 @@ open class RedisCoroutineStateService(
 
     private var lastRestoredStateIntent: RestoredStateIntent? = null
 
-    private fun getServiceNameForErrorState() =
-        this.serviceLogName ?: this::class.simpleName ?: "unknown service name"
+    private fun getServiceWhereNameForErrorState() =
+        this.serviceLogName ?: "${this::class.simpleName}:${this.hashCode()}"
 
     private suspend fun runActionCatching(
         intentMessage: IntentMessage?,
@@ -603,7 +607,7 @@ open class RedisCoroutineStateService(
             logger.info("[$objectLogName] runActionCatching exception=$e, stackTrace=${e.stackTraceToString()}")
             if (emitErrorAsState) {
                 State.ErrorOccurred(
-                    getServiceNameForErrorState(),
+                    getServiceWhereNameForErrorState(),
                     e,
                     serviceStateInternal.clone(),
                     intentMessage
@@ -625,7 +629,7 @@ open class RedisCoroutineStateService(
             if (emitErrorAsState) {
                 RestoredStateIntent(
                     State.ErrorOccurred(
-                        getServiceNameForErrorState(),
+                        getServiceWhereNameForErrorState(),
                         e,
                         serviceStateInternal.clone(),
                         intentMessage
@@ -646,7 +650,7 @@ open class RedisCoroutineStateService(
             logger.info("[$objectLogName] runFlowCatching throwable=$throwable, stackTrace=${throwable.stackTraceToString()}")
             flowCollector.emit(
                 State.ErrorOccurred(
-                    getServiceNameForErrorState(),
+                    getServiceWhereNameForErrorState(),
                     throwable,
                     serviceStateInternal.clone(),
                     intentMessage
