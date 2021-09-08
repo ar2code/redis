@@ -38,13 +38,13 @@ data class Changeable<T>(
         return version + 1
     }
 
-    //todo test
+    /**
+     * @return true if data is not null and current [version] is not equal to [previous] version.
+     */
     fun shouldBeRendered(previous: Changeable<T>?): Boolean {
         return data != null && version != previous?.version
     }
 }
-
-//todo test ext
 
 fun <T> Changeable<T>?.updateDataWithUpperVersion(data: T?): Changeable<T> where T : Any {
     return Changeable(data, getUpperVersion())
