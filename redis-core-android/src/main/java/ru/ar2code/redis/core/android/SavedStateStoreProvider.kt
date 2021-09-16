@@ -12,7 +12,7 @@ import ru.ar2code.utils.Logger
  * All your services can use this provider to get access to a common SavedStateStore object.
  *
  * This provider can copy string values to/from android Bundle.
- * You can use activity's savedInstanceState bundle to keep stored data pn a process death purposes.
+ * You can use activity's savedInstanceState bundle to keep stored data in a process death purposes.
  *
  * The prefix [keysPrefix] is used to distinguish between application keys.
  * ScopeStateProvider only stores String values.
