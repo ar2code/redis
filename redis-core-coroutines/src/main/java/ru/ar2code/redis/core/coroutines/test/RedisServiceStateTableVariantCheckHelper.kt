@@ -14,15 +14,15 @@ import kotlin.reflect.KClass
 
 /**
  * Helper class for testing variant from state machine table.
- * Variant means: given initial state then dispatch an intent then receive a new state or keep previous state.
+ * Variant means: given initial state then dispatch an intent then receive a new state or keep previous state (means reducer returned null).
  *
- * @param service - service to be tested
- * @param initialStateIntents - list of intents that should be dispatched to the service for move it state to needed initial state.
- * @param initialState - start state for testing variant
- * @param initialIntentDispatchDelayMs - delay before first init intent dispatched
- * @param checkStateIntent - intent that should be checked as state table variant
- * @param timeoutMs - time for awaiting expected state after dispatching [checkStateIntent]
- * @param expectState - state that service should receive after dispatching [checkStateIntent]. If null - service should keep previous state.
+ * @param service - service to be tested.
+ * @param initialStateIntents - list of intents that should be dispatched to the service for moving state to needed initial state.
+ * @param initialState - start state for testing variant. Checker will awaits initial state before start checking variant. Can throw timeout error.
+ * @param initialIntentDispatchDelayMs - delay before first init intent dispatched.
+ * @param checkStateIntent - checked intent that will be dispatched after getting [initialState].
+ * @param timeoutMs - time for awaiting initial state and expected state after dispatching [checkStateIntent].
+ * @param expectState - state that service should receive after dispatching [checkStateIntent]. If null - service should keep previous state (means reducer returned null).
  * @param logger - log object.
  */
 open class RedisServiceStateTableVariantCheckHelper(
@@ -162,13 +162,6 @@ open class RedisServiceStateTableVariantCheckHelper(
         logger.info("$LOG_KEY dispatchInitialIntents finished")
     }
 
-    private fun dispatchIntent(intentToDispatch: IntentMessage?) {
-        intentToDispatch?.let {
-            logger.info("$LOG_KEY dispatched initial intent: $it")
-            service.dispatch(it)
-        }
-    }
-
     internal fun getNextInitialIntent(lastDispatchedIntent: IntentMessage?): IntentMessage? {
 
         val intentToDispatch = if (lastDispatchedIntent == null) {
@@ -186,5 +179,12 @@ open class RedisServiceStateTableVariantCheckHelper(
         }
 
         return intentToDispatch
+    }
+
+    private fun dispatchIntent(intentToDispatch: IntentMessage?) {
+        intentToDispatch?.let {
+            logger.info("$LOG_KEY dispatched initial intent: $it")
+            service.dispatch(it)
+        }
     }
 }
