@@ -1,10 +1,12 @@
 package ru.ar2code.redis.core.coroutines.test
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import ru.ar2code.redis.core.IntentMessage
 import ru.ar2code.redis.core.State
 import ru.ar2code.redis.core.coroutines.AwaitStateTimeoutException
 import ru.ar2code.redis.core.coroutines.RedisCoroutineStateService
+import ru.ar2code.redis.core.coroutines.ServiceIntentDispatcherListener
 import ru.ar2code.redis.core.coroutines.awaitStateWithTimeout
 import ru.ar2code.redis.core.test.TestLogger
 import ru.ar2code.utils.Logger
@@ -17,7 +19,7 @@ import kotlin.reflect.KClass
  * @param service - service to be tested
  * @param initialStateIntents - list of intents that should be dispatched to the service for move it state to needed initial state.
  * @param initialState - start state for testing variant
- * @param initialIntentDispatchDelayMs - delay before each init intent dispatch
+ * @param initialIntentDispatchDelayMs - delay before first init intent dispatched
  * @param checkStateIntent - intent that should be checked as state table variant
  * @param timeoutMs - time for awaiting expected state after dispatching [checkStateIntent]
  * @param expectState - state that service should receive after dispatching [checkStateIntent]. If null - service should keep previous state.
@@ -36,12 +38,13 @@ open class RedisServiceStateTableVariantCheckHelper(
 
     companion object {
         private const val LOG_KEY = "[TestRedisServiceStateTableVariant]"
+        private const val AWAIT_DELAY_MS = 1L
     }
 
     suspend fun checkVariant(): Boolean {
-        goToInitialState()
+        awaitInitialStateAfterDispatchingInitialIntents()
 
-        val result = checkMachine()
+        val result = checkState()
 
         disposeService()
 
@@ -52,50 +55,136 @@ open class RedisServiceStateTableVariantCheckHelper(
         service.dispose()
     }
 
-    private suspend fun checkMachine(): Boolean {
+    private suspend fun checkState(): Boolean {
 
-        val currentState = service.serviceState
+        var reducerReturnsNullForCheckingIntent = false
+
+        service.serviceIntentDispatcherListener = object : ServiceIntentDispatcherListener {
+            override suspend fun reducerNotFoundForIntent(intent: IntentMessage) {
+                if (intent == checkStateIntent) {
+                    reducerReturnsNullForCheckingIntent = true
+                }
+            }
+        }
 
         service.dispatch(checkStateIntent)
 
-        /*
-        Expect state as an instance of [expectState] or currentState if parameter expectState is null.
-        ExpectState is null means keep previous state.
-         */
-        val expectedState = expectState ?: currentState::class
+        expectState?.let { expectedState ->
 
-        return try {
+            return try {
 
-            logger.info("$LOG_KEY check machine: await state class=${expectedState}")
+                logger.info("$LOG_KEY check machine: awaiting state class $expectedState")
 
-            val state = service.awaitStateWithTimeout(
-                timeoutMs,
-                expectedState
-            )
+                val state = service.awaitStateWithTimeout(
+                    timeoutMs,
+                    expectedState
+                )
 
-            logger.info("$LOG_KEY received state=${state.objectLogName}")
+                logger.info("$LOG_KEY received state ${state.objectLogName}")
 
-            expectedState.isInstance(state)
+                expectedState.isInstance(state)
 
-        } catch (e: AwaitStateTimeoutException) {
-            logger.info("$LOG_KEY current state=${service.serviceState.objectLogName}. Check variant timeout error: ${e.message}.")
-            false
+            } catch (e: AwaitStateTimeoutException) {
+                logger.info("$LOG_KEY current state=${service.serviceStateInternal.objectLogName}. Check variant timeout error: ${e.message}.")
+                false
+            }
+        } ?: kotlin.run {
+            return try {
+                logger.info("$LOG_KEY check machine: awaiting null from reducer.")
+
+                val awaitReducerReturnsNull = withTimeoutOrNull(timeoutMs) {
+                    while (!reducerReturnsNullForCheckingIntent) {
+                        delay(AWAIT_DELAY_MS)
+                    }
+                    true
+                } ?: throw AwaitStateTimeoutException()
+
+                awaitReducerReturnsNull
+            } catch (e: AwaitStateTimeoutException) {
+                logger.info("$LOG_KEY reducer returning null timeout error. Needed reducer was not executed or returned not nullable flow.")
+                false
+            }
+
         }
     }
 
-    private suspend fun goToInitialState() {
-        initialStateIntents?.forEach {
-            logger.info("$LOG_KEY dispatch intent=${it.objectLogName}")
-            service.dispatch(it)
-            delay(initialIntentDispatchDelayMs)
+    private suspend fun awaitInitialStateAfterDispatchingInitialIntents() {
+
+        withTimeoutOrNull(timeoutMs) {
+            dispatchInitialIntents()
         }
+            ?: throw AwaitStateTimeoutException("Timeout while dispatching initial intents. Seems that something is wrong inside the check helper class.")
 
         try {
-            val state = service.awaitStateWithTimeout(timeoutMs, initialState)
-            logger.info("$LOG_KEY goToInitialState: currentState=${service.serviceState.objectLogName}")
+            logger.info("$LOG_KEY awaiting initial state is started")
+
+            service.awaitStateWithTimeout(timeoutMs, initialState)
+
+            logger.info("$LOG_KEY awaiting initial state is OK: currentState=${service.serviceState.objectLogName}")
         } catch (e: AwaitStateTimeoutException) {
-            throw AwaitStateTimeoutException("$LOG_KEY current state=${service.serviceState.objectLogName}. Initial state error: ${e.message}.")
+            throw AwaitStateTimeoutException("$LOG_KEY awaiting initial state is ERROR: current state=${service.serviceState.objectLogName}. Msg: ${e.message}.")
         }
     }
 
+    internal suspend fun dispatchInitialIntents() {
+        logger.info("$LOG_KEY dispatchInitialIntents started")
+
+        delay(initialIntentDispatchDelayMs)
+
+        var currentIntentHandled = false
+        var currentIntent: IntentMessage? = null
+
+        service.serviceIntentDispatcherListener = object : ServiceIntentDispatcherListener {
+            override suspend fun onIntentDispatched(intent: IntentMessage) {
+                if (intent == currentIntent) {
+                    currentIntentHandled = true
+                }
+                logger.info("$LOG_KEY:dispatchInitialIntents: onIntentDispatched $intent. currentIntent=$currentIntent, currentIntentHandled=$currentIntentHandled")
+            }
+        }
+
+        currentIntent = getNextInitialIntent(currentIntent)
+
+        dispatchIntent(currentIntent)
+
+        while (currentIntent != null) {
+            //await intent handled
+            while (!currentIntentHandled) {
+                logger.info("$LOG_KEY awaiting current intent handling: currentIntent=$currentIntent")
+                delay(AWAIT_DELAY_MS)
+            }
+            //dispatch next intent
+            currentIntentHandled = false
+            currentIntent = getNextInitialIntent(currentIntent)
+            dispatchIntent(currentIntent)
+        }
+
+        logger.info("$LOG_KEY dispatchInitialIntents finished")
+    }
+
+    private fun dispatchIntent(intentToDispatch: IntentMessage?) {
+        intentToDispatch?.let {
+            logger.info("$LOG_KEY dispatched initial intent: $it")
+            service.dispatch(it)
+        }
+    }
+
+    internal fun getNextInitialIntent(lastDispatchedIntent: IntentMessage?): IntentMessage? {
+
+        val intentToDispatch = if (lastDispatchedIntent == null) {
+            initialStateIntents?.firstOrNull()
+        } else {
+            val lastIndex = initialStateIntents?.indexOf(lastDispatchedIntent) ?: -1
+
+            val initialStateIntentsSize = initialStateIntents?.size ?: 0
+
+            if (lastIndex >= 0 && lastIndex < initialStateIntentsSize - 1) {
+                initialStateIntents?.get(lastIndex + 1)
+            } else {
+                null
+            }
+        }
+
+        return intentToDispatch
+    }
 }

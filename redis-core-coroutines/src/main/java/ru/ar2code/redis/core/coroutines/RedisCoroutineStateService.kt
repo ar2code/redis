@@ -76,7 +76,11 @@ open class RedisCoroutineStateService(
      */
     internal var serviceIntentDispatcherListener: ServiceIntentDispatcherListener? = null
 
-    private var serviceStateInternal: State = State.Created()
+    /**
+     * Service state internal. Only for testing purposes.
+     */
+    internal var serviceStateInternal: State = State.Created()
+        private set
 
     override var serviceState: State
         get() {
@@ -536,6 +540,7 @@ open class RedisCoroutineStateService(
                                 broadcastNewState(it)
                             }
                     } ?: kotlin.run {
+                        serviceIntentDispatcherListener?.reducerNotFoundForIntent(msg)
                         logger.info("[$objectLogName] reducer returned null.")
                     }
                 } catch (e: ClosedReceiveChannelException) {
