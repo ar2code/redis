@@ -126,7 +126,7 @@ open class RedisServiceStateTableVariantCheckHelper(
         }
     }
 
-    internal suspend fun dispatchInitialIntents() {
+    private suspend fun dispatchInitialIntents() {
         logger.info("$LOG_KEY dispatchInitialIntents started")
 
         delay(initialIntentDispatchDelayMs)
@@ -162,7 +162,7 @@ open class RedisServiceStateTableVariantCheckHelper(
         logger.info("$LOG_KEY dispatchInitialIntents finished")
     }
 
-    internal fun getNextInitialIntent(lastDispatchedIntent: IntentMessage?): IntentMessage? {
+    private fun getNextInitialIntent(lastDispatchedIntent: IntentMessage?): IntentMessage? {
 
         val intentToDispatch = if (lastDispatchedIntent == null) {
             initialStateIntents?.firstOrNull()
