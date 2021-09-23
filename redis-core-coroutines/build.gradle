@@ -19,11 +19,12 @@ apply plugin: 'kotlin'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1'
     implementation project(path: ':redis-core-test')
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1'
-    testImplementation 'junit:junit:4.12'
-    testImplementation "com.google.truth:truth:1.0.1"
     implementation project(path: ':redis-core')
     implementation project(path: ':redis-utils')
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.ext.coroutinesTestVersion}"
+    testImplementation "junit:junit:${rootProject.ext.junitVersion}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${rootProject.ext.coroutinesTestVersion}"
+    testImplementation "com.google.truth:truth:${rootProject.ext.truthVersion}"
 }

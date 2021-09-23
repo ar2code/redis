@@ -19,9 +19,10 @@ apply plugin: 'kotlin'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1'
     implementation project(path: ':redis-utils')
     implementation project(path: ':redis-core')
     implementation project(path: ':redis-core-coroutines')
     implementation project(path: ':redis-clean-arch-coroutines')
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.ext.coroutinesTestVersion}"
 }
