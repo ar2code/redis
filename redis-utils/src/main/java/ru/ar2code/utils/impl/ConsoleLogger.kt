@@ -30,19 +30,40 @@ open class ConsoleLogger(tag: String) : Logger(tag) {
         level = Level.ALL
     } ?: null
 
-    override fun info(msg: String, level: String, where: LoggableObject?) {
-        javaLogger?.log(Level.INFO, buildMessage(msg, level, where))
+    override fun info(msg: String, level: String, where: LoggableObject?, labels: List<String>?) {
+        javaLogger?.log(Level.INFO, buildMessage(msg, level, where, labels))
     }
 
-    override fun error(msg: String, t: Throwable, level: String, where: LoggableObject?) {
-        javaLogger?.log(Level.SEVERE, buildMessage(msg, level, where), t)
+    override fun error(
+        msg: String,
+        t: Throwable,
+        level: String,
+        where: LoggableObject?,
+        labels: List<String>?
+    ) {
+        javaLogger?.log(Level.SEVERE, buildMessage(msg, level, where, labels), t)
     }
 
-    override fun warning(msg: String, level: String, where: LoggableObject?) {
-        javaLogger?.log(Level.WARNING, buildMessage(msg, level, where))
+    override fun warning(
+        msg: String,
+        level: String,
+        where: LoggableObject?,
+        labels: List<String>?
+    ) {
+        javaLogger?.log(Level.WARNING, buildMessage(msg, level, where, labels))
     }
 
-    private fun buildMessage(msg: String, level: String, where: LoggableObject?): String {
-        return "[$level]/$where: $msg"
+    private fun buildMessage(
+        msg: String,
+        level: String,
+        where: LoggableObject?,
+        labels: List<String>?
+    ): String {
+        val tags = labels?.joinToString()
+        return if (tags.isNullOrEmpty()) {
+            "[$level]/$where: $msg"
+        } else {
+            "[$level][$tags]/$where: $msg"
+        }
     }
 }

@@ -24,15 +24,26 @@ import ru.ar2code.utils.Logger
  * Test logger that uses [println] method for logging
  */
 class TestLogger : Logger("TestLogger") {
-    override fun info(msg: String, level: String, where: LoggableObject?) {
+    override fun info(msg: String, level: String, where: LoggableObject?, labels: List<String>?) {
         println(msg)
     }
 
-    override fun error(msg: String, t: Throwable, level: String, where: LoggableObject?) {
+    override fun error(
+        msg: String,
+        t: Throwable,
+        level: String,
+        where: LoggableObject?,
+        labels: List<String>?
+    ) {
         println(msg)
     }
 
-    override fun warning(msg: String, level: String, where: LoggableObject?) {
+    override fun warning(
+        msg: String,
+        level: String,
+        where: LoggableObject?,
+        labels: List<String>?
+    ) {
         println(msg)
     }
 }

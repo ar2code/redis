@@ -148,10 +148,14 @@ open class RedisCoroutineStateService(
                     sendIntentMessage(intent)
 
                 } catch (e: IntentNotFoundException) {
-                    throw IntentNotFoundException(
-                        "[$objectLogName] Can not find IntentMessage for listened service ${serviceStateListener.listeningService.objectLogName} for state: ${newState.objectLogName}",
-                        e
-                    )
+                    val msg =
+                        "[$objectLogName] Can not find IntentMessage for listened service ${serviceStateListener.listeningService.objectLogName} for state: ${newState.objectLogName}"
+
+                    if (newState !is State.Disposed) {
+                        throw IntentNotFoundException(msg, e)
+                    } else {
+                        logger.info(msg)
+                    }
                 }
             }
         }
