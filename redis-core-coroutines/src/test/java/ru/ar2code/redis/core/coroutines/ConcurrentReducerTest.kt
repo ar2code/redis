@@ -58,9 +58,9 @@ class ConcurrentReducerTest {
                 println("start InitiatedStateOnStartIntentReducer")
 
                 return channelFlow {
-                    val l1 = partialAsync(3, 1500)
+                    val l1 = partialAsync(3, 2500)
                     val l2 = partialAsync(1, 500)
-                    val l3 = partialAsync(2, 1000)
+                    val l3 = partialAsync(2, 1500)
 
                     awaitAll(l1, l2, l3)
 
