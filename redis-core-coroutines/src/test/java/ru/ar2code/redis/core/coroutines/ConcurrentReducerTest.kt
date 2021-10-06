@@ -127,13 +127,13 @@ class ConcurrentReducerTest {
         println("result=$results")
 
         Truth.assertThat(results[0].number).isEqualTo(1)
-        Truth.assertThat(results[0].timeAt).isLessThan(results[1].timeAt)
+        Truth.assertThat(results[0].timeAt).isAtMost(results[1].timeAt)
 
         Truth.assertThat(results[1].number).isEqualTo(2)
-        Truth.assertThat(results[1].timeAt).isLessThan(results[2].timeAt)
+        Truth.assertThat(results[1].timeAt).isAtMost(results[2].timeAt)
 
         Truth.assertThat(results[2].number).isEqualTo(3)
-        Truth.assertThat(results[2].timeAt).isLessThan(results[3].timeAt)
+        Truth.assertThat(results[2].timeAt).isAtMost(results[3].timeAt)
 
         Truth.assertThat(results[3].number).isEqualTo(4)
     }

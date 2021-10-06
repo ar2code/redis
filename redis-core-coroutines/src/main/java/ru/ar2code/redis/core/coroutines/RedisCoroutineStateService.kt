@@ -252,6 +252,11 @@ open class RedisCoroutineStateService(
             }
         }
 
+        if (isDisposing.getAndSet(true)) {
+            logger.info("[$objectLogName] is already disposed.")
+            return
+        }
+
         isDisposing.set(true)
 
         logger.info("[$objectLogName] is going to be disposed.")
